@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+*.bak
+.env
+.streamlit/secrets.toml
+secrets.toml
+data/
+projects/
