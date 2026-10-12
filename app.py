@@ -154,14 +154,33 @@ section[data-testid="stMain"] [data-testid="stCaptionContainer"] {
 
 
 
+import shutil
 DATA_DIR = Path(__file__).resolve().parent / "data"
 DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+# ===== DEMO PROJECT INITIALIZATION =====
+DEMO_SOURCE = (
+    Path(__file__).resolve().parent
+    / "demo_data"
+    / "87437a415e4d"
+)
+
+DEMO_TARGET = (
+    DATA_DIR
+    / "projects"
+    / "87437a415e4d"
+)
+
+if DEMO_SOURCE.exists():
+    if not DEMO_TARGET.exists():
+        shutil.copytree(DEMO_SOURCE, DEMO_TARGET)
+# ===== END DEMO PROJECT INITIALIZATION =====
 
 # ===== STEP 21-3: PROJECT SELECTOR =====
 
 PROJECTS_DIR = DATA_DIR / "projects"
 
-project_options = {"기존 시장 분석": DATA_DIR}
+project_options = {}
 
 if PROJECTS_DIR.exists():
     for folder in sorted(PROJECTS_DIR.iterdir()):
@@ -183,7 +202,11 @@ if PROJECTS_DIR.exists():
                 display_name = folder.name
 
             # 이름이 같아도 프로젝트를 구분할 수 있도록 ID 표시
-            label = f"{display_name} ({folder.name})"
+            label = (
+                "[예시] Beauty Market Test"
+                if folder.name == "87437a415e4d"
+                else f"{display_name} ({folder.name})"
+            )
 
             project_options[label] = folder
 
@@ -242,6 +265,21 @@ with st.sidebar.expander("+ 새 프로젝트 생성", expanded=False):
             )
 
 
+
+# 시연용 프로젝트를 목록 맨 위에 표시
+project_options = dict(
+    sorted(
+        project_options.items(),
+        key=lambda item: (
+            0 if item[0] == "[예시] Beauty Market Test" else 1,
+            item[0]
+        )
+    )
+)
+
+if not project_options:
+    st.warning("프로젝트가 없습니다. 먼저 프로젝트를 생성해주세요.")
+    st.stop()
 
 selected_project = st.sidebar.selectbox(
     "프로젝트 선택",
