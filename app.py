@@ -172,8 +172,24 @@ DEMO_TARGET = (
 )
 
 if DEMO_SOURCE.exists():
-    if not DEMO_TARGET.exists():
-        shutil.copytree(DEMO_SOURCE, DEMO_TARGET)
+    DEMO_TARGET.mkdir(parents=True, exist_ok=True)
+
+    # 배포된 예시 프로젝트를 최신 데이터와 동기화
+    # 일반 사용자가 생성한 다른 프로젝트는 변경하지 않음
+    for source_file in DEMO_SOURCE.rglob("*"):
+        if source_file.is_file():
+            relative = source_file.relative_to(DEMO_SOURCE)
+            target_file = DEMO_TARGET / relative
+
+            target_file.parent.mkdir(
+                parents=True, exist_ok=True
+            )
+
+            if (
+                not target_file.exists()
+                or source_file.read_bytes() != target_file.read_bytes()
+            ):
+                shutil.copy2(source_file, target_file)
 # ===== END DEMO PROJECT INITIALIZATION =====
 
 # ===== STEP 21-3: PROJECT SELECTOR =====
