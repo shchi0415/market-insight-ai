@@ -1522,7 +1522,21 @@ try:
     input_status = comparison.get("status", "확인 불가")
     strategy_status = version.get("status", "확인 불가")
 
-    if (
+    is_demo_freshness = (
+        CURRENT_DATA_DIR.name == "87437a415e4d"
+    )
+
+    if is_demo_freshness and strategy_status == "기록된 파일과 일치":
+        st.success(
+            "예시 프로젝트 분석 완료 · "
+            "저장된 마케팅 전략 및 PDF 보고서를 열람할 수 있습니다."
+        )
+        st.caption(
+            "실제 Instagram 데이터 기반 분석 결과를 "
+            "익명화하여 제공하는 읽기 전용 시연입니다."
+        )
+
+    elif (
         comparison.get("changed") is False
         and strategy_status == "기록된 파일과 일치"
     ):
@@ -1640,10 +1654,21 @@ if strategy_input_available:
             "기존 전략 파일은 새로운 결과로 갱신됩니다."
         )
 
+    is_demo_project = (
+        CURRENT_DATA_DIR.name == "87437a415e4d"
+    )
+
+    if is_demo_project:
+        st.info(
+            "예시 프로젝트입니다. 이미 생성된 마케팅 전략과 "
+            "PDF 보고서를 아래에서 확인할 수 있습니다."
+        )
+
     if st.button(
         "AI 마케팅 전략 자동 생성",
         key="run_strategy_pipeline",
-        type="primary"
+        type="primary",
+        disabled=is_demo_project
     ):
 
         try:
