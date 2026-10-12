@@ -510,473 +510,525 @@ st.divider()
 
 # NAV_SECTION: data-analysis
 st.header("STEP 01 · Data & AI Analysis")
-st.subheader("01 · CSV 데이터 준비")
-st.caption(
-    "Instagram 게시물과 댓글 CSV를 업로드한 후 "
-    "데이터를 정제하고 현재 프로젝트에 저장합니다."
-)
 
-# 현재 프로젝트에 저장된 데이터 확인
-existing_posts_path = CURRENT_DATA_DIR / "posts_clean.csv"
-existing_comments_path = CURRENT_DATA_DIR / "comments_clean.csv"
-existing_merged_path = CURRENT_DATA_DIR / "merged.csv"
+if CURRENT_DATA_DIR.name == "87437a415e4d":
+    st.subheader("01 · CSV 데이터 준비")
+    st.success("데이터 업로드 완료")
 
-if all(
-    path.exists()
-    for path in [
-        existing_posts_path,
-        existing_comments_path,
-        existing_merged_path
+    demo_files = [
+        ("게시물 데이터", "posts_clean.csv"),
+        ("댓글 데이터", "comments_clean.csv"),
     ]
-):
+
+    for label, filename in demo_files:
+        file_path = CURRENT_DATA_DIR / filename
+
+        if file_path.exists():
+            col1, col2 = st.columns([4, 1])
+
+            with col1:
+                count = len(pd.read_csv(file_path))
+                st.markdown(f"**{label}**")
+                st.caption(f"{filename} · {count:,}개")
+
+            with col2:
+                st.download_button(
+                    "다운로드",
+                    data=file_path.read_bytes(),
+                    file_name=filename,
+                    mime="text/csv",
+                    key=f"demo_csv_{filename}"
+                )
+
     st.caption(
-        "✓ 현재 프로젝트에 데이터가 저장되어 있습니다. "
-        "새 CSV를 업로드하지 않아도 아래 AI 댓글 분석을 실행할 수 있습니다."
+        "실제 수집 데이터의 건수를 보존한 시연용 CSV입니다. "
+        "원본 게시물·댓글 내용은 포함되지 않습니다."
     )
+
+    st.divider()
+
+    st.subheader("02 · AI 댓글 분석")
+    ai_file = CURRENT_DATA_DIR / "ai_comments_v2.csv"
+
+    if ai_file.exists():
+        ai_count_demo = len(pd.read_csv(ai_file))
+        st.success("Gemini AI 댓글 분석 완료")
+
+        st.metric("AI 분석 완료", f"{ai_count_demo:,}개")
+        st.progress(1.0)
+        st.caption(
+            f"댓글 {ai_count_demo:,} / {ai_count_demo:,}개 분석 완료 (100%)"
+        )
+
 else:
+    st.subheader("01 · CSV 데이터 준비")
     st.caption(
-        "아직 저장된 데이터가 없습니다. "
-        "게시물과 댓글 CSV를 업로드해주세요."
+        "Instagram 게시물과 댓글 CSV를 업로드한 후 "
+        "데이터를 정제하고 현재 프로젝트에 저장합니다."
     )
 
-col1, col2 = st.columns(2)
+    # 현재 프로젝트에 저장된 데이터 확인
+    existing_posts_path = CURRENT_DATA_DIR / "posts_clean.csv"
+    existing_comments_path = CURRENT_DATA_DIR / "comments_clean.csv"
+    existing_merged_path = CURRENT_DATA_DIR / "merged.csv"
 
-with col1:
-    uploaded_posts = st.file_uploader(
-        "게시물 CSV 업로드",
-        type=["csv"],
-        key="posts_upload"
-    )
-
-with col2:
-    uploaded_comments = st.file_uploader(
-        "댓글 CSV 업로드",
-        type=["csv"],
-        key="comments_upload"
-    )
-
-if uploaded_posts is not None and uploaded_comments is not None:
-    try:
-        new_posts = pd.read_csv(
-            uploaded_posts,
-            low_memory=False
-        )
-
-        new_comments = pd.read_csv(
-            uploaded_comments,
-            low_memory=False
-        )
-
-        st.success("CSV 파일 업로드 완료!")
-
-        c1, c2 = st.columns(2)
-        c1.metric("업로드된 게시물", len(new_posts))
-        c2.metric("업로드된 댓글", len(new_comments))
-
-        # 새 프로젝트에 정제 데이터 저장
-        if st.button("CSV 정제 및 저장", type="primary"):
-            import hashlib
-            import io
-
-            required_post = {"url", "caption"}
-            required_comment = {"postUrl", "text"}
-
-            if not required_post.issubset(new_posts.columns):
-                st.error("게시물 CSV에 url 또는 caption 컬럼이 없습니다.")
-
-            elif not required_comment.issubset(new_comments.columns):
-                st.error("댓글 CSV에 postUrl 또는 text 컬럼이 없습니다.")
-
-            else:
-                # 업로드 데이터 기반 프로젝트 ID 생성
-                fingerprint = hashlib.sha256(
-                    pd.util.hash_pandas_object(
-                        new_posts[["url", "caption"]].fillna(""),
-                        index=False
-                    ).values.tobytes()
-                    +
-                    pd.util.hash_pandas_object(
-                        new_comments[["postUrl", "text"]].fillna(""),
-                        index=False
-                    ).values.tobytes()
-                ).hexdigest()[:12]
-
-                # 사이드바에서 선택한 프로젝트에 저장
-                new_dir = CURRENT_DATA_DIR
-
-                # 기존 시장 분석 루트는 덮어쓰지 않도록 보호
-                if new_dir == DATA_DIR:
-                    st.error(
-                        "먼저 사이드바에서 분석 프로젝트를 선택해주세요."
-                    )
-                    st.stop()
-
-                new_dir.mkdir(parents=True, exist_ok=True)
-
-                # 게시물 정제
-                clean_posts = new_posts.dropna(
-                    subset=["url"]
-                ).copy()
-
-                clean_posts["url"] = (
-                    clean_posts["url"]
-                    .astype(str)
-                    .str.strip()
-                    .str.rstrip("/")
-                )
-
-                clean_posts = clean_posts.drop_duplicates(
-                    subset=["url"]
-                )
-
-                # 댓글 정제
-                clean_comments = new_comments.dropna(
-                    subset=["text", "postUrl"]
-                ).copy()
-
-                clean_comments["text"] = (
-                    clean_comments["text"]
-                    .astype(str)
-                    .str.strip()
-                )
-
-                clean_comments = clean_comments[
-                    clean_comments["text"] != ""
-                ]
-
-                clean_comments["postUrl"] = (
-                    clean_comments["postUrl"]
-                    .astype(str)
-                    .str.strip()
-                    .str.rstrip("/")
-                )
-
-                # 댓글 고유 ID가 있으면 해당 ID 기준 중복 제거
-                if "id" in clean_comments.columns:
-                    clean_comments = clean_comments.drop_duplicates(
-                        subset=["id"]
-                    )
-                else:
-                    keys = ["postUrl", "text"]
-                    if "timestamp" in clean_comments.columns:
-                        keys.append("timestamp")
-                    clean_comments = clean_comments.drop_duplicates(
-                        subset=keys
-                    )
-
-                # 게시물과 댓글 연결
-                clean_posts = clean_posts.reset_index(drop=True)
-                clean_comments = clean_comments.reset_index(drop=True)
-
-                # 게시물 URL 컬럼명 변경
-                post_lookup = clean_posts[
-                    ["url", "caption"]
-                ].rename(columns={
-                    "url": "matched_post_url",
-                    "caption": "post_caption"
-                })
-
-                # 댓글과 게시물 연결
-                joined = clean_comments.merge(
-                    post_lookup,
-                    left_on="postUrl",
-                    right_on="matched_post_url",
-                    how="left"
-                )
-
-                # 파일 저장
-                clean_posts.to_csv(
-                    new_dir / "posts_clean.csv",
-                    index=False,
-                    encoding="utf-8-sig"
-                )
-
-                clean_comments.to_csv(
-                    new_dir / "comments_clean.csv",
-                    index=False,
-                    encoding="utf-8-sig"
-                )
-
-                joined.to_csv(
-                    new_dir / "merged.csv",
-                    index=False,
-                    encoding="utf-8-sig"
-                )
-
-                st.session_state["active_project"] = str(new_dir)
-
-                st.success("선택한 프로젝트에 CSV 저장 완료!")
-                st.write("저장된 프로젝트:", new_dir.name)
-
-                c1, c2, c3 = st.columns(3)
-                c1.metric("정제 게시물", len(clean_posts))
-                c2.metric("정제 댓글", len(clean_comments))
-                c3.metric(
-                    "게시물 연결 성공",
-                    int(joined["matched_post_url"].notna().sum())
-                )
-
-                st.info(
-                    "CSV 정제와 저장이 완료되었습니다. "
-                    "Gemini AI 자동 분석은 다음 단계에서 연결합니다."
-                )
-
-    except Exception as e:
-        st.error(f"CSV 파일 읽기 오류: {e}")
-
-
-
-
-# 1. 요약
-
-# ===== STEP 22-2: FULL AI ANALYSIS =====
-
-st.divider()
-
-st.subheader("02 · AI 댓글 분석")
-st.caption(
-    "Gemini가 댓글의 관련성, 감성, 피부 고민, 소비자 반응을 분석합니다."
-)
-
-st.write(
-    "선택한 프로젝트의 댓글을 Gemini AI로 분석합니다. "
-    "이미 분석된 댓글은 다시 분석하지 않습니다."
-)
-
-import importlib
-import market_ai_engine
-
-importlib.reload(market_ai_engine)
-analyze_comments = market_ai_engine.analyze_comments
-
-analysis_project = str(CURRENT_DATA_DIR)
-
-if not analysis_project:
-    analysis_project = str(CURRENT_DATA_DIR)
-
-analysis_dir = Path(analysis_project)
-
-merged_path = analysis_dir / "merged.csv"
-ai_output_path = analysis_dir / "ai_comments_v2.csv"
-
-if merged_path.exists():
-
-    st.caption(f"분석 대상: {analysis_dir.name}")
-
-    max_batches = st.number_input(
-        "이번에 분석할 배치 수 (1배치 = 최대 20개 댓글)",
-        min_value=1,
-        max_value=1000,
-        value=1,
-        step=1,
-        help="분석 결과는 자동 저장됩니다. 다음 실행에서는 미분석 댓글부터 이어서 처리합니다."
-    )
-
-    if st.button(
-        "AI 댓글 분석 실행",
-        type="primary",
-        key="full_ai_analysis"
+    if all(
+        path.exists()
+        for path in [
+            existing_posts_path,
+            existing_comments_path,
+            existing_merged_path
+        ]
     ):
+        st.caption(
+            "✓ 현재 프로젝트에 데이터가 저장되어 있습니다. "
+            "새 CSV를 업로드하지 않아도 아래 AI 댓글 분석을 실행할 수 있습니다."
+        )
+    else:
+        st.caption(
+            "아직 저장된 데이터가 없습니다. "
+            "게시물과 댓글 CSV를 업로드해주세요."
+        )
 
-        api_key = st.secrets.get("GEMINI_API_KEY")
+    col1, col2 = st.columns(2)
 
-        if not api_key:
-            st.error("Gemini API 키가 설정되지 않았습니다.")
+    with col1:
+        uploaded_posts = st.file_uploader(
+            "게시물 CSV 업로드",
+            type=["csv"],
+            key="posts_upload"
+        )
 
-        else:
-            progress_bar = st.progress(0)
-            status = st.empty()
+    with col2:
+        uploaded_comments = st.file_uploader(
+            "댓글 CSV 업로드",
+            type=["csv"],
+            key="comments_upload"
+        )
 
-            def update_progress(completed, total):
-                ratio = completed / total if total else 1.0
-                progress_bar.progress(min(ratio, 1.0))
-                status.write(
-                    f"분석 진행: {completed:,} / {total:,}개"
-                )
+    if uploaded_posts is not None and uploaded_comments is not None:
+        try:
+            new_posts = pd.read_csv(
+                uploaded_posts,
+                low_memory=False
+            )
 
-            try:
-                with st.spinner("Gemini AI 분석 중..."):
-                    results = analyze_comments(
-                        merged_path=merged_path,
-                        output_path=ai_output_path,
-                        api_key=api_key,
-                        progress_callback=update_progress,
-                        max_batches=int(max_batches)
-                    )
+            new_comments = pd.read_csv(
+                uploaded_comments,
+                low_memory=False
+            )
 
-                # ===== STEP 25-7C: AUTO REFRESH =====
-                import importlib
-                import market_sync_engine
-                import market_trends_engine
+            st.success("CSV 파일 업로드 완료!")
 
-                importlib.reload(market_sync_engine)
-                importlib.reload(market_trends_engine)
+            c1, c2 = st.columns(2)
+            c1.metric("업로드된 게시물", len(new_posts))
+            c2.metric("업로드된 댓글", len(new_comments))
 
-                # 기존 v1 분석이 있는 프로젝트만 통합
-                if (analysis_dir / "ai_comments.csv").exists():
-                    market_sync_engine.sync_ai_results(
-                        analysis_dir
-                    )
-                    analysis_source = "ai_comments_unified.csv"
+            # 새 프로젝트에 정제 데이터 저장
+            if st.button("CSV 정제 및 저장", type="primary"):
+                import hashlib
+                import io
+
+                required_post = {"url", "caption"}
+                required_comment = {"postUrl", "text"}
+
+                if not required_post.issubset(new_posts.columns):
+                    st.error("게시물 CSV에 url 또는 caption 컬럼이 없습니다.")
+
+                elif not required_comment.issubset(new_comments.columns):
+                    st.error("댓글 CSV에 postUrl 또는 text 컬럼이 없습니다.")
+
                 else:
-                    analysis_source = "ai_comments_v2.csv"
+                    # 업로드 데이터 기반 프로젝트 ID 생성
+                    fingerprint = hashlib.sha256(
+                        pd.util.hash_pandas_object(
+                            new_posts[["url", "caption"]].fillna(""),
+                            index=False
+                        ).values.tobytes()
+                        +
+                        pd.util.hash_pandas_object(
+                            new_comments[["postUrl", "text"]].fillna(""),
+                            index=False
+                        ).values.tobytes()
+                    ).hexdigest()[:12]
 
-                # 최신 AI 결과로 시장 동향 다시 생성
-                market_trends_engine.generate_market_trends(
-                    project_dir=analysis_dir,
-                    analysis_file=analysis_source
-                )
+                    # 사이드바에서 선택한 프로젝트에 저장
+                    new_dir = CURRENT_DATA_DIR
 
-                st.success(
-                    f"분석 결과 {len(results):,}개 저장 및 "
-                    "시장 동향 갱신 완료!"
-                )
-
-                st.dataframe(
-                    results.tail(20),
-                    use_container_width=True
-                )
-
-                st.caption(
-                    f"저장 위치: {ai_output_path}"
-                )
-
-            except Exception as e:
-                st.error(f"AI 분석 오류: {e}")
-
-else:
-    st.info(
-        "분석 가능한 merged.csv 파일이 없습니다. "
-        "먼저 게시물과 댓글 CSV를 업로드해주세요."
-    )
-
-
-# ===== DEVELOPER TOOLS =====
-with st.expander("Developer Tools · Gemini 10개 댓글 테스트", expanded=False):
-    st.subheader("Gemini 분석 테스트")
-
-    active_project = str(CURRENT_DATA_DIR)
-
-    if active_project:
-
-        project_path = Path(active_project)
-        merged_path = project_path / "merged.csv"
-
-        if st.button("Gemini 댓글 10개 분석 테스트"):
-
-            if not merged_path.exists():
-                st.error("분석할 데이터가 없습니다.")
-
-            else:
-                api_key = st.secrets.get("GEMINI_API_KEY")
-
-                if not api_key:
-                    st.error(
-                        "Gemini API 키가 설정되지 않았습니다."
-                    )
-                else:
-                    client = genai.Client(api_key=api_key)
-
-                    data = pd.read_csv(merged_path)
-
-                    sample = (
-                        data.drop_duplicates(subset=["postUrl"])
-                        .sample(
-                            n=min(10, data["postUrl"].nunique()),
-                            random_state=42
+                    # 기존 시장 분석 루트는 덮어쓰지 않도록 보호
+                    if new_dir == DATA_DIR:
+                        st.error(
+                            "먼저 사이드바에서 분석 프로젝트를 선택해주세요."
                         )
+                        st.stop()
+
+                    new_dir.mkdir(parents=True, exist_ok=True)
+
+                    # 게시물 정제
+                    clean_posts = new_posts.dropna(
+                        subset=["url"]
+                    ).copy()
+
+                    clean_posts["url"] = (
+                        clean_posts["url"]
+                        .astype(str)
+                        .str.strip()
+                        .str.rstrip("/")
                     )
 
-                    records = [
-                        {
-                            "id": i,
-                            "comment": str(row["text"]),
-                            "caption": str(
-                                row.get("post_caption", "")
-                            )[:500]
-                        }
-                        for i, (_, row) in enumerate(
-                            sample.iterrows()
-                        )
+                    clean_posts = clean_posts.drop_duplicates(
+                        subset=["url"]
+                    )
+
+                    # 댓글 정제
+                    clean_comments = new_comments.dropna(
+                        subset=["text", "postUrl"]
+                    ).copy()
+
+                    clean_comments["text"] = (
+                        clean_comments["text"]
+                        .astype(str)
+                        .str.strip()
+                    )
+
+                    clean_comments = clean_comments[
+                        clean_comments["text"] != ""
                     ]
 
-                    prompt = """
-                    너는 한국 스킨케어 소비자 분석가야.
-
-                    각 댓글을 다음 기준으로 엄격하게 분류해.
-
-                    1. id: 입력 ID
-                    2. relevance: 관련 / 무관 / 불확실
-                    3. type: 사용 후기 / 소비자 니즈 / 구매 관심 /
-                       광고·이벤트 / 단순 반응 / 기타
-                    4. sentiment: 긍정 / 중립 / 부정 /
-                       혼합 / 판단불가
-                    5. concern: 트러블 / 보습·장벽 / 모공·피지 /
-                       탄력 / 미백·잡티 / 민감성 / 기타 / 없음
-                    6. insight: 실제 댓글로 확인되는 핵심 정보
-
-                    규칙:
-                    - 스킨케어와 무관한 댓글은 '무관'으로 분류한다.
-                    - 색조 화장품, 모델 외모, 팬밋업 관련 댓글은
-                      스킨케어 소비자 반응에서 제외한다.
-                    - 댓글이 실제 사용을 언급하지 않았다면
-                      '사용 후기'로 분류하지 않는다.
-                    - 구매 관심과 실제 구매 의향을 구분한다.
-                    - 단순 이모지나 제품명으로 니즈를 추측하지 않는다.
-                    - 게시물 캡션은 맥락 이해에만 활용한다.
-                    - 위 분류값 이외의 표현은 사용하지 않는다.
-                    - 분석할 수 없으면 insight는
-                      '구체적 인사이트 없음'으로 작성한다.
-                    - 모든 ID를 정확히 한 번씩 반환한다.
-
-                    반드시 JSON 객체로 반환해:
-                    {"results": [...]}
-
-                    데이터:
-                    """ + json.dumps(
-                        records,
-                        ensure_ascii=False
+                    clean_comments["postUrl"] = (
+                        clean_comments["postUrl"]
+                        .astype(str)
+                        .str.strip()
+                        .str.rstrip("/")
                     )
 
-                    try:
-                        with st.spinner(
-                            "Gemini가 댓글을 분석하고 있습니다..."
-                        ):
-                            response = client.models.generate_content(
-                                model="gemini-3.1-flash-lite",
-                                contents=prompt,
-                                config=types.GenerateContentConfig(
-                                    response_mime_type="application/json",
-                                    temperature=0
-                                )
-                            )
-
-                        results = json.loads(
-                            response.text
-                        )["results"]
-
-                        result_df = pd.DataFrame(results)
-
-                        st.success("AI 분석 완료!")
-                        st.dataframe(
-                            result_df,
-                            use_container_width=True
+                    # 댓글 고유 ID가 있으면 해당 ID 기준 중복 제거
+                    if "id" in clean_comments.columns:
+                        clean_comments = clean_comments.drop_duplicates(
+                            subset=["id"]
+                        )
+                    else:
+                        keys = ["postUrl", "text"]
+                        if "timestamp" in clean_comments.columns:
+                            keys.append("timestamp")
+                        clean_comments = clean_comments.drop_duplicates(
+                            subset=keys
                         )
 
-                        result_df.to_csv(
-                            project_path / "ai_test_results.csv",
-                            index=False,
-                            encoding="utf-8-sig"
+                    # 게시물과 댓글 연결
+                    clean_posts = clean_posts.reset_index(drop=True)
+                    clean_comments = clean_comments.reset_index(drop=True)
+
+                    # 게시물 URL 컬럼명 변경
+                    post_lookup = clean_posts[
+                        ["url", "caption"]
+                    ].rename(columns={
+                        "url": "matched_post_url",
+                        "caption": "post_caption"
+                    })
+
+                    # 댓글과 게시물 연결
+                    joined = clean_comments.merge(
+                        post_lookup,
+                        left_on="postUrl",
+                        right_on="matched_post_url",
+                        how="left"
+                    )
+
+                    # 파일 저장
+                    clean_posts.to_csv(
+                        new_dir / "posts_clean.csv",
+                        index=False,
+                        encoding="utf-8-sig"
+                    )
+
+                    clean_comments.to_csv(
+                        new_dir / "comments_clean.csv",
+                        index=False,
+                        encoding="utf-8-sig"
+                    )
+
+                    joined.to_csv(
+                        new_dir / "merged.csv",
+                        index=False,
+                        encoding="utf-8-sig"
+                    )
+
+                    st.session_state["active_project"] = str(new_dir)
+
+                    st.success("선택한 프로젝트에 CSV 저장 완료!")
+                    st.write("저장된 프로젝트:", new_dir.name)
+
+                    c1, c2, c3 = st.columns(3)
+                    c1.metric("정제 게시물", len(clean_posts))
+                    c2.metric("정제 댓글", len(clean_comments))
+                    c3.metric(
+                        "게시물 연결 성공",
+                        int(joined["matched_post_url"].notna().sum())
+                    )
+
+                    st.info(
+                        "CSV 정제와 저장이 완료되었습니다. "
+                        "Gemini AI 자동 분석은 다음 단계에서 연결합니다."
+                    )
+
+        except Exception as e:
+            st.error(f"CSV 파일 읽기 오류: {e}")
+
+
+
+
+    # 1. 요약
+
+    # ===== STEP 22-2: FULL AI ANALYSIS =====
+
+    st.divider()
+
+    st.subheader("02 · AI 댓글 분석")
+    st.caption(
+        "Gemini가 댓글의 관련성, 감성, 피부 고민, 소비자 반응을 분석합니다."
+    )
+
+    st.write(
+        "선택한 프로젝트의 댓글을 Gemini AI로 분석합니다. "
+        "이미 분석된 댓글은 다시 분석하지 않습니다."
+    )
+
+    import importlib
+    import market_ai_engine
+
+    importlib.reload(market_ai_engine)
+    analyze_comments = market_ai_engine.analyze_comments
+
+    analysis_project = str(CURRENT_DATA_DIR)
+
+    if not analysis_project:
+        analysis_project = str(CURRENT_DATA_DIR)
+
+    analysis_dir = Path(analysis_project)
+
+    merged_path = analysis_dir / "merged.csv"
+    ai_output_path = analysis_dir / "ai_comments_v2.csv"
+
+    if merged_path.exists():
+
+        st.caption(f"분석 대상: {analysis_dir.name}")
+
+        max_batches = st.number_input(
+            "이번에 분석할 배치 수 (1배치 = 최대 20개 댓글)",
+            min_value=1,
+            max_value=1000,
+            value=1,
+            step=1,
+            help="분석 결과는 자동 저장됩니다. 다음 실행에서는 미분석 댓글부터 이어서 처리합니다."
+        )
+
+        if st.button(
+            "AI 댓글 분석 실행",
+            type="primary",
+            key="full_ai_analysis"
+        ):
+
+            api_key = st.secrets.get("GEMINI_API_KEY")
+
+            if not api_key:
+                st.error("Gemini API 키가 설정되지 않았습니다.")
+
+            else:
+                progress_bar = st.progress(0)
+                status = st.empty()
+
+                def update_progress(completed, total):
+                    ratio = completed / total if total else 1.0
+                    progress_bar.progress(min(ratio, 1.0))
+                    status.write(
+                        f"분석 진행: {completed:,} / {total:,}개"
+                    )
+
+                try:
+                    with st.spinner("Gemini AI 분석 중..."):
+                        results = analyze_comments(
+                            merged_path=merged_path,
+                            output_path=ai_output_path,
+                            api_key=api_key,
+                            progress_callback=update_progress,
+                            max_batches=int(max_batches)
                         )
 
-                    except Exception as e:
-                        st.error(f"분석 오류: {e}")
+                    # ===== STEP 25-7C: AUTO REFRESH =====
+                    import importlib
+                    import market_sync_engine
+                    import market_trends_engine
+
+                    importlib.reload(market_sync_engine)
+                    importlib.reload(market_trends_engine)
+
+                    # 기존 v1 분석이 있는 프로젝트만 통합
+                    if (analysis_dir / "ai_comments.csv").exists():
+                        market_sync_engine.sync_ai_results(
+                            analysis_dir
+                        )
+                        analysis_source = "ai_comments_unified.csv"
+                    else:
+                        analysis_source = "ai_comments_v2.csv"
+
+                    # 최신 AI 결과로 시장 동향 다시 생성
+                    market_trends_engine.generate_market_trends(
+                        project_dir=analysis_dir,
+                        analysis_file=analysis_source
+                    )
+
+                    st.success(
+                        f"분석 결과 {len(results):,}개 저장 및 "
+                        "시장 동향 갱신 완료!"
+                    )
+
+                    st.dataframe(
+                        results.tail(20),
+                        use_container_width=True
+                    )
+
+                    st.caption(
+                        f"저장 위치: {ai_output_path}"
+                    )
+
+                except Exception as e:
+                    st.error(f"AI 분석 오류: {e}")
 
     else:
         st.info(
-            "먼저 CSV를 업로드하고 "
-            "새 분석 프로젝트를 생성해주세요."
+            "분석 가능한 merged.csv 파일이 없습니다. "
+            "먼저 게시물과 댓글 CSV를 업로드해주세요."
         )
+
+
+    # ===== DEVELOPER TOOLS =====
+    with st.expander("Developer Tools · Gemini 10개 댓글 테스트", expanded=False):
+        st.subheader("Gemini 분석 테스트")
+
+        active_project = str(CURRENT_DATA_DIR)
+
+        if active_project:
+
+            project_path = Path(active_project)
+            merged_path = project_path / "merged.csv"
+
+            if st.button("Gemini 댓글 10개 분석 테스트"):
+
+                if not merged_path.exists():
+                    st.error("분석할 데이터가 없습니다.")
+
+                else:
+                    api_key = st.secrets.get("GEMINI_API_KEY")
+
+                    if not api_key:
+                        st.error(
+                            "Gemini API 키가 설정되지 않았습니다."
+                        )
+                    else:
+                        client = genai.Client(api_key=api_key)
+
+                        data = pd.read_csv(merged_path)
+
+                        sample = (
+                            data.drop_duplicates(subset=["postUrl"])
+                            .sample(
+                                n=min(10, data["postUrl"].nunique()),
+                                random_state=42
+                            )
+                        )
+
+                        records = [
+                            {
+                                "id": i,
+                                "comment": str(row["text"]),
+                                "caption": str(
+                                    row.get("post_caption", "")
+                                )[:500]
+                            }
+                            for i, (_, row) in enumerate(
+                                sample.iterrows()
+                            )
+                        ]
+
+                        prompt = """
+                        너는 한국 스킨케어 소비자 분석가야.
+
+                        각 댓글을 다음 기준으로 엄격하게 분류해.
+
+                        1. id: 입력 ID
+                        2. relevance: 관련 / 무관 / 불확실
+                        3. type: 사용 후기 / 소비자 니즈 / 구매 관심 /
+                           광고·이벤트 / 단순 반응 / 기타
+                        4. sentiment: 긍정 / 중립 / 부정 /
+                           혼합 / 판단불가
+                        5. concern: 트러블 / 보습·장벽 / 모공·피지 /
+                           탄력 / 미백·잡티 / 민감성 / 기타 / 없음
+                        6. insight: 실제 댓글로 확인되는 핵심 정보
+
+                        규칙:
+                        - 스킨케어와 무관한 댓글은 '무관'으로 분류한다.
+                        - 색조 화장품, 모델 외모, 팬밋업 관련 댓글은
+                          스킨케어 소비자 반응에서 제외한다.
+                        - 댓글이 실제 사용을 언급하지 않았다면
+                          '사용 후기'로 분류하지 않는다.
+                        - 구매 관심과 실제 구매 의향을 구분한다.
+                        - 단순 이모지나 제품명으로 니즈를 추측하지 않는다.
+                        - 게시물 캡션은 맥락 이해에만 활용한다.
+                        - 위 분류값 이외의 표현은 사용하지 않는다.
+                        - 분석할 수 없으면 insight는
+                          '구체적 인사이트 없음'으로 작성한다.
+                        - 모든 ID를 정확히 한 번씩 반환한다.
+
+                        반드시 JSON 객체로 반환해:
+                        {"results": [...]}
+
+                        데이터:
+                        """ + json.dumps(
+                            records,
+                            ensure_ascii=False
+                        )
+
+                        try:
+                            with st.spinner(
+                                "Gemini가 댓글을 분석하고 있습니다..."
+                            ):
+                                response = client.models.generate_content(
+                                    model="gemini-3.1-flash-lite",
+                                    contents=prompt,
+                                    config=types.GenerateContentConfig(
+                                        response_mime_type="application/json",
+                                        temperature=0
+                                    )
+                                )
+
+                            results = json.loads(
+                                response.text
+                            )["results"]
+
+                            result_df = pd.DataFrame(results)
+
+                            st.success("AI 분석 완료!")
+                            st.dataframe(
+                                result_df,
+                                use_container_width=True
+                            )
+
+                            result_df.to_csv(
+                                project_path / "ai_test_results.csv",
+                                index=False,
+                                encoding="utf-8-sig"
+                            )
+
+                        except Exception as e:
+                            st.error(f"분석 오류: {e}")
+
+        else:
+            st.info(
+                "먼저 CSV를 업로드하고 "
+                "새 분석 프로젝트를 생성해주세요."
+            )
+
 
 # NAV_SECTION: market-trends
 st.header("STEP 02 · Market Trends")
