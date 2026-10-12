@@ -1,0 +1,9 @@
+{
+  "source_fingerprints": {
+    "consumer_insights": "49eb7362644def7ada6a1943a81b700cb0b0a8bdd5b96fb10a9b934f89bccebb",
+    "market_trends": "ff7b5709e9ca296a6e419f8cfa35040588c06c8cbf877ad7eeadbf5c1b5b574f",
+    "strategy_input": "40cc81c8aa654a3a4e75137c374a69f6e7fb1047ddc217af3fbea8db3c487820"
+  },
+  "strategy_hash": "0ee548da758a304329b565dc4401912d386b431e8ff4f525fcd1b40ff0a3af39",
+  "recorded_at_utc": "2026-10-12T15:53:50.408946+00:00"
+}

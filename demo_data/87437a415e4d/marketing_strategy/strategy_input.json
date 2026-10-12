@@ -1,0 +1,857 @@
+{
+  "project": "87437a415e4d",
+  "market_overview": {
+    "posts": 1149,
+    "analyzed_comments": 1698,
+    "relevant_comments": 1009,
+    "irrelevant_comments": 689,
+    "uncertain_comments": 0,
+    "relevance_rate": 59.42,
+    "analysis_versions": {
+      "unknown": 1698
+    },
+    "methodology_note": "인스타그램 수집 표본의 댓글 언급 분포입니다. 시장 전체 수요나 시장점유율을 의미하지 않습니다. 분석 버전이 혼합된 경우 분류 기준 차이에 유의해야 합니다."
+  },
+  "consumer_insights": {
+    "total_validated": 641,
+    "eligible_evidence": 295,
+    "concern_distribution": {
+      "보습·장벽": 94,
+      "없음": 57,
+      "기타": 41,
+      "미백·잡티": 33,
+      "모공·피지": 31,
+      "탄력": 16,
+      "트러블": 14,
+      "민감성": 9
+    },
+    "behavior_distribution": {
+      "사용 의향": 122,
+      "호기심": 107,
+      "행동 확인 불가": 46,
+      "정보 저장": 6,
+      "구매 의향": 5,
+      "실제 구매": 5,
+      "사용 경험": 4
+    },
+    "validation_distribution": {
+      "직접 근거": 375,
+      "부분 근거": 210,
+      "근거 부족": 56
+    },
+    "quality_distribution": {
+      "자동 검사 통과": 532,
+      "재검토 필요": 109
+    }
+  },
+  "evidence": [
+    {
+      "comment_key": "DEMO-c276c7e740e54889",
+      "consumer_comment": "캬아 모공각화증남덩생한테 추천해줘봐야겠어요❤️❤️",
+      "validated_insight": "모공각화증이 있는 지인에게 추천할 의향이 있음",
+      "concern": "트러블",
+      "behavior_stage": "행동 확인 불가",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-ffaff8c5157f8d44",
+      "consumer_comment": "바디로션 정말 잘 골라야하겠더라고요 이거 좋네요!",
+      "validated_insight": "바디로션 선택의 중요성에 공감하며 제품에 긍정적인 반응을 보임",
+      "concern": "보습·장벽",
+      "behavior_stage": "행동 확인 불가",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-5550034cfca8d0a0",
+      "consumer_comment": "요건 첨보는데 건조한 겨울에 써봐야겠어요!",
+      "validated_insight": "건조한 겨울철에 해당 제품을 사용해 볼 의향이 있음",
+      "concern": "보습·장벽",
+      "behavior_stage": "사용 의향",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-6b25fa5ec25d2f22",
+      "consumer_comment": "요건 안써봤는대 넘 궁금해요😍",
+      "validated_insight": "제품을 써보지 않았으나 궁금해함",
+      "concern": "없음",
+      "behavior_stage": "호기심",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-2efdc773d732dfb4",
+      "consumer_comment": "피부가 많이 건조해지는 시기라 고민이 많이 됐는데 엠락틴으로 꾸준한 관리 해봐야겠어용❤️",
+      "validated_insight": "건조한 시기 피부 관리를 위해 엠락틴을 사용해볼 의향이 있음",
+      "concern": "보습·장벽",
+      "behavior_stage": "사용 의향",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-a123bff1b839e885",
+      "consumer_comment": "빨리구매하고 싶어요😍 스포트라이트 화이트닝 크림",
+      "validated_insight": "제품에 대한 구매 의사 표현",
+      "concern": "미백·잡티",
+      "behavior_stage": "구매 의향",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-15227e11d623a7ec",
+      "consumer_comment": "스포트라인 너무너무 다좋아서 크림도기대됩니다♡",
+      "validated_insight": "기존 제품 만족도를 바탕으로 신제품에 대한 기대감 표현",
+      "concern": "미백·잡티",
+      "behavior_stage": "호기심",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-9eb8622f0e223712",
+      "consumer_comment": "닦토패드로 1차 피부결 정돈해주고 2차 히알루론산 부스터 토너로 수분 팍팍 채우는 로벡틴 화잘먹 듀오 이렇게만 하면 피부고민 끝✨💙 환절기엔 메이크업이 잘 뜨는데 화장 전 스킨케어로 꼭 사용해보고싶어요!!🥹",
+      "validated_insight": "환절기 메이크업 들뜸 해결을 위해 화잘먹 조합 사용 희망",
+      "concern": "보습·장벽",
+      "behavior_stage": "사용 의향",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-b20a4a43cadc4ba8",
+      "consumer_comment": "요즘 제일 필요한 게 바로 메이크업 전에 피부결이 매끈하고 촉촉하게 준비되는 루틴이라 #화잘먹듀오 가 너무 궁금해요💙 아무리 예쁜 파운데이션을 써도 피부가 건조하고 결이 들떠 있으면 결국 표현이 아쉽더라고요🥲 피부결을 먼저 정돈하고 나노 히알루론산으로 수분까지 빠르게 채워준다면 베이스가 훨씬 편안하게 올라갈 것 같아요✨ 중요한 약속 있는 날 아침에 꼭 같이 써보고 싶은 조합! [계정 비공개] 우리 둘 다 베이스 잘먹템 #로벡틴 히알루론산 이벤트 신청하장~!",
+      "validated_insight": "건조함으로 인한 베이스 메이크업 들뜸 해결을 위해 수분 충전 루틴 사용 희망",
+      "concern": "보습·장벽",
+      "behavior_stage": "사용 의향",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-7f6294d647ede823",
+      "consumer_comment": "화장 잘 먹었다고 생각해본지가 너무 오래되어서 꼭 써보고 싶어요. 수분이 너무 부족해요",
+      "validated_insight": "수분 부족으로 인한 메이크업 들뜸 해결을 위해 제품 사용 희망",
+      "concern": "보습·장벽",
+      "behavior_stage": "사용 의향",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-abccca096d883efe",
+      "consumer_comment": "날이 추워지면서 더 예민해지고 거칠어진 피부결이 거민이에요! 피부결 관리하고 화잘먹 피부 만들고 싶어요🩵 [계정 비공개]",
+      "validated_insight": "환절기 피부 예민함과 거칠어진 피부결 관리를 위해 제품 사용 희망",
+      "concern": "민감성",
+      "behavior_stage": "사용 의향",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-6f12f032be3fc040",
+      "consumer_comment": "오돌우둘투둘 피부 정리해주고 수분채워서 촉촉쫀쫀 피부광 만들어줄거같아 기대되어요🖤🖤",
+      "validated_insight": "피부결 정돈 및 수분 충전을 통한 피부 광 표현에 대한 기대감",
+      "concern": "모공·피지",
+      "behavior_stage": "호기심",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-c1f49d802ef356f9",
+      "consumer_comment": "피부를 매끈하게 케어해준다니 넘넘 기대되네여💕",
+      "validated_insight": "피부 케어 효과에 대한 기대감",
+      "concern": "기타",
+      "behavior_stage": "호기심",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-20c265ebf8919b27",
+      "consumer_comment": "화잘먹 피부 만들어주고 싶어요!",
+      "validated_insight": "화장 잘 먹는 피부 상태를 희망",
+      "concern": "기타",
+      "behavior_stage": "사용 의향",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-45bc2bee003edfb0",
+      "consumer_comment": "내년부터 성인이라서 예쁘게 하고 다니고 싶은데.... 화장 안 뜨고 예쁘게 하고 싶어요~🥹💙 로벡틴 화잘먹 듀오 쓰면 제가 원하는 바를 이룰 수 있을 거 같아서 너무 기대되고 써보고 싶어요~!!!🩵🫧☁️💙 [계정 비공개]",
+      "validated_insight": "메이크업 들뜸 방지를 위해 제품 사용 희망",
+      "concern": "보습·장벽",
+      "behavior_stage": "사용 의향",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-09706f90d75d63db",
+      "consumer_comment": "화장이 안 먹는 날은 쿠션보다 피부 컨디션부터 의심하게 되는데, 피부결 정돈에 수분까지 한 번에 챙길 수 있다니 아침 루틴이 훨씬 간단해질 것 같아요🖤💧✨[계정 비공개] [계정 비공개] [계정 비공개]",
+      "validated_insight": "피부 컨디션과 수분 부족이 화장 들뜸의 원인일 것으로 인지하며 제품 효능에 대한 기대감 표현",
+      "concern": "보습·장벽",
+      "behavior_stage": "호기심",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-18e2f925c11debfd",
+      "consumer_comment": "요즘 피부가 예민하고 화장을 못 먹는거같아서 화잘먹 듀오가 절실해요🥹",
+      "validated_insight": "피부 예민함 및 들뜸 현상으로 인한 제품 사용 의향",
+      "concern": "민감성",
+      "behavior_stage": "사용 의향",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-34c2646299ebdbf4",
+      "consumer_comment": "환절기 푸석푸석한 피부 잡아줄 화잘먹 뷰오 필요해요🖤💙",
+      "validated_insight": "환절기 푸석한 피부를 위해 제품 사용 희망",
+      "concern": "보습·장벽",
+      "behavior_stage": "사용 의향",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-eb80abb3887267b9",
+      "consumer_comment": "요즘 피부도 뜨고 화장도 잘 안 먹는데 쓰기가 너무 좋을 거 같아요 🖤",
+      "validated_insight": "피부 들뜸 및 화장 안 먹는 현상 개선을 위한 사용 의향",
+      "concern": "보습·장벽",
+      "behavior_stage": "사용 의향",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-7c1adfb4af19b2cc",
+      "consumer_comment": "요즘 건조하기도 하고 뜨는 피부가 고민이었는데 로벡틴 제품들로 꿀광피부 만들고 싶어요!!!!💙💙💙💙💙\n\n #팔로우완료💕 #좋아요완료❤️ #참여완료✔️",
+      "validated_insight": "피부 건조 및 들뜸 현상을 개선하고 싶어 함",
+      "concern": "보습·장벽",
+      "behavior_stage": "사용 의향",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-b23373a720b3e86e",
+      "consumer_comment": "성인 아토피로 아이를 가지고 나서는 호르몬 변화 때문인지 한때 화상 환자처럼 피부가 뒤집어져 외출조차 힘들었던 아픈 기억이 있어요. 그 시기를 지나며 피부는 더욱 푸석해지고 탄력을 잃어버려 만지면 메마르기 짝이 없는 절망적인 상태가 되었지요.\n​그러다 집에서도 전문 에스테틱숍 부럽지 않은 탄력 케어를 받을 수 있다는 수려한 본 초보습 스킨을 알게 되었습니다. 피부 속부터 겉까지 빈틈없이 탄력을 끌어올려 주어 거울을 볼 때마다 지치던 제 피부에도 다시 투명하고 건강한 윤기가 돌 수 있도록 꼭 선물 같은 기적을 안겨주고 싶어요!\n​특히 환절기만 되면 유독 건조하고 메마름이 극에 달하는데, 최근에는 신기하게도 귀 쪽까지 극심한 건조함이 찾아오더니 아토피가 다시 번지기 시작해 하루하루 스트레스예요. 환절기만되면 성난 피부 순하게 다독이고 예전의 건강한 탄력 피부로 되돌아갈 수 있도록, 이번 환절기 수려한 본 초보습 스킨과 함께 다시 웃음을 찾고 싶습니다.ᰔᩚᰔᩚ [계정 비공개] [계정 비공개] [계정 비공개]  [계정 비공개]  [계정 비공개] [계정 비공개] [계정 비공개] [계정 비공개] [계정 비공개] [계정 비공개]  [계정 비공개]  [계정 비공개]  [계정 비공개] [계정 비공개] [계정 비공개] [계정 비공개] [계정 비공개] [계정 비공개]  [계정 비공개]  [계정 비공개]  [계정 비공개] [계정 비공개] [계정 비공개] [계정 비공개] [계정 비공개]  [계정 비공개]  [계정 비공개] [계정 비공개]  [계정 비공개] [계정 비공개]",
+      "validated_insight": "환절기 극심한 건조함과 성인 아토피 증상 완화를 위해 제품 사용 희망",
+      "concern": "보습·장벽",
+      "behavior_stage": "사용 의향",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-e593d5438f575779",
+      "consumer_comment": "속건조 보습이 필요해요❤️❤️ [계정 비공개]  [계정 비공개]  [계정 비공개] [계정 비공개] [계정 비공개] [계정 비공개] [계정 비공개]  [계정 비공개]  [계정 비공개]",
+      "validated_insight": "속건조 케어를 위한 보습 필요성 언급",
+      "concern": "보습·장벽",
+      "behavior_stage": "사용 의향",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-99c29c178b8a78ea",
+      "consumer_comment": "날씨가 바뀌면서 피부가 예민해지고 볼 주변은 건조한데 T존은 번들거려서 관리하기가 쉽지 않아요💧 피부 밸런스를 잘 맞추면서 촉촉하게 보습해 주는 환절기 스킨케어가 고민이에요 🤍",
+      "validated_insight": "환절기 예민함, T존 번들거림 및 속건조 밸런스 유지 니즈",
+      "concern": "보습·장벽",
+      "behavior_stage": "행동 확인 불가",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-386e70776273db71",
+      "consumer_comment": "건조함✨  [계정 비공개]  [계정 비공개]  [계정 비공개]",
+      "validated_insight": "건조한 피부 고민을 언급함",
+      "concern": "보습·장벽",
+      "behavior_stage": "행동 확인 불가",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-91ffc464944455d2",
+      "consumer_comment": "환절기에 화장도 뜨고 밤에는 스킨케어 해도 금방 건조해져서 마르는 피부인데 깊은 보습이 필요해요✨ [계정 비공개]",
+      "validated_insight": "환절기 메이크업 들뜸 및 건조함 고민 언급",
+      "concern": "보습·장벽",
+      "behavior_stage": "행동 확인 불가",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-b33a7741a26f69b6",
+      "consumer_comment": "속건조😭😭 [계정 비공개] [계정 비공개]",
+      "validated_insight": "속건조 고민 언급",
+      "concern": "보습·장벽",
+      "behavior_stage": "행동 확인 불가",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-ef5ef006781b76d8",
+      "consumer_comment": "건조해서 필요해요",
+      "validated_insight": "건조함으로 인한 필요성 언급",
+      "concern": "보습·장벽",
+      "behavior_stage": "행동 확인 불가",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-da66c0706c1fe988",
+      "consumer_comment": "건조해진 피부  [계정 비공개]  [계정 비공개]",
+      "validated_insight": "건조해진 피부 상태 언급",
+      "concern": "보습·장벽",
+      "behavior_stage": "행동 확인 불가",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-2283b0290beb6245",
+      "consumer_comment": "환절기만 되면 피부가 부쩍 건조해지고 세안 후에는 피부가 당기면서 화장도 들떠 고민이에요🥹 특히 아침저녁으로 기온 차가 커지면 피부가 푸석해지고 속당김까지 느껴져 촉촉한 보습 관리가 꼭 필요하더라고요",
+      "validated_insight": "환절기 건조함, 세안 후 당김, 화장 들뜸, 푸석함 및 속당김 고민 언급",
+      "concern": "보습·장벽",
+      "behavior_stage": "행동 확인 불가",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-07e05187bebde2ed",
+      "consumer_comment": "환절기만 되면 피부 속은 당기는데 겉은 번들거려서 보습 균형 잡기가 참 어렵더라고요 ㅠㅠ 🥹 특히 요즘은 세안 후 당김이 심해지고 피부결도 거칠어져서 넘넘 고민이에요. 무조건 여러 겹 바르기보다 피부에 필요한 수분을 충분히 채우고 오래 유지하는 관리가 중요하다고 느껴요! 수려한 본 초보습 스킨으로 올가을엔 속부터 편안하고 촉촉한 피부를 가꿔보고 싶어요…!!",
+      "validated_insight": "환절기 복합적 피부 고민 언급 및 사용 의향 표출",
+      "concern": "보습·장벽",
+      "behavior_stage": "사용 의향",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-5e22b243076ba866",
+      "consumer_comment": "속건조 🥺\n[계정 비공개]",
+      "validated_insight": "속건조 고민 언급",
+      "concern": "보습·장벽",
+      "behavior_stage": "행동 확인 불가",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-2280c01c80afed0e",
+      "consumer_comment": "건조한피부 고민입니다  [계정 비공개]  [계정 비공개]  [계정 비공개]",
+      "validated_insight": "건조한 피부 고민 언급",
+      "concern": "보습·장벽",
+      "behavior_stage": "행동 확인 불가",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-208aff420d981053",
+      "consumer_comment": "바로 건조해지기 시작하면서 메이크업은 뜨고 화장지운뒤엔 붉어지고 간지러보😭 요즘 진짜 엉망진창 피부상태 슬픕니다ㅠㅠ [계정 비공개] [계정 비공개]",
+      "validated_insight": "환절기 건조함, 화장 들뜸, 세안 후 붉어짐 및 가려움 고민 언급",
+      "concern": "보습·장벽",
+      "behavior_stage": "행동 확인 불가",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-23def4efb5715364",
+      "consumer_comment": "버블제형 써보고싶네요😍",
+      "validated_insight": "버블 제형 사용 의향 표출",
+      "concern": "없음",
+      "behavior_stage": "사용 의향",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-9ba2e0c5fe928028",
+      "consumer_comment": "쑥이라 넘 순할 것 같아요😍",
+      "validated_insight": "성분에 대한 순한 제품일 것이라는 기대감",
+      "concern": "민감성",
+      "behavior_stage": "호기심",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-b74426484f10cbec",
+      "consumer_comment": "화잘먹일 것 같아요😍",
+      "validated_insight": "메이크업 궁합에 대한 기대감 표출",
+      "concern": "기타",
+      "behavior_stage": "호기심",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-8b5d5d944ac2fcc0",
+      "consumer_comment": "한율 세럼 너무 좋아 보이네요 ㅠㅠ ♡",
+      "validated_insight": "제품에 대한 긍정적 평가",
+      "concern": "없음",
+      "behavior_stage": "호기심",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-7011ad2cd0568657",
+      "consumer_comment": "우왓 한번 써보고 싶네용❤️",
+      "validated_insight": "제품 사용 의향 표출",
+      "concern": "없음",
+      "behavior_stage": "사용 의향",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-2af63686052b8965",
+      "consumer_comment": "순해보여서 좋아보여용❤️",
+      "validated_insight": "제품 외관에 대한 긍정적 평가",
+      "concern": "민감성",
+      "behavior_stage": "호기심",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-04b4e1db43f3ad1d",
+      "consumer_comment": "블랙헤드 관리에 넘 좋을것 같아요🔥",
+      "validated_insight": "블랙헤드 관리에 좋을 것 같다는 기대감을 표현함",
+      "concern": "모공·피지",
+      "behavior_stage": "호기심",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-0e1b1c6155fdccee",
+      "consumer_comment": "우왕 이거 넘 써보고싶어요😍",
+      "validated_insight": "제품 사용 의향을 밝힘",
+      "concern": "모공·피지",
+      "behavior_stage": "사용 의향",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-448a5c03b949e487",
+      "consumer_comment": "우와 너무 신기해요 노즈밤이라니 너무써보고싶어요ෆ",
+      "validated_insight": "제품 형태에 대한 신기함과 사용 의향을 표현함",
+      "concern": "모공·피지",
+      "behavior_stage": "사용 의향",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-0aaf6d2986571cbe",
+      "consumer_comment": "와 써보고싶어져요 👏👏",
+      "validated_insight": "제품 사용 의향 표명",
+      "concern": "모공·피지",
+      "behavior_stage": "사용 의향",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-dac938b3ab6d7bf0",
+      "consumer_comment": "5점 🖤✨😭😭\n​요즘 유독 모공도 더 잘 보이고 눈가 잔주름이나 자꾸 신경 쓰이는 턱선까지 거울 볼 때마다 탄력 고민이 깊어지는데, 솔직히 문항마다 다 해당돼서 5점 만점이 나오네요!\n​피부 탄력 고민 지수가 높을수록 더 늦기 전에 꼼꼼하게 케어해야겠다는 생각이 절로 드는 것 같아요. 내 피부의 탄력 상태를 되돌아보고 정성스럽게 진단해 볼 수 있는 유익한 이벤트를 열어주셔서 진심으로 감사드립니다! 언제나 건강하고 아름다운 피부를 위해 든든한 길잡이가 되어 주는 트로이아르케의 멋진 행보를 항상 응원하며, 이번 이벤트도 많은 분들의 뜨거운 관심과 사랑 속에서 대성황을 이루기를 기원합니다! 대박 나세요! 💖  [계정 비공개] [계정 비공개] [계정 비공개] [계정 비공개] [계정 비공개] [계정 비공개] [계정 비공개] [계정 비공개] [계정 비공개]",
+      "validated_insight": "모공, 잔주름, 턱선 탄력에 대한 고민 언급",
+      "concern": "탄력",
+      "behavior_stage": "행동 확인 불가",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-5bf5d22eedf507ad",
+      "consumer_comment": "5점 피부탄력고민지수 너무 높아 걱정이에요🙈 #트로이아르케 앞으로도 많은 사랑 받으시길 힘차게 응원할게요♥️ 사랑 듬뿍 담아 공유해요 ♥️ [계정 비공개] [계정 비공개] [계정 비공개] [계정 비공개] [계정 비공개]  [계정 비공개] [계정 비공개] [계정 비공개] [계정 비공개] ♥️",
+      "validated_insight": "피부 탄력 고민 언급",
+      "concern": "탄력",
+      "behavior_stage": "행동 확인 불가",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-ca880858fadfb6b0",
+      "consumer_comment": "3점이요.. 진짜 탄력 줄어들수록 나이들어 보여요😭",
+      "validated_insight": "탄력 저하에 대한 고민 언급",
+      "concern": "탄력",
+      "behavior_stage": "행동 확인 불가",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-134763fe19ca6a1b",
+      "consumer_comment": "5점ㅠㅠ 피부 탄력 주름 모두 관리하고 싶어요💖 피부솔루션 #트로이아르케 많은 사랑과 관심 속에서 승승장구 하시길 응원해요❤️ [계정 비공개] [계정 비공개] [계정 비공개] [계정 비공개] [계정 비공개] [계정 비공개]",
+      "validated_insight": "탄력 및 주름 관리 의지 언급",
+      "concern": "탄력",
+      "behavior_stage": "행동 확인 불가",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-cb4c03ad42dadce5",
+      "consumer_comment": "4점 😭😭😭 나이는 어쩔 수 없는 걸까요? 베갯자국이라도 없었으면 좋겠어요😭😭😭 [계정 비공개]",
+      "validated_insight": "노화로 인한 베갯자국 등 탄력 관련 고민 언급",
+      "concern": "탄력",
+      "behavior_stage": "행동 확인 불가",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-2b3a65dd8f05fd1b",
+      "consumer_comment": "3점 😭 더하기전에 탄력 챙겨야겠어요. [계정 비공개]",
+      "validated_insight": "탄력 관리 의향 언급",
+      "concern": "탄력",
+      "behavior_stage": "사용 의향",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-1b83f988fb31cd8d",
+      "consumer_comment": "4점이요😭 홈케어로 피부탄력 회복하고 싶어요!!✨✨",
+      "validated_insight": "홈케어를 통한 탄력 관리 의향 언급",
+      "concern": "탄력",
+      "behavior_stage": "사용 의향",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-cde2900f1d89aea4",
+      "consumer_comment": "5점이네요! 더 늦기전에 관리를 꾸준히 해주고 싶습니다!",
+      "validated_insight": "꾸준한 관리 의향 언급",
+      "concern": "탄력",
+      "behavior_stage": "사용 의향",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-5733239dcb57b158",
+      "consumer_comment": "5개. 관리가 시급하네요 😭 [계정 비공개] 함께하자",
+      "validated_insight": "관리 필요성 인식 및 의향 언급",
+      "concern": "탄력",
+      "behavior_stage": "사용 의향",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-3667bd7c9f70ca55",
+      "consumer_comment": "오호 조아보여여😍",
+      "validated_insight": "제품에 대한 긍정적 인상",
+      "concern": "없음",
+      "behavior_stage": "호기심",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-f2a2c94082605ce2",
+      "consumer_comment": "요거 꿀템이네요😍",
+      "validated_insight": "제품을 꿀템으로 긍정적으로 인식함",
+      "concern": "없음",
+      "behavior_stage": "호기심",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-bbc556725567c892",
+      "consumer_comment": "피부장벽크림 너무 좋은데요 👏",
+      "validated_insight": "피부장벽크림에 대해 긍정적인 평가를 함",
+      "concern": "보습·장벽",
+      "behavior_stage": "호기심",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-be64ae41ebec1867",
+      "consumer_comment": "오 이거 팔꿈치도 가능하겠어요!!",
+      "validated_insight": "팔꿈치 케어에 제품 활용이 가능할 것으로 추측함",
+      "concern": "미백·잡티",
+      "behavior_stage": "호기심",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-7aa9843344450480",
+      "consumer_comment": "착색부분 혼자 고민 많았는데 발라봐여겠어여!!!",
+      "validated_insight": "착색 고민 해결을 위해 제품을 사용해볼 의향을 밝힘",
+      "concern": "미백·잡티",
+      "behavior_stage": "사용 의향",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-209a8b25a3517322",
+      "consumer_comment": "무릎과 발꿈치가 요즘 거뭇거뭇해져서 고민인데. 이 제품 꼭 써볼래용",
+      "validated_insight": "무릎과 발꿈치 착색 고민으로 제품 사용 의향을 밝힘",
+      "concern": "미백·잡티",
+      "behavior_stage": "사용 의향",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-8fd3b994bd8b8442",
+      "consumer_comment": "오 착색 미백크림 저도 찾고 있었는데 이 제품 깔끔하니 좋아보이는데요?! 구경해봐야겠어요!",
+      "validated_insight": "미백크림을 찾고 있으며 구경해볼 의향이 있음",
+      "concern": "미백·잡티",
+      "behavior_stage": "사용 의향",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-8e7f2a25aecc483d",
+      "consumer_comment": "효과가 저도 착색 고민이였는데 써볼래요😍",
+      "validated_insight": "착색 고민 해결을 위해 제품 사용 의향을 밝힘",
+      "concern": "미백·잡티",
+      "behavior_stage": "사용 의향",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-9b8564045a075db9",
+      "consumer_comment": "와 착색에 좋다니 넘 끌리네요!",
+      "validated_insight": "착색에 효과적이라는 점에 관심을 보임",
+      "concern": "미백·잡티",
+      "behavior_stage": "호기심",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-59ebde333254781e",
+      "consumer_comment": "우와~~😍 무릎착색부분 신경 쓰였는데 써봐야겠어요❤️",
+      "validated_insight": "무릎 착색 고민 해결을 위해 사용 의향을 밝힘",
+      "concern": "미백·잡티",
+      "behavior_stage": "사용 의향",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-ece485327dd2db32",
+      "consumer_comment": "이걸로 환절기 케어하면 딱일거같아요 ❤️",
+      "validated_insight": "환절기 피부 케어에 적합할 것으로 기대함",
+      "concern": "보습·장벽",
+      "behavior_stage": "호기심",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-24343ddb5db8266d",
+      "consumer_comment": "저도 요즘 피부 너무 푸석하더라구요ㅠㅠ 단계별로 차근차근 피부 케어할 수 있는 구성이라서 너무 좋아 보여요❤️",
+      "validated_insight": "푸석한 피부 고민을 언급하며 단계별 구성에 호감을 느낌",
+      "concern": "보습·장벽",
+      "behavior_stage": "호기심",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-41e2b43055d4518f",
+      "consumer_comment": "수분톤업크림은 진짜 탐난다요..❤️",
+      "validated_insight": "수분톤업크림 제품에 관심을 보임",
+      "concern": "기타",
+      "behavior_stage": "호기심",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-0625d73300841a18",
+      "consumer_comment": "진짜 건조할때 사용하기 딱 좋은데요…❤️",
+      "validated_insight": "건조할 때 사용하기 적합할 것으로 평가함",
+      "concern": "보습·장벽",
+      "behavior_stage": "호기심",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-57dcaefbaa1e76e4",
+      "consumer_comment": "푸석한거 넘 공감되서 저두 써보고 싶네요😍❤️",
+      "validated_insight": "푸석한 피부 상태에 공감하며 사용해보고 싶어함",
+      "concern": "보습·장벽",
+      "behavior_stage": "사용 의향",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-0d35eaa14a05ae10",
+      "consumer_comment": "마스크팩 이거 써야겠어요",
+      "validated_insight": "마스크팩 사용 의향을 표명함",
+      "concern": "없음",
+      "behavior_stage": "사용 의향",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-bbb85a55304f5ea4",
+      "consumer_comment": "저도 피부를 위해서 꾸준히 노력해야겠어요",
+      "validated_insight": "피부 관리에 대한 의지를 밝힘",
+      "concern": "없음",
+      "behavior_stage": "행동 확인 불가",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-35bb3389414e689c",
+      "consumer_comment": "저도 피부 관리 좀 해야겠어요. 요즘 푸석푸석하네요",
+      "validated_insight": "피부 푸석함으로 인한 관리 필요성 인식",
+      "concern": "보습·장벽",
+      "behavior_stage": "행동 확인 불가",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-0ca0faf285bc9778",
+      "consumer_comment": "나도 해봐야겠어 피부가 난리라는 ㅠ",
+      "validated_insight": "피부 문제로 제품 사용을 고려함",
+      "concern": "트러블",
+      "behavior_stage": "사용 의향",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-78c101586acddb85",
+      "consumer_comment": "이런 마스크팩 너무 좋네요 저도 이거 써 보고 싶어요",
+      "validated_insight": "제품에 대한 긍정적 반응과 사용 의향",
+      "concern": "없음",
+      "behavior_stage": "사용 의향",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-1c4bff663864ed0e",
+      "consumer_comment": "피부상태에 맞춰서 사용할수가  있다니 좋네요",
+      "validated_insight": "피부 상태별 맞춤 사용 가능성에 대한 긍정적 반응",
+      "concern": "없음",
+      "behavior_stage": "행동 확인 불가",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-c92a5e32664d3815",
+      "consumer_comment": "요즘 깊어져가는 팔자 볼때마다 거울 보기가 싫어지더라고요🥲 괜히 신경 쓰여서 입가에 손으로 가려서 웃고.. 무표정이라도 팔자 보일까봐 꾹꾹 눌러보고... 정병 on... 흑흑...",
+      "validated_insight": "팔자주름 고민으로 인해 일상생활에서 신경을 씀",
+      "concern": "탄력",
+      "behavior_stage": "행동 확인 불가",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-9fd4c79bf0789884",
+      "consumer_comment": "흑 안다구 늙은거 아니까 그만하라구!! 새치는 염색하면 그만인데 주름은 정말 슬프다는거.' 😢",
+      "validated_insight": "주름에 대한 슬픔을 표현함",
+      "concern": "탄력",
+      "behavior_stage": "행동 확인 불가",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-a63365c6fca88f6a",
+      "consumer_comment": "꼭 써보고싶어요.",
+      "validated_insight": "제품 사용 의향 표명",
+      "concern": "없음",
+      "behavior_stage": "사용 의향",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-0a669c564df5e160",
+      "consumer_comment": "저 이런거 찾고 있었어요 ㅠㅠ 늘 넘 묵직했는데 산뜻한 거 넘 좋아요 💗",
+      "validated_insight": "묵직한 제품보다 산뜻한 제품을 선호함",
+      "concern": "없음",
+      "behavior_stage": "호기심",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-cc95f792db5e6bb4",
+      "consumer_comment": "가벼운 클렌징오일이라니 진짜 좋은데요?! 세정력까지..❤️",
+      "validated_insight": "가벼운 제형과 세정력에 호감을 느낌",
+      "concern": "모공·피지",
+      "behavior_stage": "호기심",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-34824a7b50c7d40f",
+      "consumer_comment": "산뜻한 제형이여서 여드름도 덜 날것 같아요ෆ",
+      "validated_insight": "산뜻한 제형이 여드름 완화에 도움이 될 것 같다고 기대함",
+      "concern": "트러블",
+      "behavior_stage": "호기심",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-2592b214c3aee6b3",
+      "consumer_comment": "저 착색 진짜 고민인데 요거 써봐야겠어요",
+      "validated_insight": "착색 고민으로 인해 제품 사용 의지 표명",
+      "concern": "미백·잡티",
+      "behavior_stage": "사용 의향",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-1f87d5e98c9f7d5a",
+      "consumer_comment": "오오 확실히 눈에보인다니 저도 써봐야겟서요😮",
+      "validated_insight": "효과가 눈에 보인다는 점을 이유로 사용 의사 밝힘",
+      "concern": "미백·잡티",
+      "behavior_stage": "사용 의향",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-779c78b78f58738e",
+      "consumer_comment": "니벨루 멜라닌 크림 메모..❤️",
+      "validated_insight": "제품명을 기억하기 위해 메모함",
+      "concern": "미백·잡티",
+      "behavior_stage": "정보 저장",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-902f28728a306418",
+      "consumer_comment": "저요저요!! 특히 팔꿈치가 시급한데 넘 사용해보고싶어요😍",
+      "validated_insight": "팔꿈치 색소침착 개선을 위해 사용해보고 싶어 함",
+      "concern": "미백·잡티",
+      "behavior_stage": "사용 의향",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-6fce3d70267af1f5",
+      "consumer_comment": "저도 너무 써보고프네요👀✨️",
+      "validated_insight": "제품 사용 의향 표명",
+      "concern": "미백·잡티",
+      "behavior_stage": "사용 의향",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-6fea1f7299201c2b",
+      "consumer_comment": "색소침착 고민인데 저도 한번 써봐야겠어요👍",
+      "validated_insight": "색소침착 고민으로 제품 사용 의사 밝힘",
+      "concern": "미백·잡티",
+      "behavior_stage": "사용 의향",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-3f4331f18767ecc3",
+      "consumer_comment": "저도 이걸로 꾸준히 관리해봐야겠어요",
+      "validated_insight": "제품으로 관리해보고자 하는 의지 표명",
+      "concern": "미백·잡티",
+      "behavior_stage": "사용 의향",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-adfab534a5d65b4b",
+      "consumer_comment": "저도 이걸로 칙칙한 피부 관리해봐야겠아여",
+      "validated_insight": "칙칙한 피부 관리를 위해 제품을 사용해 볼 의향이 있음",
+      "concern": "미백·잡티",
+      "behavior_stage": "사용 의향",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-7355aa9c87e42cef",
+      "consumer_comment": "맞힌개수 4개 , 화장품 공부 더 해서 🤓🧐🤔 성분조합까지 아는 고수될래요😍🥰😘😛 RE-CODE 크림은 세라마이드에 멜라토닌 펩타이드 PDRN을 함께 담았다니 밤에 꼭사용해보고싶어요 😇😇😇#루디언트 #ludient #세라마이드 #피부장벽",
+      "validated_insight": "RE-CODE 크림의 성분 조합을 확인하고 사용해 볼 의향이 있음",
+      "concern": "보습·장벽",
+      "behavior_stage": "사용 의향",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-ea730623ff31f2b7",
+      "consumer_comment": "코스노리 앰플!! 좋다고 들었는데 한번 써봐야겠는걸용?!❤️❤️",
+      "validated_insight": "제품에 대한 긍정적 평판을 듣고 사용해 볼 의향이 있음",
+      "concern": "없음",
+      "behavior_stage": "사용 의향",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-21308c3dbae70a35",
+      "consumer_comment": "요즘 판테놀 성분 있는거 위주로 보고있는데 요걸로 한번 써봐야겠어요!!",
+      "validated_insight": "판테놀 성분 제품을 찾던 중 해당 제품을 사용해 볼 의향이 있음",
+      "concern": "보습·장벽",
+      "behavior_stage": "사용 의향",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-c28a6a80f90c4b8e",
+      "consumer_comment": "속건조에 좋은 제품들 추천해 주세요오오🧖🏽‍♀️",
+      "validated_insight": "속건조 개선을 위한 제품 추천 요청",
+      "concern": "보습·장벽",
+      "behavior_stage": "사용 의향",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-1875fe9658b3338e",
+      "consumer_comment": "피부에 좋은거 나도 함 발라보자",
+      "validated_insight": "제품을 사용해보고 싶은 의지 표명",
+      "concern": "없음",
+      "behavior_stage": "사용 의향",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-dbe0bbcc02642748",
+      "consumer_comment": "요즘 환절기가 피부결도 안 좋고 모공이 고민이였는데 코스알엑스 더 나이아신아마이드 15 세럼 쓰고 피부 좋아지고 싶어요!!🫶🏻",
+      "validated_insight": "환절기 피부결과 모공 고민 해결을 위해 제품 사용 희망",
+      "concern": "모공·피지",
+      "behavior_stage": "사용 의향",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-3e5ffee986eda252",
+      "consumer_comment": "워낙 유명템이라 궁금해요 잡티케어로 !",
+      "validated_insight": "잡티 케어 제품에 대한 관심",
+      "concern": "미백·잡티",
+      "behavior_stage": "호기심",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-16c10753ecbcfb8c",
+      "consumer_comment": "💜 나이아신아마이드 15 세럼이라니, 피부 고민 해결을 위한 든든한 지원군이 나타난 느낌이에요! ✨ 환절기만 되면 속은 건조하고 겉은 번들거리는데, 모공은 도드라져 보이고 트러블 흔적까지 신경 쓰여 피부 관리가 참 쉽지 않더라고요. 🥹\n특히 바쁜 워킹맘의 일상에서는 피부에 공들일 시간은 부족해도 거울 속 피부 컨디션은 자꾸 눈에 들어오잖아요. 피지와 모공부터 트러블 흔적까지 한 번에 관리할 수 있다니 더욱 기대됩니다. 💗 나에게 맞는 사용법으로 피부 자극은 세심하게 살피면서 꾸준히 관리해 보고 싶어요.\n피부도 매일의 노력이 쌓여 달라지는 만큼, 이번 세럼으로 번들거림은 덜고 매끈한 피부결과 맑은 인상을 가꾸는 데 도움을 받고 싶네요. 🌿 모공은 숨고 싶게, 피부 자신감은 드러나게! 코스알엑스 더 나이아신아마이드 15 세럼으로 매일 거울 보는 시간이 조금 더 즐거워지길 기대합니다. 💜🪞",
+      "validated_insight": "피지, 모공, 트러블 흔적 등 복합적 피부 고민 해결을 위해 제품 사용 희망",
+      "concern": "모공·피지",
+      "behavior_stage": "사용 의향",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-a5e53260ce30859a",
+      "consumer_comment": "피지와 모공 깔끔 하게 케어해줄거같아 기대됩니다 🌿🌿 [계정 비공개] [계정 비공개]",
+      "validated_insight": "피지 및 모공 케어 효과에 대한 기대",
+      "concern": "모공·피지",
+      "behavior_stage": "호기심",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-59d3ff2d45aeec48",
+      "consumer_comment": "피지와 모공 깔끔하게 케어해줄거같아 기대됩니다 🩷 [계정 비공개] [계정 비공개]",
+      "validated_insight": "피지 및 모공 케어 효과에 대한 기대",
+      "concern": "모공·피지",
+      "behavior_stage": "호기심",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-e10bdc2f5ea07e30",
+      "consumer_comment": "요즘 피부결이 거칠고 모공이 도드라져 보여서 깔끔하게 관리해보고 싶어요✨ 피지부터 모공과 트러블 흔적까지 한 번에 케어할 수 있다니 꾸준히 사용해보고 싶어요💜[계정 비공개] [계정 비공개] [계정 비공개]",
+      "validated_insight": "거친 피부결과 모공, 트러블 흔적 케어를 위해 사용 희망",
+      "concern": "모공·피지",
+      "behavior_stage": "사용 의향",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-a15233cfa82ff49d",
+      "consumer_comment": "피지와 모공 깔끔 하게 케어해줄거 같아 기대됩니다 ❤️ [계정 비공개] [계정 비공개]",
+      "validated_insight": "피지 및 모공 케어 효과에 대한 기대",
+      "concern": "모공·피지",
+      "behavior_stage": "호기심",
+      "source_url": ""
+    },
+    {
+      "comment_key": "DEMO-3eacc373fb9f1f89",
+      "consumer_comment": "피지와 모공 깔끔 하게 케어해줄거같아 기대됩니다 🩷 [계정 비공개] [계정 비공개] [계정 비공개]",
+      "validated_insight": "피지 및 모공 케어 효과에 대한 기대",
+      "concern": "모공·피지",
+      "behavior_stage": "호기심",
+      "source_url": ""
+    }
+  ],
+  "research_limitations": [
+    "인스타그램 수집 표본이므로 전체 시장을 대표하지 않음",
+    "AI 및 규칙 기반 근거 판정은 인간의 최종 검증이 아님",
+    "시장 동향 데이터에는 v1/v2 분석 기준이 혼합될 수 있음",
+    "소비자 댓글은 실제 판매량이나 구매 전환율을 증명하지 않음",
+    "검증된 표본 범위 밖으로 결론을 일반화하지 말 것",
+    "전략 제안은 확정된 사업 기회가 아닌 검증 가능한 가설로 제시"
+  ]
+}
