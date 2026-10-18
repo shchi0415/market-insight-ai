@@ -305,6 +305,16 @@ selected_project = st.sidebar.selectbox(
 
 CURRENT_DATA_DIR = project_options[selected_project]
 
+# ===== POSITIONING AGENT V2 PRODUCT INPUT =====
+from positioning_agent.product_input_ui import (
+    render_product_input
+)
+
+with st.expander("제품 정보 입력 및 확인", expanded=False):
+    render_product_input(CURRENT_DATA_DIR)
+
+
+
 @st.cache_data
 def load_data(data_dir):
     posts_path = data_dir / "posts_clean.csv"
@@ -2067,3 +2077,24 @@ st.caption("Market Insight AI | Research Prototype")
 
 # AI 분석 테스트
 st.divider()
+
+
+# ===== POSITIONING AGENT V2 DASHBOARD =====
+# Existing strategy dashboard remains unchanged.
+
+from positioning_agent.strategy_dashboard import (
+    render_positioning_strategy_dashboard
+)
+
+positioning_package_path = (
+    CURRENT_DATA_DIR
+    / "positioning_strategy"
+    / "strategy_package.json"
+)
+
+if positioning_package_path.is_file():
+    st.divider()
+    render_positioning_strategy_dashboard(
+        positioning_package_path
+    )
+
