@@ -295,3 +295,134 @@ def evaluate_comment_classifications(manual, predicted):
         "false_positive_labels": fp,
         "false_negative_labels": fn
     }
+
+
+def run_comment_classification(
+    api_key,
+    payload,
+    model_name="gemini-3.8-flash"
+):
+    """Classify supplied comments with Gemini, without verifying claims."""
+
+    import json
+    from google import genai
+    from google.genai import types
+
+    if not isinstance(api_key, str) or not api_key.strip():
+        raise ValueError("Gemini API key is required.")
+
+    if not isinstance(payload, dict):
+        raise TypeError("payload must be a dictionary.")
+
+    # 호출자가 외부 전송 적합성을 확인했는지 명시적으로 검사
+    if payload.get("external_transfer_approved") is not True:
+        raise PermissionError(
+            "External transfer approval is required."
+        )
+
+    prompt = build_comment_classification_prompt(payload)
+
+    client = genai.Client(api_key=api_key)
+
+    response = client.models.generate_content(
+        model=model_name,
+        contents=prompt,
+        config=types.GenerateContentConfig(
+            response_mime_type="application/json",
+            temperature=0
+        )
+    )
+
+    if not response.text:
+        raise ValueError("Gemini returned an empty response.")
+
+    result = json.loads(response.text)
+
+    if not isinstance(result, dict):
+        raise ValueError("Gemini response must be a JSON object.")
+
+    classifications = result.get("classifications")
+
+    validate_comment_classifications(
+        [
+            {"evidence_id": item["evidence_id"]}
+            for item in payload["comments"]
+        ],
+        classifications
+    )
+
+    return {
+        "model": model_name,
+        "validation_status": "unverified",
+        "classifications": classifications
+    }
+
+
+def save_comment_classifications(result, output_path):
+    """Safely save validated classification labels without comment text."""
+
+    import json
+    from pathlib import Path
+
+    if not isinstance(result, dict):
+        raise TypeError("result must be a dictionary.")
+
+    if result.get("validation_status") != "unverified":
+        raise ValueError("Only unverified results can be saved.")
+
+    classifications = result.get("classifications")
+
+    if not isinstance(classifications, list) or not classifications:
+        raise ValueError("No classifications to save.")
+
+    # Existing ID and label validation, including duplicate detection.
+    evidence_ids = []
+
+    for item in classifications:
+        if not isinstance(item, dict):
+            raise TypeError("Each classification must be a dictionary.")
+
+        evidence_id = item.get("evidence_id")
+
+        if not isinstance(evidence_id, str) or not evidence_id.strip():
+            raise ValueError("Invalid evidence ID.")
+
+        evidence_ids.append(evidence_id)
+
+    evidence = [
+        {"evidence_id": evidence_id}
+        for evidence_id in evidence_ids
+    ]
+
+    validate_comment_classifications(
+        evidence,
+        classifications
+    )
+
+    # Explicitly whitelist saved fields, excluding comment text.
+    safe_result = {
+        "model": result.get("model"),
+        "validation_status": "unverified",
+        "classifications": [
+            {
+                "evidence_id": item["evidence_id"],
+                "labels": item["labels"],
+                "validation_status": "unverified"
+            }
+            for item in classifications
+        ]
+    }
+
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Exclusive creation prevents overwriting an existing file.
+    with output_path.open("x", encoding="utf-8") as f:
+        json.dump(
+            safe_result,
+            f,
+            ensure_ascii=False,
+            indent=2
+        )
+
+    return output_path

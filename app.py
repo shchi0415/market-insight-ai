@@ -332,6 +332,407 @@ with st.expander("제품 정보 입력 및 확인", expanded=False):
     render_product_input(CURRENT_DATA_DIR)
 
 
+# ===== STEP 9-164: AUTOMATED YOUTUBE KEYWORDS =====
+with st.expander("YouTube 시장조사 · 검색 키워드", expanded=False):
+    import json as keyword_json
+    from positioning_agent.keyword_engine import (
+        generate_and_select_keywords,
+        save_keyword_generation
+    )
+
+    keyword_result_path = (
+        CURRENT_DATA_DIR
+        / "youtube_analysis"
+        / "keyword_generation.json"
+    )
+
+    keyword_product_path = CURRENT_DATA_DIR / "product_info.json"
+
+    if keyword_result_path.is_file():
+        try:
+            keyword_result = keyword_json.loads(
+                keyword_result_path.read_text(encoding="utf-8")
+            )
+
+            st.success("검색 키워드 생성 결과가 저장되어 있습니다.")
+
+            st.caption(
+                "AI 생성 및 규칙 기반 보완 키워드입니다. "
+                "검색 결과나 시장 수요가 검증된 것은 아닙니다."
+            )
+
+            keyword_sections = {
+                "market_keywords": (
+                    "시장 동향 분석",
+                    "시장 전반의 트렌드를 파악하기 위한 검색어"
+                ),
+                "consumer_need_keywords": (
+                    "소비자 니즈 분석",
+                    "소비자의 피부 고민과 구매 니즈를 살펴볼 검색어"
+                ),
+                "own_product_keywords": (
+                    "자사 제품 분석",
+                    "자사 제품 관련 콘텐츠를 찾기 위한 검색어"
+                ),
+                "competitor_keywords": (
+                    "경쟁 제품 분석",
+                    "유사 제품과 비교 콘텐츠를 탐색할 검색어"
+                )
+            }
+
+            selected_keywords = keyword_result.get(
+                "search_keywords", {}
+            )
+
+            total_keywords = sum(
+                len(selected_keywords.get(category, []))
+                for category in keyword_sections
+            )
+
+            st.markdown(
+                f"**YouTube 검색 키워드 · 총 {total_keywords}개**"
+            )
+
+            for category, (title, description) in keyword_sections.items():
+                keywords = selected_keywords.get(category, [])
+
+                st.markdown(f"#### {title}")
+                st.caption(description)
+
+                if keywords:
+                    st.markdown(
+                        "　 ·　 ".join(
+                            f"`{keyword}`" for keyword in keywords
+                        )
+                    )
+                else:
+                    st.caption("생성된 검색어가 없습니다.")
+
+            if keyword_result.get(
+                "keyword_quality", {}
+            ).get("own_product_review_required"):
+                st.info(
+                    "일부 자사 제품 검색어는 규칙으로 보완되었습니다."
+                )
+
+        except (OSError, ValueError, TypeError):
+            st.warning("저장된 키워드 결과를 읽지 못했습니다.")
+
+    elif not keyword_product_path.is_file():
+        st.info("먼저 제품 정보를 입력하고 저장해 주세요.")
+
+    else:
+        st.caption(
+            "현재 프로젝트의 제품 정보를 바탕으로 "
+            "YouTube 검색 키워드를 생성합니다."
+        )
+        st.caption(
+            "Gemini API 1회가 호출될 수 있으며, "
+            "서비스 이용 조건에 따라 비용이 발생할 수 있습니다."
+        )
+
+        if st.button(
+            "검색 키워드 자동 생성",
+            key=f"generate_keywords_{selected_project}"
+        ):
+            try:
+                gemini_key = st.secrets.get("GEMINI_API_KEY")
+
+                if not gemini_key:
+                    st.error("Gemini API 키가 설정되어 있지 않습니다.")
+
+                else:
+                    product_data = keyword_json.loads(
+                        keyword_product_path.read_text(encoding="utf-8")
+                    )
+
+                    with st.spinner("검색 키워드를 생성하고 있습니다..."):
+                        keyword_result = generate_and_select_keywords(
+                            api_key=gemini_key,
+                            product_info=product_data
+                        )
+
+                        save_keyword_generation(
+                            keyword_result,
+                            CURRENT_DATA_DIR
+                        )
+
+                    st.success("검색 키워드 생성 및 저장 완료!")
+                    st.rerun()
+
+            except FileExistsError:
+                st.info("이미 키워드 결과가 저장되어 있습니다.")
+                st.rerun()
+
+            except Exception:
+                st.error(
+                    "키워드 생성 중 오류가 발생했습니다. "
+                    "기존 프로젝트 데이터는 유지됩니다."
+                )
+
+
+
+
+
+# ===== STEP 9-181: YOUTUBE VIDEO SEARCH UI =====
+with st.expander("YouTube 영상 자동 검색", expanded=False):
+    import json as youtube_json
+
+    from positioning_agent.youtube_engine import (
+        run_project_video_search_safely
+    )
+
+    youtube_analysis_dir = CURRENT_DATA_DIR / "youtube_analysis"
+
+    youtube_keyword_path = (
+        youtube_analysis_dir / "keyword_generation.json"
+    )
+
+    youtube_result_path = (
+        youtube_analysis_dir / "youtube_search_results.json"
+    )
+
+    if youtube_result_path.is_file():
+        try:
+            saved_search = youtube_json.loads(
+                youtube_result_path.read_text(encoding="utf-8")
+            )
+
+            st.success("YouTube 영상 검색이 완료되었습니다.")
+            st.metric(
+                "수집된 고유 영상",
+                saved_search.get("video_count", 0)
+            )
+            st.caption(
+                "검색 결과에 포함된 영상은 아직 AI 관련성 평가를 "
+                "거치지 않았습니다."
+            )
+
+        except (OSError, ValueError, TypeError):
+            st.warning("저장된 영상 검색 결과를 읽지 못했습니다.")
+
+    elif not youtube_keyword_path.is_file():
+        st.info("먼저 YouTube 검색 키워드를 생성해 주세요.")
+
+    else:
+        try:
+            saved_keywords = youtube_json.loads(
+                youtube_keyword_path.read_text(encoding="utf-8")
+            )["search_keywords"]
+
+            keyword_count = sum(
+                len(values) for values in saved_keywords.values()
+            )
+
+            st.write(f"**검색 예정 키워드: {keyword_count}개**")
+            st.write(
+                f"**예상 YouTube API 할당량: "
+                f"{keyword_count * 100:,}단위**"
+            )
+
+            st.caption(
+                "YouTube Data API의 search.list 요청은 "
+                "검색어당 일반적으로 100단위를 사용합니다."
+            )
+
+            if st.button(
+                "YouTube 영상 검색 실행",
+                key=f"youtube_search_{selected_project}"
+            ):
+                youtube_key = st.secrets.get("YOUTUBE_API_KEY")
+
+                if not youtube_key:
+                    st.error(
+                        "YouTube API 키가 설정되지 않았습니다."
+                    )
+
+                else:
+                    with st.spinner(
+                        "YouTube 영상을 검색하고 있습니다..."
+                    ):
+                        try:
+                            result = run_project_video_search_safely(
+                                api_key=youtube_key,
+                                project_dir=CURRENT_DATA_DIR,
+                                max_results=10
+                            )
+
+                            if result["status"] == "completed":
+                                st.success(
+                                    f"검색 완료: "
+                                    f"{result['video_count']}개 영상"
+                                )
+                                st.rerun()
+
+                            elif result["status"] == "already_exists":
+                                st.info(
+                                    "이미 저장된 검색 결과를 사용합니다."
+                                )
+                                st.rerun()
+
+                            elif result["status"] == "already_running":
+                                st.warning(
+                                    "현재 프로젝트의 영상 검색이 "
+                                    "이미 진행 중입니다."
+                                )
+
+                        except Exception:
+                            st.error(
+                                "영상 검색 중 오류가 발생했습니다. "
+                                "일부 API 할당량이 사용되었을 수 있습니다. "
+                                "원인을 확인하기 전에는 재실행하지 마세요."
+                            )
+
+        except (OSError, ValueError, TypeError, KeyError):
+            st.warning(
+                "저장된 검색 키워드를 읽지 못했습니다."
+            )
+
+
+
+# ===== STEP 9-202: VIDEO RELEVANCE UI =====
+with st.expander("YouTube 영상 AI 관련성 평가", expanded=False):
+    import json as relevance_json
+    from collections import Counter
+
+    from positioning_agent.video_relevance_engine import (
+        run_project_video_relevance_safely
+    )
+
+    relevance_dir = CURRENT_DATA_DIR / "youtube_analysis"
+    search_path = relevance_dir / "youtube_search_results.json"
+    relevance_path = relevance_dir / "video_relevance_results.json"
+
+    if relevance_path.is_file():
+        try:
+            saved_relevance = relevance_json.loads(
+                relevance_path.read_text(encoding="utf-8")
+            )
+
+            classified_videos = saved_relevance[
+                "relevance_result"
+            ]["videos"]
+
+            counts = Counter(
+                video["relevance"]
+                for video in classified_videos
+            )
+
+            st.success("영상 AI 관련성 평가 결과가 저장되어 있습니다.")
+            st.caption(
+                "영상 제목·설명 기반 AI 분류이며, "
+                "실제 영상 내용을 시청하거나 사람이 검증한 결과는 아닙니다."
+            )
+
+            st.metric("평가 완료 영상", len(classified_videos))
+
+            labels = {
+                "Core": "핵심 관련",
+                "Adjacent": "인접 관련",
+                "Uncertain": "추가 검토",
+                "Exclude": "제외"
+            }
+
+            for label, description in labels.items():
+                st.write(
+                    f"**{description}: {counts.get(label, 0)}개**"
+                )
+
+        except (OSError, ValueError, TypeError, KeyError):
+            st.warning("저장된 영상 평가 결과를 읽지 못했습니다.")
+
+    elif not search_path.is_file():
+        st.info("먼저 YouTube 영상 자동 검색을 실행해 주세요.")
+
+    else:
+        try:
+            search_data = relevance_json.loads(
+                search_path.read_text(encoding="utf-8")
+            )
+
+            video_count = len(search_data["videos"])
+
+            st.write(f"**AI 평가 예정 영상: {video_count}개**")
+
+            st.caption(
+                "Gemini API를 사용해 영상의 제목, 설명, "
+                "검색 카테고리를 평가합니다."
+            )
+
+            st.caption(
+                "실제 영상 시청이나 댓글 분석은 수행하지 않습니다. "
+                "API 사용량과 비용이 발생할 수 있습니다."
+            )
+
+            if st.button(
+                "AI 영상 관련성 평가 실행",
+                key=f"video_relevance_{selected_project}"
+            ):
+                gemini_key = st.secrets.get("GEMINI_API_KEY")
+
+                if not gemini_key:
+                    st.error("Gemini API 키가 설정되지 않았습니다.")
+
+                else:
+                    with st.spinner(
+                        "Gemini가 영상 관련성을 평가하고 있습니다..."
+                    ):
+                        try:
+                            result = run_project_video_relevance_safely(
+                                api_key=gemini_key,
+                                project_dir=CURRENT_DATA_DIR
+                            )
+
+                            if result["status"] == "completed":
+                                st.success("AI 영상 관련성 평가 완료!")
+                                st.rerun()
+
+                            elif result["status"] == "already_exists":
+                                st.info("기존 평가 결과를 불러옵니다.")
+                                st.rerun()
+
+                            elif result["status"] == "already_running":
+                                st.warning(
+                                    "현재 프로젝트에서 AI 평가가 "
+                                    "이미 진행 중입니다."
+                                )
+
+                        except Exception as error:
+                            import logging
+
+                            error_type = type(error).__name__
+                            status_code = getattr(error, "code", None)
+
+                            if status_code is None:
+                                status_code = getattr(
+                                    error, "status_code", None
+                                )
+
+                            safe_status = (
+                                str(status_code)
+                                if isinstance(status_code, int)
+                                and 400 <= status_code <= 599
+                                else "확인 불가"
+                            )
+
+                            logging.getLogger(__name__).error(
+                                "Video relevance evaluation failed: "
+                                "type=%s, status=%s",
+                                error_type,
+                                safe_status
+                            )
+
+                            st.error(
+                                "영상 관련성 평가 중 오류가 발생했습니다. "
+                                "원인 확인 전 재실행하지 마세요."
+                            )
+                            st.caption(
+                                f"오류 유형: {error_type} / "
+                                f"HTTP 상태: {safe_status}"
+                            )
+
+        except (OSError, ValueError, TypeError, KeyError):
+            st.warning("저장된 영상 검색 결과를 읽지 못했습니다.")
 
 @st.cache_data
 def load_data(data_dir):
@@ -2189,3 +2590,62 @@ if positioning_package_path.is_file():
         positioning_package_path
     )
 
+
+
+# ===== STEP 9-133: COMMENT CLASSIFICATION RESULTS =====
+st.divider()
+st.subheader("YouTube 댓글 AI 분류 결과")
+
+classification_path = (
+    CURRENT_DATA_DIR
+    / "youtube_analysis"
+    / "comment_classifications.json"
+)
+
+if classification_path.is_file():
+    try:
+        import json
+
+        classification_data = json.loads(
+            classification_path.read_text(encoding="utf-8")
+        )
+
+        classification_records = classification_data.get(
+            "classifications", []
+        )
+
+        if (
+            classification_data.get("validation_status") != "unverified"
+            or not isinstance(classification_records, list)
+        ):
+            st.warning("댓글 분류 결과 형식을 확인해야 합니다.")
+
+        else:
+            st.caption(
+                "AI 자동 분류 결과입니다. "
+                "댓글 내용 및 제품 효능이 검증된 것은 아닙니다."
+            )
+
+            display_records = [
+                {
+                    "근거 ID": item.get("evidence_id", ""),
+                    "분류": ", ".join(item.get("labels", []))
+                }
+                for item in classification_records
+                if isinstance(item, dict)
+            ]
+
+            st.dataframe(
+                display_records,
+                use_container_width=True,
+                hide_index=True
+            )
+
+    except (OSError, ValueError, TypeError):
+        st.warning("댓글 분류 결과를 불러오지 못했습니다.")
+
+else:
+    st.info(
+        "현재 프로젝트에 저장된 YouTube 댓글 "
+        "AI 분류 결과가 없습니다."
+    )

@@ -102,6 +102,13 @@ Uncertain:
 9. confidence는 high, medium, low 중 선택하세요.
    이는 통계적 신뢰도가 아닌 판단의 명확성입니다.
 10. 결과는 반드시 JSON 객체로 반환하세요.
+11. Uncertain으로 분류한 영상은 반드시 requires_review를 true로 설정하세요.
+12. 제목·설명이 모호하거나 판단 근거가 부족한 경우
+    requires_review를 true로 설정하세요.
+13. requires_review=false는 입력 정보만으로 분류 근거가
+    충분히 확인되는 경우에만 사용하세요.
+14. 제목이나 설명이 비어 있다는 이유만으로 자동 제외하지 말고,
+    남아 있는 정보로 판단할 수 없다면 Uncertain으로 분류하세요.
 
 [출력 형식]
 {{
@@ -170,6 +177,14 @@ def validate_video_relevance(input_data, output_data):
         if not isinstance(video.get("requires_review"), bool):
             raise ValueError(f"Invalid review flag: {video_id}")
 
+        if (
+            video.get("relevance") == "Uncertain"
+            and video["requires_review"] is not True
+        ):
+            raise ValueError(
+                f"Uncertain video must require review: {video_id}"
+            )
+
         reason = video.get("reason")
 
         if not isinstance(reason, str) or not reason.strip():
@@ -212,7 +227,8 @@ def run_video_relevance(
         contents=prompt,
         config=types.GenerateContentConfig(
             response_mime_type="application/json",
-            temperature=0.1
+            temperature=0.1,
+            max_output_tokens=16384
         )
     )
 
@@ -302,4 +318,649 @@ def select_videos_for_collection(
         "adjacent_video_ids": selected_adjacent,
         "held_video_ids": held,
         "excluded_video_ids": excluded
+    }
+
+
+def save_video_relevance_results(
+    relevance_input,
+    relevance_result,
+    project_dir
+):
+    """Validate and save AI video relevance results per project."""
+
+    import json
+    from pathlib import Path
+
+    # Gemini result must match the original video input.
+    validate_video_relevance(
+        relevance_input,
+        relevance_result
+    )
+
+    project_dir = Path(project_dir)
+
+    if not project_dir.is_dir():
+        raise ValueError("Project directory does not exist.")
+
+    if not (project_dir / "project_info.json").is_file():
+        raise ValueError("Project metadata is missing.")
+
+    search_path = (
+        project_dir / "youtube_analysis"
+        / "youtube_search_results.json"
+    )
+
+    if not search_path.is_file():
+        raise FileNotFoundError(
+            "Original YouTube search results are missing."
+        )
+
+    search_data = json.loads(
+        search_path.read_text(encoding="utf-8")
+    )
+
+    original_ids = {
+        video["video_id"]
+        for video in search_data["videos"]
+    }
+
+    input_ids = {
+        video["video_id"]
+        for video in relevance_input["videos"]
+    }
+
+    if original_ids != input_ids:
+        raise ValueError(
+            "Relevance input does not match saved search videos."
+        )
+
+    output_dir = project_dir / "youtube_analysis"
+    output_path = output_dir / "video_relevance_results.json"
+
+    payload = {
+        "source": "gemini_video_relevance_classification",
+        "model": relevance_result.get("model"),
+        "input_video_count": len(input_ids),
+        "relevance_result": relevance_result,
+        "validation_status": "model_classified_not_human_verified"
+    }
+
+    # Do not overwrite previous classification results.
+    with output_path.open("x", encoding="utf-8") as f:
+        json.dump(
+            payload,
+            f,
+            ensure_ascii=False,
+            indent=2
+        )
+
+    return output_path
+
+
+def run_project_video_relevance(
+    api_key,
+    project_dir,
+    model_name="gemini-3.8-flash"
+):
+    """Classify saved YouTube videos and persist validated results."""
+
+    import json
+    from pathlib import Path
+
+    project_dir = Path(project_dir)
+
+    if not project_dir.is_dir():
+        raise ValueError("Project directory does not exist.")
+
+    if not (project_dir / "project_info.json").is_file():
+        raise ValueError("Project metadata is missing.")
+
+    analysis_dir = project_dir / "youtube_analysis"
+    output_path = analysis_dir / "video_relevance_results.json"
+
+    # Never repeat the model call when a result already exists.
+    if output_path.exists():
+        return {
+            "status": "already_exists",
+            "output_path": str(output_path),
+            "model_calls": 0
+        }
+
+    search_path = analysis_dir / "youtube_search_results.json"
+    product_path = project_dir / "product_info.json"
+
+    if not search_path.is_file():
+        raise FileNotFoundError("YouTube search results are missing.")
+
+    if not product_path.is_file():
+        raise FileNotFoundError("Product information is missing.")
+
+    search_data = json.loads(
+        search_path.read_text(encoding="utf-8")
+    )
+
+    product_info = json.loads(
+        product_path.read_text(encoding="utf-8")
+    )
+
+    videos = search_data.get("videos")
+
+    if not isinstance(videos, list) or not videos:
+        raise ValueError("No valid search videos to classify.")
+
+    if len(videos) > 100:
+        raise ValueError("Too many videos for one evaluation.")
+
+    relevance_input = prepare_video_relevance_input(
+        videos,
+        product_info
+    )
+
+    if relevance_input["video_count"] != len(videos):
+        raise ValueError("Input video IDs are missing or duplicated.")
+
+    if not api_key:
+        raise ValueError("Gemini API key is missing.")
+
+    result = run_video_relevance(
+        api_key=api_key,
+        relevance_input=relevance_input,
+        model_name=model_name
+    )
+
+    saved_path = save_video_relevance_results(
+        relevance_input=relevance_input,
+        relevance_result=result,
+        project_dir=project_dir
+    )
+
+    from collections import Counter
+
+    counts = Counter(
+        video["relevance"]
+        for video in result["videos"]
+    )
+
+    return {
+        "status": "completed",
+        "output_path": str(saved_path),
+        "model_calls": 1,
+        "video_count": len(result["videos"]),
+        "relevance_counts": {
+            label: counts.get(label, 0)
+            for label in ("Core", "Adjacent", "Uncertain", "Exclude")
+        }
+    }
+
+
+def run_project_video_relevance_safely(
+    api_key,
+    project_dir,
+    model_name="gemini-3.8-flash"
+):
+    """Prevent simultaneous Gemini evaluations for one project."""
+
+    import os
+    from pathlib import Path
+
+    project_dir = Path(project_dir)
+
+    if not project_dir.is_dir():
+        raise ValueError("Project directory does not exist.")
+
+    if not (project_dir / "project_info.json").is_file():
+        raise ValueError("Project metadata is missing.")
+
+    analysis_dir = project_dir / "youtube_analysis"
+    analysis_dir.mkdir(parents=True, exist_ok=True)
+
+    output_path = analysis_dir / "video_relevance_results.json"
+    lock_path = analysis_dir / ".video_relevance.lock"
+
+    if output_path.exists():
+        return {
+            "status": "already_exists",
+            "output_path": str(output_path),
+            "model_calls": 0
+        }
+
+    # Only one process can create this lock file.
+    try:
+        fd = os.open(
+            str(lock_path),
+            os.O_CREAT | os.O_EXCL | os.O_WRONLY,
+            0o600
+        )
+    except FileExistsError:
+        return {
+            "status": "already_running",
+            "model_calls": 0
+        }
+
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            f.write(str(os.getpid()))
+
+        # Recheck after obtaining the lock.
+        if output_path.exists():
+            return {
+                "status": "already_exists",
+                "output_path": str(output_path),
+                "model_calls": 0
+            }
+
+        return run_project_video_relevance(
+            api_key=api_key,
+            project_dir=project_dir,
+            model_name=model_name
+        )
+
+    finally:
+        lock_path.unlink(missing_ok=True)
+
+
+def save_video_relevance_batch(
+    batch_input,
+    batch_result,
+    project_dir,
+    batch_number
+):
+    """Validate and save one completed video relevance batch."""
+
+    import json
+    from pathlib import Path
+
+    if (
+        not isinstance(batch_number, int)
+        or isinstance(batch_number, bool)
+        or batch_number < 1
+    ):
+        raise ValueError("Invalid batch number.")
+
+    # Validate the complete response before writing a file.
+    validate_video_relevance(batch_input, batch_result)
+
+    project_dir = Path(project_dir)
+
+    if not project_dir.is_dir():
+        raise ValueError("Project directory does not exist.")
+
+    if not (project_dir / "project_info.json").is_file():
+        raise ValueError("Project metadata is missing.")
+
+    search_path = (
+        project_dir / "youtube_analysis"
+        / "youtube_search_results.json"
+    )
+
+    if not search_path.is_file():
+        raise FileNotFoundError(
+            "Original YouTube search results are missing."
+        )
+
+    search_data = json.loads(
+        search_path.read_text(encoding="utf-8")
+    )
+
+    original_ids = [
+        video["video_id"]
+        for video in search_data["videos"]
+    ]
+
+    batch_ids = [
+        video["video_id"]
+        for video in batch_input["videos"]
+    ]
+
+    batch_size = 15
+    expected_ids = original_ids[
+        (batch_number - 1) * batch_size:
+        batch_number * batch_size
+    ]
+
+    if not expected_ids:
+        raise ValueError("Batch number is outside the video range.")
+
+    if batch_ids != expected_ids:
+        raise ValueError(
+            "Batch video IDs do not match the expected source order."
+        )
+
+    if batch_input.get("video_count") != len(expected_ids):
+        raise ValueError("Batch video count does not match.")
+
+    batch_dir = (
+        project_dir / "youtube_analysis"
+        / "video_relevance_batches"
+    )
+
+    batch_dir.mkdir(parents=True, exist_ok=True)
+
+    output_path = batch_dir / f"batch_{batch_number:03d}.json"
+
+    payload = {
+        "batch_number": batch_number,
+        "video_count": len(batch_ids),
+        "video_ids": batch_ids,
+        "relevance_result": batch_result,
+        "validation_status": "model_classified_not_human_verified"
+    }
+
+    # Exclusive file creation prevents accidental overwriting.
+    with output_path.open("x", encoding="utf-8") as f:
+        json.dump(
+            payload,
+            f,
+            ensure_ascii=False,
+            indent=2
+        )
+
+    return output_path
+
+
+def run_project_video_relevance_batched(
+    api_key,
+    project_dir,
+    model_name="gemini-3.8-flash"
+):
+    """Evaluate missing batches while preserving completed results."""
+
+    import json
+    from pathlib import Path
+
+    project_dir = Path(project_dir)
+    analysis_dir = project_dir / "youtube_analysis"
+
+    if not (project_dir / "project_info.json").is_file():
+        raise ValueError("Project metadata is missing.")
+
+    search_path = analysis_dir / "youtube_search_results.json"
+    product_path = project_dir / "product_info.json"
+    final_path = analysis_dir / "video_relevance_results.json"
+
+    if final_path.exists():
+        return {
+            "status": "already_exists",
+            "model_calls": 0
+        }
+
+    if not search_path.is_file() or not product_path.is_file():
+        raise FileNotFoundError(
+            "Search results or product information is missing."
+        )
+
+    search_data = json.loads(
+        search_path.read_text(encoding="utf-8")
+    )
+    product_info = json.loads(
+        product_path.read_text(encoding="utf-8")
+    )
+
+    videos = search_data.get("videos")
+    if not isinstance(videos, list) or not videos:
+        raise ValueError("No search videos available.")
+
+    prepared = prepare_video_relevance_input(
+        videos, product_info
+    )
+
+    if prepared["video_count"] != len(videos):
+        raise ValueError("Invalid or duplicate source video IDs.")
+
+    all_videos = prepared["videos"]
+    batch_size = 15
+    batch_dir = analysis_dir / "video_relevance_batches"
+
+    completed = []
+    pending = []
+
+    for start in range(0, len(all_videos), batch_size):
+        batch_number = start // batch_size + 1
+        batch_videos = all_videos[start:start + batch_size]
+
+        batch_input = {
+            "product_info": product_info,
+            "videos": batch_videos,
+            "video_count": len(batch_videos)
+        }
+
+        batch_path = batch_dir / f"batch_{batch_number:03d}.json"
+
+        if batch_path.is_file():
+            saved = json.loads(
+                batch_path.read_text(encoding="utf-8")
+            )
+
+            expected_ids = [v["video_id"] for v in batch_videos]
+
+            if saved.get("batch_number") != batch_number:
+                raise ValueError("Saved batch number mismatch.")
+
+            if saved.get("video_ids") != expected_ids:
+                raise ValueError("Saved batch video IDs mismatch.")
+
+            validate_video_relevance(
+                batch_input, saved["relevance_result"]
+            )
+
+            completed.append(batch_number)
+
+        else:
+            pending.append((batch_number, batch_input))
+
+    if pending and not api_key:
+        raise ValueError("Gemini API key is missing.")
+
+    model_calls = 0
+
+    for batch_number, batch_input in pending:
+        result = run_video_relevance(
+            api_key=api_key,
+            relevance_input=batch_input,
+            model_name=model_name
+        )
+
+        model_calls += 1
+
+        save_video_relevance_batch(
+            batch_input=batch_input,
+            batch_result=result,
+            project_dir=project_dir,
+            batch_number=batch_number
+        )
+
+        completed.append(batch_number)
+
+    return {
+        "status": "batches_completed",
+        "model_calls": model_calls,
+        "completed_batches": sorted(completed),
+        "batch_count": len(completed),
+        "video_count": len(all_videos),
+        "final_result_created": False
+    }
+
+
+def merge_video_relevance_batches(project_dir, batch_size=15):
+    """Merge complete, validated video relevance batches."""
+
+    import json
+    from pathlib import Path
+
+    if batch_size != 15:
+        raise ValueError("Only the validated batch size of 15 is supported.")
+
+    project_dir = Path(project_dir)
+    analysis_dir = project_dir / "youtube_analysis"
+
+    if not (project_dir / "project_info.json").is_file():
+        raise ValueError("Project metadata is missing.")
+
+    search_path = analysis_dir / "youtube_search_results.json"
+    product_path = project_dir / "product_info.json"
+    final_path = analysis_dir / "video_relevance_results.json"
+    batch_dir = analysis_dir / "video_relevance_batches"
+
+    if final_path.exists():
+        return {
+            "status": "already_exists",
+            "output_path": str(final_path)
+        }
+
+    if not search_path.is_file() or not product_path.is_file():
+        raise FileNotFoundError("Source data is missing.")
+
+    search_data = json.loads(
+        search_path.read_text(encoding="utf-8")
+    )
+    product_info = json.loads(
+        product_path.read_text(encoding="utf-8")
+    )
+
+    prepared = prepare_video_relevance_input(
+        search_data["videos"], product_info
+    )
+
+    original_ids = [
+        video["video_id"] for video in search_data["videos"]
+    ]
+
+    if not original_ids or len(original_ids) != prepared["video_count"]:
+        raise ValueError("Invalid original video IDs.")
+
+    merged_videos = []
+    batch_models = []
+
+    total_batches = (
+        len(original_ids) + batch_size - 1
+    ) // batch_size
+
+    for number in range(1, total_batches + 1):
+        start = (number - 1) * batch_size
+
+        batch_videos = prepared["videos"][
+            start:start + batch_size
+        ]
+
+        batch_input = {
+            "product_info": product_info,
+            "videos": batch_videos,
+            "video_count": len(batch_videos)
+        }
+
+        batch_path = batch_dir / f"batch_{number:03d}.json"
+
+        if not batch_path.is_file():
+            raise FileNotFoundError(
+                f"Missing completed batch: {number}"
+            )
+
+        saved = json.loads(
+            batch_path.read_text(encoding="utf-8")
+        )
+
+        expected_ids = [
+            video["video_id"] for video in batch_videos
+        ]
+
+        if saved.get("batch_number") != number:
+            raise ValueError("Batch number mismatch.")
+
+        if saved.get("video_count") != len(expected_ids):
+            raise ValueError("Batch video count mismatch.")
+
+        if saved.get("video_ids") != expected_ids:
+            raise ValueError("Batch video ID mismatch.")
+
+        result = saved["relevance_result"]
+
+        validate_video_relevance(batch_input, result)
+
+        result_by_id = {
+            video["video_id"]: video
+            for video in result["videos"]
+        }
+
+        merged_videos.extend(
+            result_by_id[video_id]
+            for video_id in expected_ids
+        )
+
+        batch_models.append(result.get("model"))
+
+    # Preserve model provenance in the merged classification.
+    unique_models = sorted({
+        model for model in batch_models
+        if isinstance(model, str) and model.strip()
+    })
+
+    merged_result = {
+        "model": (
+            unique_models[0]
+            if len(unique_models) == 1
+            else "mixed_or_unrecorded"
+        ),
+        "batch_models": batch_models,
+        "videos": merged_videos
+    }
+
+    validate_video_relevance(prepared, merged_result)
+
+    saved_path = save_video_relevance_results(
+        relevance_input=prepared,
+        relevance_result=merged_result,
+        project_dir=project_dir
+    )
+
+    return {
+        "status": "completed",
+        "output_path": str(saved_path),
+        "video_count": len(merged_videos),
+        "batch_count": total_batches,
+        "batch_models": batch_models
+    }
+
+
+def run_and_merge_video_relevance_batches(
+    api_key,
+    project_dir,
+    model_name="gemini-3.8-flash"
+):
+    """Resume incomplete batches and merge all verified-format outputs."""
+
+    from pathlib import Path
+
+    project_dir = Path(project_dir)
+
+    final_path = (
+        project_dir / "youtube_analysis"
+        / "video_relevance_results.json"
+    )
+
+    if final_path.exists():
+        return {
+            "status": "already_exists",
+            "output_path": str(final_path),
+            "model_calls": 0
+        }
+
+    # Evaluate only missing batches.
+    batch_status = run_project_video_relevance_batched(
+        api_key=api_key,
+        project_dir=project_dir,
+        model_name=model_name
+    )
+
+    # Merge only after every batch has completed.
+    merged = merge_video_relevance_batches(
+        project_dir=project_dir
+    )
+
+    return {
+        "status": "completed",
+        "output_path": merged["output_path"],
+        "model_calls": batch_status["model_calls"],
+        "video_count": merged["video_count"],
+        "batch_count": merged["batch_count"],
+        "batch_models": merged["batch_models"]
     }

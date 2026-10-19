@@ -184,3 +184,238 @@ def get_video_comments(api_key, video_id, max_comments=30):
             })
 
     return comments
+
+
+def save_video_search_results(videos, project_dir, search_keywords):
+    """Save YouTube search results without overwriting existing data."""
+
+    import json
+    from pathlib import Path
+
+    if not isinstance(videos, list):
+        raise TypeError("videos must be a list.")
+
+    if not isinstance(search_keywords, dict):
+        raise TypeError("search_keywords must be a dictionary.")
+
+    if set(search_keywords) != set(KEYWORD_CATEGORIES):
+        raise ValueError("Unexpected search keyword categories.")
+
+    normalized_keywords = {}
+
+    for category in KEYWORD_CATEGORIES:
+        keywords = search_keywords[category]
+
+        if not isinstance(keywords, list):
+            raise ValueError(f"Invalid keywords: {category}")
+
+        if not all(
+            isinstance(keyword, str) and keyword.strip()
+            for keyword in keywords
+        ):
+            raise ValueError(f"Invalid keyword value: {category}")
+
+        normalized_keywords[category] = list(keywords)
+
+    seen_ids = set()
+
+    for video in videos:
+        if not isinstance(video, dict):
+            raise ValueError("Every video must be a dictionary.")
+
+        video_id = video.get("video_id")
+
+        if not isinstance(video_id, str) or not video_id.strip():
+            raise ValueError("Video ID is missing.")
+
+        if video_id in seen_ids:
+            raise ValueError("Duplicate video ID found.")
+
+        seen_ids.add(video_id)
+
+    project_dir = Path(project_dir)
+
+    if not project_dir.is_dir():
+        raise ValueError("Project directory does not exist.")
+
+    if not (project_dir / "project_info.json").is_file():
+        raise ValueError("Project metadata is missing.")
+
+    output_dir = project_dir / "youtube_analysis"
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    output_path = output_dir / "youtube_search_results.json"
+
+    payload = {
+        "source": "youtube_data_api_v3",
+        "search_keywords": normalized_keywords,
+        "video_count": len(videos),
+        "videos": videos
+    }
+
+    # Exclusive creation prevents accidental overwrites.
+    with output_path.open("x", encoding="utf-8") as f:
+        json.dump(payload, f, ensure_ascii=False, indent=2)
+
+    return output_path
+
+
+def run_project_video_search(
+    api_key,
+    project_dir,
+    max_results=10
+):
+    """Search YouTube once per keyword and save project results."""
+
+    import json
+    from pathlib import Path
+
+    project_dir = Path(project_dir)
+
+    keyword_path = (
+        project_dir / "youtube_analysis" / "keyword_generation.json"
+    )
+
+    output_path = (
+        project_dir / "youtube_analysis" / "youtube_search_results.json"
+    )
+
+    # Check before any API request.
+    if output_path.exists():
+        return {
+            "status": "already_exists",
+            "output_path": str(output_path),
+            "api_requests": 0
+        }
+
+    if not keyword_path.is_file():
+        raise FileNotFoundError("Keyword generation result is missing.")
+
+    keyword_result = json.loads(
+        keyword_path.read_text(encoding="utf-8")
+    )
+
+    search_keywords = keyword_result.get("search_keywords")
+
+    if not isinstance(search_keywords, dict):
+        raise ValueError("Search keywords are invalid.")
+
+    if set(search_keywords) != set(KEYWORD_CATEGORIES):
+        raise ValueError("Unexpected search keyword categories.")
+
+    total_keywords = 0
+    normalized = set()
+
+    for category in KEYWORD_CATEGORIES:
+        values = search_keywords[category]
+
+        if not isinstance(values, list):
+            raise ValueError(f"Invalid keyword list: {category}")
+
+        for value in values:
+            if not isinstance(value, str) or not value.strip():
+                raise ValueError("Empty or invalid search keyword.")
+
+            key = " ".join(value.split()).casefold()
+
+            if key in normalized:
+                raise ValueError("Duplicate search keyword.")
+
+            normalized.add(key)
+            total_keywords += 1
+
+    if total_keywords == 0 or total_keywords > 8:
+        raise ValueError("Expected between 1 and 8 search keywords.")
+
+    if not isinstance(max_results, int) or not 1 <= max_results <= 50:
+        raise ValueError("max_results must be between 1 and 50.")
+
+    if not api_key:
+        raise ValueError("YouTube API key is missing.")
+
+    # One search.list request for each keyword.
+    videos = search_videos(
+        api_key=api_key,
+        keyword_data=search_keywords,
+        max_results=max_results
+    )
+
+    saved_path = save_video_search_results(
+        videos=videos,
+        project_dir=project_dir,
+        search_keywords=search_keywords
+    )
+
+    return {
+        "status": "completed",
+        "output_path": str(saved_path),
+        "api_requests": total_keywords,
+        "estimated_quota_units": total_keywords * 100,
+        "video_count": len(videos)
+    }
+
+
+def run_project_video_search_safely(
+    api_key,
+    project_dir,
+    max_results=10
+):
+    """Prevent concurrent YouTube searches for the same project."""
+
+    import os
+    from pathlib import Path
+
+    project_dir = Path(project_dir)
+
+    if not project_dir.is_dir():
+        raise ValueError("Project directory does not exist.")
+
+    if not (project_dir / "project_info.json").is_file():
+        raise ValueError("Project metadata is missing.")
+
+    analysis_dir = project_dir / "youtube_analysis"
+    analysis_dir.mkdir(parents=True, exist_ok=True)
+
+    output_path = analysis_dir / "youtube_search_results.json"
+    lock_path = analysis_dir / ".youtube_search.lock"
+
+    if output_path.exists():
+        return {
+            "status": "already_exists",
+            "output_path": str(output_path),
+            "api_requests": 0
+        }
+
+    # Atomic exclusive creation: only one process gets the lock.
+    try:
+        fd = os.open(
+            str(lock_path),
+            os.O_CREAT | os.O_EXCL | os.O_WRONLY,
+            0o600
+        )
+    except FileExistsError:
+        return {
+            "status": "already_running",
+            "api_requests": 0
+        }
+
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            f.write(str(os.getpid()))
+
+        # Check again after acquiring the lock.
+        if output_path.exists():
+            return {
+                "status": "already_exists",
+                "output_path": str(output_path),
+                "api_requests": 0
+            }
+
+        return run_project_video_search(
+            api_key=api_key,
+            project_dir=project_dir,
+            max_results=max_results
+        )
+
+    finally:
+        lock_path.unlink(missing_ok=True)
