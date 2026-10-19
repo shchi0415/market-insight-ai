@@ -26,7 +26,8 @@ def render_product_input(project_dir):
         with open(product_path, encoding="utf-8") as f:
             product_info = json.load(f)
 
-        st.json(product_info)
+        with st.expander("저장된 데이터 확인", expanded=False):
+            st.json(product_info)
         return
 
     st.caption(

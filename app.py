@@ -217,14 +217,17 @@ if PROJECTS_DIR.exists():
             else:
                 display_name = folder.name
 
-            # 이름이 같아도 프로젝트를 구분할 수 있도록 ID 표시
+            # 내부 ID로 프로젝트를 구분하고, 화면에는 이름만 표시
             label = (
                 "[예시] Beauty Market Test"
                 if folder.name == "87437a415e4d"
-                else f"{display_name} ({folder.name})"
+                else display_name
             )
 
-            project_options[label] = folder
+            project_options[folder.name] = {
+                "label": label,
+                "path": folder
+            }
 
 st.sidebar.subheader("분석 프로젝트")
 
@@ -275,10 +278,8 @@ with st.sidebar.expander("+ 새 프로젝트 생성", expanded=False):
                 encoding="utf-8"
             )
 
-            st.success(f"프로젝트 생성 완료: {project_name}")
-            st.info(
-                "프로젝트 선택 목록에서 새 프로젝트를 선택해주세요."
-            )
+            st.session_state["newly_created_project_id"] = new_id
+            st.rerun()
 
 
 
@@ -287,7 +288,8 @@ project_options = dict(
     sorted(
         project_options.items(),
         key=lambda item: (
-            0 if item[0] == "[예시] Beauty Market Test" else 1,
+            0 if item[1]["label"] == "[예시] Beauty Market Test" else 1,
+            item[1]["label"],
             item[0]
         )
     )
@@ -297,13 +299,29 @@ if not project_options:
     st.warning("프로젝트가 없습니다. 먼저 프로젝트를 생성해주세요.")
     st.stop()
 
+# 새 프로젝트 생성 후 해당 프로젝트 자동 선택
+new_project_id = st.session_state.pop(
+    "newly_created_project_id", None
+)
+
+if new_project_id in project_options:
+    st.session_state["selected_project"] = new_project_id
+
+# 삭제 후 기본 예시 프로젝트로 이동
+if st.session_state.pop("return_to_demo_project", False):
+    if "87437a415e4d" in project_options:
+        st.session_state["selected_project"] = "87437a415e4d"
+
 selected_project = st.sidebar.selectbox(
     "프로젝트 선택",
     options=list(project_options.keys()),
+    format_func=lambda project_id: project_options[project_id]["label"],
     key="selected_project"
 )
 
-CURRENT_DATA_DIR = project_options[selected_project]
+CURRENT_DATA_DIR = project_options[selected_project]["path"]
+
+
 
 # ===== POSITIONING AGENT V2 PRODUCT INPUT =====
 from positioning_agent.product_input_ui import (
@@ -388,6 +406,79 @@ for label, anchor in navigation_items:
         unsafe_allow_html=True
     )
 # ===== END SCROLL NAVIGATION =====
+
+# ===== POSITIONING AGENT V2 PROJECT DELETE =====
+import shutil
+
+@st.dialog("프로젝트 삭제 확인")
+def confirm_project_deletion():
+    selected_label = project_options[selected_project]["label"]
+
+    st.warning(
+        f"'{selected_label}' 프로젝트를 삭제하시겠습니까?"
+    )
+    st.caption(
+        "삭제하면 프로젝트 목록에서 사라지며, "
+        "데이터는 휴지통 폴더에 보관됩니다."
+    )
+
+    cancel_col, delete_col = st.columns(2)
+
+    with cancel_col:
+        if st.button(
+            "취소",
+            use_container_width=True
+        ):
+            st.rerun()
+
+    with delete_col:
+        if st.button(
+            "삭제하기",
+            type="primary",
+            use_container_width=True
+        ):
+            target = project_options[selected_project]["path"].resolve()
+            projects_root = PROJECTS_DIR.resolve()
+
+            if (
+                selected_project == "87437a415e4d"
+                or target.parent != projects_root
+                or target.name != selected_project
+                or not target.is_dir()
+                or project_options[selected_project]["path"].is_symlink()
+            ):
+                st.error("삭제할 수 없는 프로젝트입니다.")
+                return
+
+            trash_dir = DATA_DIR / "project_trash"
+            trash_dir.mkdir(parents=True, exist_ok=True)
+
+            import uuid
+            trash_target = (
+                trash_dir /
+                f"{selected_project}_{uuid.uuid4().hex[:8]}"
+            )
+
+            try:
+                shutil.move(str(target), str(trash_target))
+                st.session_state.pop("selected_project", None)
+                st.session_state["return_to_demo_project"] = True
+                st.rerun()
+            except OSError:
+                st.error("프로젝트 이동 중 오류가 발생했습니다.")
+
+st.sidebar.divider()
+
+if st.sidebar.button(
+    "🗑️ 프로젝트 삭제",
+    key="open_project_delete_dialog",
+    disabled=(selected_project == "87437a415e4d"),
+    use_container_width=True
+):
+    confirm_project_deletion()
+
+# ===== END POSITIONING AGENT V2 PROJECT DELETE =====
+
 
 
 
