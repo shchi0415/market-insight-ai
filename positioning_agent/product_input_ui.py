@@ -31,7 +31,7 @@ def render_product_input(project_dir):
             st.error(f"저장된 제품 정보를 읽지 못했습니다: {type(exc).__name__}")
             return
 
-        st.success("제품 정보가 저장되어 있습니다. 새로고침 후에도 저장된 내용을 표시합니다.")
+        st.success("제품 정보가 저장되어 있습니다.")
         st.markdown("#### 저장된 제품 정보")
         main_fields = [
             ("브랜드명", product_info.get("brand") or "-"),
