@@ -661,7 +661,7 @@ st.divider()
 st.markdown('<div id="video-relevance"></div>', unsafe_allow_html=True)
 # ===== STEP 9-202: VIDEO RELEVANCE UI =====
 st.header("04 · AI 영상 관련성 평가")
-with st.container():
+with st.container(border=True):
     import json as relevance_json
     from collections import Counter
 
@@ -881,7 +881,7 @@ st.markdown('<div id="video-selection"></div>', unsafe_allow_html=True)
 # ===== ONgredients DEMO: YOUTUBE VIDEO SELECTION =====
 if selected_project == "dbc345844047":
     st.header("05 · 분석 영상 선별")
-    with st.container():
+    with st.container(border=True):
         st.caption(
             "시연 모드: 기존 규칙 기반 영상 선별 결과를 "
             "불러옵니다. API 호출은 없습니다."
@@ -1000,13 +1000,35 @@ with st.container():
                         st.markdown("#### 영상 관련성별 댓글 분포")
                         core = int(stats["core_comments"])
                         adjacent = int(stats["adjacent_comments"])
-                        core_pct = core / total * 100 if total else 0
-                        adjacent_pct = adjacent / total * 100 if total else 0
-                        left, right = st.columns(2)
-                        left.markdown(f"**핵심 관련(Core)**　{core:,}개 · {core_pct:.1f}%")
-                        right.markdown(f"**인접 관련(Adjacent)**　{adjacent:,}개 · {adjacent_pct:.1f}%")
-                        st.progress(min(max(core / total if total else 0, 0.0), 1.0))
-                        st.caption("막대의 채워진 부분은 핵심 관련 댓글 비중이며, 나머지는 인접 관련 댓글입니다.")
+                        relevance_total = core + adjacent
+                        core_pct = core / relevance_total * 100 if relevance_total else 0
+                        adjacent_pct = adjacent / relevance_total * 100 if relevance_total else 0
+
+                        st.markdown(
+                            f"""
+                            <div style="display:flex; justify-content:space-between;
+                                        align-items:center; gap:12px; flex-wrap:wrap;
+                                        margin:12px 0 16px 0;">
+                                <div style="font-size:1rem;">
+                                    <span style="display:inline-block;width:10px;height:10px;
+                                                 background:#2686E6;border-radius:50%;margin-right:6px;"></span>
+                                    <b>핵심 관련(Core)</b>&nbsp; {core:,}개 · {core_pct:.1f}%
+                                </div>
+                                <div style="font-size:1rem;text-align:right;margin-left:auto;">
+                                    <span style="display:inline-block;width:10px;height:10px;
+                                                 background:#23B58D;border-radius:50%;margin-right:6px;"></span>
+                                    <b>인접 관련(Adjacent)</b>&nbsp; {adjacent:,}개 · {adjacent_pct:.1f}%
+                                </div>
+                            </div>
+                            <div style="display:flex;width:100%;height:14px;
+                                        border-radius:8px;overflow:hidden;background:#30343F;">
+                                <div style="width:{core_pct:.2f}%;background:#2686E6;"></div>
+                                <div style="width:{adjacent_pct:.2f}%;background:#23B58D;"></div>
+                            </div>
+                            """,
+                            unsafe_allow_html=True,
+                        )
+                        st.caption("파란색은 핵심 관련(Core), 초록색은 인접 관련(Adjacent) 댓글 비중입니다.")
 
                     with st.container(border=True):
                         st.markdown("#### 전처리 점검")
