@@ -59,7 +59,7 @@ if not st.session_state["logged_in"]:
     left, center, right = st.columns([1, 1.4, 1])
 
     with center:
-        st.title("[AINNOVATOR] AI Positioning Agent")
+        st.title("[AINNOVATOR]\n## AI Positioning Agent")
         st.caption("AI 기반 시장조사 및 제품 포지셔닝 플랫폼")
         st.divider()
 
