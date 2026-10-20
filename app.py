@@ -296,7 +296,7 @@ from positioning_agent.product_input_ui import (
 
 st.header("01 · 제품 정보 입력")
 
-with st.container():
+with st.container(border=True):
     render_product_input(CURRENT_DATA_DIR)
 
 
@@ -305,7 +305,7 @@ st.divider()
 st.markdown('<div id="youtube-keywords"></div>', unsafe_allow_html=True)
 # ===== STEP 9-164: AUTOMATED YOUTUBE KEYWORDS =====
 st.header("02 · 검색 키워드 생성")
-with st.container():
+with st.container(border=True):
     import json as keyword_json
     from positioning_agent.keyword_engine import (
         generate_and_select_keywords,
@@ -493,7 +493,7 @@ st.markdown('<div id="youtube-search"></div>', unsafe_allow_html=True)
 # ===== STEP 9-181: YOUTUBE VIDEO SEARCH UI =====
 if selected_project == "dbc345844047":
     st.header("03 · YouTube 영상 검색")
-    with st.container():
+    with st.container(border=True):
         st.caption(
             "시연 모드: 기존 YouTube 검색 결과를 불러옵니다. "
             "실제 API는 호출하지 않습니다."
@@ -540,7 +540,7 @@ if selected_project == "dbc345844047":
 else:
     # ===== STEP 9-181: YOUTUBE VIDEO SEARCH UI =====
     st.header("03 · YouTube 영상 검색")
-    with st.container():
+    with st.container(border=True):
         import json as youtube_json
 
         from positioning_agent.youtube_engine import (
@@ -661,7 +661,20 @@ st.divider()
 st.markdown('<div id="video-relevance"></div>', unsafe_allow_html=True)
 # ===== STEP 9-202: VIDEO RELEVANCE UI =====
 st.header("04 · AI 영상 관련성 평가")
-with st.container(border=True):
+st.markdown(
+    """<style>
+    /* STEP 04의 수치 지표만 개별 카드로 표시 */
+    .st-key-video_relevance_card [data-testid="stMetric"] {
+        border: 1px solid rgba(137, 153, 172, 0.45);
+        border-radius: 12px;
+        padding: 16px 18px;
+        background: rgba(137, 153, 172, 0.06);
+        min-height: 112px;
+    }
+    </style>""",
+    unsafe_allow_html=True,
+)
+with st.container(border=True, key="video_relevance_card"):
     import json as relevance_json
     from collections import Counter
 
