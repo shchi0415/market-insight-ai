@@ -1634,7 +1634,40 @@ with st.container(border=True):
 st.markdown("<div style='height:44px'></div>", unsafe_allow_html=True)
 st.divider()
 
-st.header("07 · 시장 기회·포지셔닝 전략", anchor="positioning-strategy")
+# STEP 07 report download: use saved analysis data only (no Gemini calls).
+from positioning_agent.pdf_report import generate_project_report
+_heading_col, _pdf_col = st.columns([5, 1.7], vertical_alignment="center")
+with _heading_col:
+    st.header("07 · 시장 기회·포지셔닝 전략", anchor="positioning-strategy")
+with _pdf_col:
+    _can_download = (
+        selected_project == DEMO_ID
+        and st.session_state.get("ongredients_demo_ai_comments_revealed", False)
+        and (DEMO_ASSETS / "gemini_final_strategy.json").is_file()
+    ) or (
+        selected_project != DEMO_ID
+        and (CURRENT_DATA_DIR / "positioning_strategy" / "strategy_package_v2.json").is_file()
+    )
+    if _can_download:
+        try:
+            _pdf_data = generate_project_report(
+                CURRENT_DATA_DIR,
+                demo=(selected_project == DEMO_ID),
+                demo_assets=DEMO_ASSETS,
+            )
+            st.download_button(
+                "📄 PDF 보고서 다운로드",
+                data=_pdf_data,
+                file_name=f"positioning_report_{selected_project}.pdf",
+                mime="application/pdf",
+                key=f"report_pdf_{selected_project}",
+                use_container_width=True,
+            )
+        except Exception:
+            st.caption("PDF 보고서를 생성하지 못했습니다.")
+    else:
+        st.button("📄 PDF 보고서 다운로드", disabled=True, use_container_width=True,
+                  help="STEP 07 분석 결과가 준비되면 다운로드할 수 있습니다.")
 
 # STEP 07: 시장 분석·전략 제안 통합 대시보드
 # 이 함수는 기존 positioning_demo_dashboard.py의 차트·결과 렌더링을
