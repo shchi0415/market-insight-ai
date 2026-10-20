@@ -1,0 +1,61 @@
+{
+  "model": "gemini-3.8-flash",
+  "generated_keywords": {
+    "market_keywords": [
+      "수분 진정 로션 추천",
+      "쿨링 진정 스킨케어 트렌드",
+      "수분광 로션 추천",
+      "피부 진정 로션 템",
+      "캡슐 화장품 추천"
+    ],
+    "consumer_need_keywords": [
+      "얼굴 열감 쿨링 진정",
+      "속당김 수분광 로션",
+      "민감성 피부 진정 기초",
+      "끈적임 없는 수분 로션",
+      "붉은기 진정 수분케어"
+    ],
+    "own_product_keywords": [
+      "온그리디언츠 로션",
+      "바쿠쿨로우 캡슐 로션",
+      "온그리디언츠 캡슐 로션",
+      "온그리디언츠 바쿠쿨로우",
+      "바쿠쿨로우 로션 후기"
+    ],
+    "competitor_keywords": [
+      "쿨링 캡슐 로션 비교",
+      "수분 진정 에멀젼 비교",
+      "피부 온도 낮추는 로션 추천",
+      "수분광 캡슐 크림 로션",
+      "진정 쿨링 기초 추천"
+    ]
+  },
+  "search_keywords": {
+    "market_keywords": [
+      "수분 진정 로션 추천",
+      "쿨링 진정 스킨케어 트렌드"
+    ],
+    "consumer_need_keywords": [
+      "얼굴 열감 쿨링 진정",
+      "속당김 수분광 로션",
+      "민감성 피부 진정 기초"
+    ],
+    "own_product_keywords": [
+      "바쿠쿨로우 캡슐 로션",
+      "온그리디언츠 바쿠쿨로우 캡슐 로션 후기"
+    ],
+    "competitor_keywords": [
+      "쿨링 캡슐 로션 비교"
+    ]
+  },
+  "keyword_quality": {
+    "own_product_keyword_sources": [
+      "ai_generated",
+      "rule_generated"
+    ],
+    "own_product_review_required": true,
+    "selection_method": "deterministic_with_product_query_improvement"
+  },
+  "generated_count": 20,
+  "selected_count": 8
+}

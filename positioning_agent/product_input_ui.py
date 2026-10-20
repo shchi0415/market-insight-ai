@@ -49,7 +49,11 @@ def render_product_input(project_dir):
             "수분광 캡슐 콘셉트",
             "쿨링 및 피부 진정 소구"
         ]),
-        "example_ingredients": ""
+        "example_ingredients": "",
+        "competitor_brand_1": "에스트라",
+        "competitor_product_1": "아토베리어365 크림",
+        "competitor_brand_2": "라운드랩",
+        "competitor_product_2": "1025 독도 로션",
     }
 
     project_key = str(project_dir.resolve())
@@ -103,12 +107,66 @@ def render_product_input(project_dir):
             key="example_ingredients"
         )
 
+
+        st.divider()
+        st.markdown("#### 경쟁사 정보")
+        st.caption(
+            "비교할 경쟁 제품을 최대 5개까지 입력하세요. "
+            "입력하지 않은 항목은 저장되지 않습니다."
+        )
+
+        competitor_inputs = []
+
+        for i in range(1, 6):
+            col1, col2 = st.columns(2)
+
+            with col1:
+                competitor_brand = st.text_input(
+                    f"경쟁사 {i} 브랜드명",
+                    key=f"competitor_brand_{i}"
+                )
+
+            with col2:
+                competitor_product = st.text_input(
+                    f"경쟁사 {i} 제품명",
+                    key=f"competitor_product_{i}"
+                )
+
+            competitor_inputs.append(
+                (competitor_brand, competitor_product)
+            )
+
         submitted = st.form_submit_button(
             "제품 정보 저장",
             type="primary"
         )
 
     if submitted:
+        # 경쟁사 정보의 부분 입력 방지
+        incomplete = [
+            i
+            for i, (comp_brand, comp_product)
+            in enumerate(competitor_inputs, start=1)
+            if bool(comp_brand.strip()) != bool(comp_product.strip())
+        ]
+
+        if incomplete:
+            st.error(
+                "경쟁사 "
+                + ", ".join(map(str, incomplete))
+                + "의 브랜드명과 제품명을 모두 입력해 주세요."
+            )
+            st.stop()
+
+        competitors = [
+            {
+                "brand": comp_brand.strip(),
+                "product_name": comp_product.strip()
+            }
+            for comp_brand, comp_product in competitor_inputs
+            if comp_brand.strip() and comp_product.strip()
+        ]
+
         product_info = {
             "brand": brand.strip(),
             "product_name": product_name.strip(),
@@ -132,7 +190,8 @@ def render_product_input(project_dir):
             "target_customers": [],
             "verified_benefits": [],
             "source": "user_input",
-            "verification_status": "unverified"
+            "verification_status": "unverified",
+            "competitors": competitors
         }
 
         try:

@@ -390,7 +390,45 @@ with st.expander("YouTube 시장조사 · 검색 키워드", expanded=False):
         / "keyword_generation.json"
     )
 
+    is_ongredients_demo = selected_project == "dbc345844047"
+
+    if is_ongredients_demo:
+        demo_keyword_path = (
+            Path(__file__).resolve().parent
+            / "positioning_demo_data"
+            / "ongredients_analysis"
+            / "keyword_generation.json"
+        )
+        demo_keyword_revealed = st.session_state.get(
+            "ongredients_demo_keywords_revealed", False
+        )
+
+        # 결과 공개 전에는 기존 결과를 표시하지 않는다.
+        keyword_result_path = (
+            demo_keyword_path
+            if demo_keyword_revealed
+            else CURRENT_DATA_DIR / "_demo_keywords_not_revealed.json"
+        )
+
     keyword_product_path = CURRENT_DATA_DIR / "product_info.json"
+
+    if is_ongredients_demo and not demo_keyword_revealed:
+        st.caption(
+            "시연 모드: 사전에 생성한 키워드 결과를 불러옵니다. "
+            "Gemini API는 호출하지 않습니다."
+        )
+
+        if st.button(
+            "검색 키워드 자동 생성",
+            key="ongredients_demo_keyword_button"
+        ):
+            if demo_keyword_path.is_file():
+                st.session_state[
+                    "ongredients_demo_keywords_revealed"
+                ] = True
+                st.rerun()
+            else:
+                st.error("Demo 키워드 데이터가 없습니다.")
 
     if keyword_result_path.is_file():
         try:
@@ -462,6 +500,9 @@ with st.expander("YouTube 시장조사 · 검색 키워드", expanded=False):
         except (OSError, ValueError, TypeError):
             st.warning("저장된 키워드 결과를 읽지 못했습니다.")
 
+    elif is_ongredients_demo:
+        st.info("위의 버튼을 눌러 Demo 키워드 결과를 확인해 주세요.")
+
     elif not keyword_product_path.is_file():
         st.info("먼저 제품 정보를 입력하고 저장해 주세요.")
 
@@ -519,118 +560,166 @@ with st.expander("YouTube 시장조사 · 검색 키워드", expanded=False):
 
 
 # ===== STEP 9-181: YOUTUBE VIDEO SEARCH UI =====
-with st.expander("YouTube 영상 자동 검색", expanded=False):
-    import json as youtube_json
+if selected_project == "dbc345844047":
+    with st.expander("YouTube 영상 자동 검색", expanded=False):
+        st.caption(
+            "시연 모드: 기존 YouTube 검색 결과를 불러옵니다. "
+            "실제 API는 호출하지 않습니다."
+        )
 
-    from positioning_agent.youtube_engine import (
-        run_project_video_search_safely
-    )
+        keyword_done = st.session_state.get(
+            "ongredients_demo_keywords_revealed", False
+        )
 
-    youtube_analysis_dir = CURRENT_DATA_DIR / "youtube_analysis"
+        youtube_done = st.session_state.get(
+            "ongredients_demo_youtube_revealed", False
+        )
 
-    youtube_keyword_path = (
-        youtube_analysis_dir / "keyword_generation.json"
-    )
+        demo_youtube_path = (
+            Path(__file__).resolve().parent
+            / "positioning_demo_data"
+            / "ongredients_analysis"
+            / "youtube_search_demo.json"
+        )
 
-    youtube_result_path = (
-        youtube_analysis_dir / "youtube_search_results.json"
-    )
+        if not keyword_done:
+            st.info("먼저 검색 키워드 생성 단계를 완료해 주세요.")
 
-    if youtube_result_path.is_file():
-        try:
-            saved_search = youtube_json.loads(
-                youtube_result_path.read_text(encoding="utf-8")
-            )
-
-            st.success("YouTube 영상 검색이 완료되었습니다.")
-            st.metric(
-                "수집된 고유 영상",
-                saved_search.get("video_count", 0)
-            )
-            st.caption(
-                "검색 결과에 포함된 영상은 아직 AI 관련성 평가를 "
-                "거치지 않았습니다."
-            )
-
-        except (OSError, ValueError, TypeError):
-            st.warning("저장된 영상 검색 결과를 읽지 못했습니다.")
-
-    elif not youtube_keyword_path.is_file():
-        st.info("먼저 YouTube 검색 키워드를 생성해 주세요.")
-
-    else:
-        try:
-            saved_keywords = youtube_json.loads(
-                youtube_keyword_path.read_text(encoding="utf-8")
-            )["search_keywords"]
-
-            keyword_count = sum(
-                len(values) for values in saved_keywords.values()
-            )
-
-            st.write(f"**검색 예정 키워드: {keyword_count}개**")
-            st.write(
-                f"**예상 YouTube API 할당량: "
-                f"{keyword_count * 100:,}단위**"
-            )
-
-            st.caption(
-                "YouTube Data API의 search.list 요청은 "
-                "검색어당 일반적으로 100단위를 사용합니다."
-            )
-
+        if not youtube_done:
             if st.button(
                 "YouTube 영상 검색 실행",
-                key=f"youtube_search_{selected_project}"
+                key="ongredients_demo_youtube_search",
+                disabled=not keyword_done
             ):
-                youtube_key = st.secrets.get("YOUTUBE_API_KEY")
-
-                if not youtube_key:
-                    st.error(
-                        "YouTube API 키가 설정되지 않았습니다."
-                    )
-
+                if demo_youtube_path.is_file():
+                    st.session_state[
+                        "ongredients_demo_youtube_revealed"
+                    ] = True
+                    st.rerun()
                 else:
-                    with st.spinner(
-                        "YouTube 영상을 검색하고 있습니다..."
-                    ):
-                        try:
-                            result = run_project_video_search_safely(
-                                api_key=youtube_key,
-                                project_dir=CURRENT_DATA_DIR,
-                                max_results=10
-                            )
+                    st.error("Demo 영상 검색 결과 파일이 없습니다.")
 
-                            if result["status"] == "completed":
-                                st.success(
-                                    f"검색 완료: "
-                                    f"{result['video_count']}개 영상"
-                                )
-                                st.rerun()
-
-                            elif result["status"] == "already_exists":
-                                st.info(
-                                    "이미 저장된 검색 결과를 사용합니다."
-                                )
-                                st.rerun()
-
-                            elif result["status"] == "already_running":
-                                st.warning(
-                                    "현재 프로젝트의 영상 검색이 "
-                                    "이미 진행 중입니다."
-                                )
-
-                        except Exception:
-                            st.error(
-                                "영상 검색 중 오류가 발생했습니다. "
-                                "일부 API 할당량이 사용되었을 수 있습니다. "
-                                "원인을 확인하기 전에는 재실행하지 마세요."
-                            )
-
-        except (OSError, ValueError, TypeError, KeyError):
-            st.warning(
-                "저장된 검색 키워드를 읽지 못했습니다."
+        if youtube_done:
+            from positioning_agent.youtube_search_demo_ui import (
+                render_youtube_search_demo
             )
+            render_youtube_search_demo(demo_youtube_path)
+
+else:
+    # ===== STEP 9-181: YOUTUBE VIDEO SEARCH UI =====
+    with st.expander("YouTube 영상 자동 검색", expanded=False):
+        import json as youtube_json
+
+        from positioning_agent.youtube_engine import (
+            run_project_video_search_safely
+        )
+
+        youtube_analysis_dir = CURRENT_DATA_DIR / "youtube_analysis"
+
+        youtube_keyword_path = (
+            youtube_analysis_dir / "keyword_generation.json"
+        )
+
+        youtube_result_path = (
+            youtube_analysis_dir / "youtube_search_results.json"
+        )
+
+        if youtube_result_path.is_file():
+            try:
+                saved_search = youtube_json.loads(
+                    youtube_result_path.read_text(encoding="utf-8")
+                )
+
+                st.success("YouTube 영상 검색이 완료되었습니다.")
+                st.metric(
+                    "수집된 고유 영상",
+                    saved_search.get("video_count", 0)
+                )
+                st.caption(
+                    "검색 결과에 포함된 영상은 아직 AI 관련성 평가를 "
+                    "거치지 않았습니다."
+                )
+
+            except (OSError, ValueError, TypeError):
+                st.warning("저장된 영상 검색 결과를 읽지 못했습니다.")
+
+        elif not youtube_keyword_path.is_file():
+            st.info("먼저 YouTube 검색 키워드를 생성해 주세요.")
+
+        else:
+            try:
+                saved_keywords = youtube_json.loads(
+                    youtube_keyword_path.read_text(encoding="utf-8")
+                )["search_keywords"]
+
+                keyword_count = sum(
+                    len(values) for values in saved_keywords.values()
+                )
+
+                st.write(f"**검색 예정 키워드: {keyword_count}개**")
+                st.write(
+                    f"**예상 YouTube API 할당량: "
+                    f"{keyword_count * 100:,}단위**"
+                )
+
+                st.caption(
+                    "YouTube Data API의 search.list 요청은 "
+                    "검색어당 일반적으로 100단위를 사용합니다."
+                )
+
+                if st.button(
+                    "YouTube 영상 검색 실행",
+                    key=f"youtube_search_{selected_project}"
+                ):
+                    youtube_key = st.secrets.get("YOUTUBE_API_KEY")
+
+                    if not youtube_key:
+                        st.error(
+                            "YouTube API 키가 설정되지 않았습니다."
+                        )
+
+                    else:
+                        with st.spinner(
+                            "YouTube 영상을 검색하고 있습니다..."
+                        ):
+                            try:
+                                result = run_project_video_search_safely(
+                                    api_key=youtube_key,
+                                    project_dir=CURRENT_DATA_DIR,
+                                    max_results=10
+                                )
+
+                                if result["status"] == "completed":
+                                    st.success(
+                                        f"검색 완료: "
+                                        f"{result['video_count']}개 영상"
+                                    )
+                                    st.rerun()
+
+                                elif result["status"] == "already_exists":
+                                    st.info(
+                                        "이미 저장된 검색 결과를 사용합니다."
+                                    )
+                                    st.rerun()
+
+                                elif result["status"] == "already_running":
+                                    st.warning(
+                                        "현재 프로젝트의 영상 검색이 "
+                                        "이미 진행 중입니다."
+                                    )
+
+                            except Exception:
+                                st.error(
+                                    "영상 검색 중 오류가 발생했습니다. "
+                                    "일부 API 할당량이 사용되었을 수 있습니다. "
+                                    "원인을 확인하기 전에는 재실행하지 마세요."
+                                )
+
+            except (OSError, ValueError, TypeError, KeyError):
+                st.warning(
+                    "저장된 검색 키워드를 읽지 못했습니다."
+                )
+
 
 
 
