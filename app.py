@@ -79,6 +79,7 @@ if not st.session_state["logged_in"]:
         if submitted:
             if verify_login(login_id, login_password):
                 st.session_state["logged_in"] = True
+                st.session_state["_scroll_after_login"] = True
                 st.rerun()
             else:
                 st.error("아이디 또는 비밀번호가 올바르지 않습니다.")
@@ -299,19 +300,18 @@ for label, anchor in NAVIGATION:
         unsafe_allow_html=True
     )
 
-# A new Streamlit browser session is created on first visit / hard refresh.
-# Do not execute this block on widget-triggered reruns; leave navigation anchors intact.
-if "_initial_viewport_positioned" not in st.session_state:
-    st.session_state["_initial_viewport_positioned"] = True
+# Position the main app at the very top AFTER login (and on a fresh page load).
+# Do not scroll on ordinary analysis-button reruns or sidebar navigation.
+if st.session_state.pop("_scroll_after_login", False) or not st.session_state.get("_main_viewport_initialized", False):
+    st.session_state["_main_viewport_initialized"] = True
     import streamlit.components.v1 as components
     components.html("""
     <script>
     (() => {
       const root = window.parent;
-      function scrollToPageTop() {
+      function positionMainAtTop() {
         try {
           const doc = root.document;
-          // A previously selected sidebar anchor can be restored by the browser.
           if (root.location.hash) {
             root.history.replaceState(null, '', root.location.pathname + root.location.search);
           }
@@ -323,10 +323,9 @@ if "_initial_viewport_positioned" not in st.session_state:
           root.scrollTo({top: 0, left: 0, behavior: 'instant'});
         } catch (_) {}
       }
-      scrollToPageTop();
-      root.requestAnimationFrame(scrollToPageTop);
-      // Wait for Streamlit's initial render and browser scroll restoration.
-      [120, 350, 800].forEach(ms => root.setTimeout(scrollToPageTop, ms));
+      positionMainAtTop();
+      root.requestAnimationFrame(positionMainAtTop);
+      [100, 300, 650, 1100, 1800].forEach(ms => root.setTimeout(positionMainAtTop, ms));
     })();
     </script>
     """, height=0)
