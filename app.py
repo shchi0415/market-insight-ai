@@ -2129,6 +2129,21 @@ else:
     old_package_path = strategy_dir / "strategy_package.json"
     source_path = CURRENT_DATA_DIR / "youtube_analysis" / "consumer_ai_analysis.json"
     product_path = CURRENT_DATA_DIR / "product_info.json"
+    # STEP 07: warn about limited evidence, using this project's actual analyzed comments.
+    if source_path.is_file():
+        try:
+            _source_data = json.loads(source_path.read_text(encoding="utf-8"))
+            _sample_count = int(_source_data.get("record_count", 0))
+        except (OSError, ValueError, TypeError, AttributeError):
+            _sample_count = 0
+        if 0 < _sample_count < 100:
+            st.warning(
+                f"**분석 표본 부족 · 전략 신뢰성 유의**\n\n"
+                f"현재 AI 분석에 사용된 YouTube 댓글은 **{_sample_count:,}개**입니다. "
+                "표본 수가 적고 일부 영상에서 선별 수집한 댓글이므로 시장 전체를 대표하기 어렵습니다. "
+                "따라서 아래 시장 기회·타깃·포지셔닝 및 마케팅 전략은 **근거가 제한된 탐색적 가설**이며, "
+                "실제 의사결정 전에 추가 댓글 수집과 별도의 소비자·경쟁사 검증이 필요합니다."
+            )
     with st.container(border=True):
         if new_package_path.is_file():
             render_positioning_strategy_dashboard(new_package_path)
