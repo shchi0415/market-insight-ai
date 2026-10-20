@@ -358,7 +358,7 @@ st.title("AI Positioning Agent")
 st.caption("AI 기반 YouTube 시장조사 · 소비자 인사이트 · 제품 포지셔닝")
 if selected_project == DEMO_ID:
     st.info("사전에 수집·분석한 데이터를 바탕으로 AI 시장 분석 과정을 단계별로 체험할 수 있는 예시 프로젝트입니다."
-            "추가 API 호출 없이 기존 분석 결과를 확인할 수 있습니다."
+            \n
             "[예시 정보 불러오기] 버튼을 눌러주세요.")
 else:
     st.caption("신규 프로젝트: 각 분석 단계는 입력값과 데이터 준비 상태에 따라 실행할 수 있습니다.")
