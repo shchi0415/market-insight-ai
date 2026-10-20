@@ -262,13 +262,13 @@ if st.sidebar.button("🗑️ 프로젝트 삭제", disabled=(selected_project =
 st.sidebar.divider()
 st.sidebar.markdown("### Navigation")
 NAVIGATION = [
-    ("01 · 제품 정보 입력 및 확인", "product-input"),
-    ("02 · YouTube 시장조사 · 검색 키워드", "youtube-keywords"),
-    ("03 · YouTube 영상 자동 검색", "youtube-search"),
-    ("04 · YouTube 영상 AI 관련성 평가", "video-relevance"),
-    ("05 · YouTube 분석 대상 영상 선별", "video-selection"),
-    ("06 · YouTube 댓글 수집 및 소비자 분석", "consumer-analysis"),
-    ("07 · AI 시장 기회 및 포지셔닝 전략", "positioning-strategy"),
+    ("01 · 제품 정보 입력", "product-input"),
+    ("02 · 검색 키워드 생성", "youtube-keywords"),
+    ("03 · YouTube 영상 검색", "youtube-search"),
+    ("04 · AI 영상 관련성 평가", "video-relevance"),
+    ("05 · 분석 영상 선별", "video-selection"),
+    ("06 · 댓글 수집·소비자 분석", "consumer-analysis"),
+    ("07 · 시장 기회·포지셔닝 전략", "positioning-strategy"),
 ]
 for label, anchor in NAVIGATION:
     st.sidebar.markdown(
@@ -292,18 +292,17 @@ from positioning_agent.product_input_ui import (
     render_product_input
 )
 
-st.header("01 · 제품 정보 입력 및 확인")
-
-st.divider()
+st.header("01 · 제품 정보 입력")
 
 with st.container():
     render_product_input(CURRENT_DATA_DIR)
 
 
+st.markdown("<div style='height:44px'></div>", unsafe_allow_html=True)
+st.divider()
 st.markdown('<div id="youtube-keywords"></div>', unsafe_allow_html=True)
 # ===== STEP 9-164: AUTOMATED YOUTUBE KEYWORDS =====
-st.header("02 · YouTube 시장조사 · 검색 키워드")
-st.divider()
+st.header("02 · 검색 키워드 생성")
 with st.container():
     import json as keyword_json
     from positioning_agent.keyword_engine import (
@@ -486,11 +485,12 @@ with st.container():
 
 
 
+st.markdown("<div style='height:44px'></div>", unsafe_allow_html=True)
+st.divider()
 st.markdown('<div id="youtube-search"></div>', unsafe_allow_html=True)
 # ===== STEP 9-181: YOUTUBE VIDEO SEARCH UI =====
 if selected_project == "dbc345844047":
-    st.header("03 · YouTube 영상 자동 검색")
-    st.divider()
+    st.header("03 · YouTube 영상 검색")
     with st.container():
         st.caption(
             "시연 모드: 기존 YouTube 검색 결과를 불러옵니다. "
@@ -537,8 +537,7 @@ if selected_project == "dbc345844047":
 
 else:
     # ===== STEP 9-181: YOUTUBE VIDEO SEARCH UI =====
-    st.header("03 · YouTube 영상 자동 검색")
-    st.divider()
+    st.header("03 · YouTube 영상 검색")
     with st.container():
         import json as youtube_json
 
@@ -655,10 +654,11 @@ else:
 
 
 
+st.markdown("<div style='height:44px'></div>", unsafe_allow_html=True)
+st.divider()
 st.markdown('<div id="video-relevance"></div>', unsafe_allow_html=True)
 # ===== STEP 9-202: VIDEO RELEVANCE UI =====
-st.header("04 · YouTube 영상 AI 관련성 평가")
-st.divider()
+st.header("04 · AI 영상 관련성 평가")
 with st.container():
     import json as relevance_json
     from collections import Counter
@@ -873,11 +873,12 @@ with st.container():
         except (OSError, ValueError, TypeError, KeyError):
             st.warning("저장된 영상 검색 결과를 읽지 못했습니다.")
 
+st.markdown("<div style='height:44px'></div>", unsafe_allow_html=True)
+st.divider()
 st.markdown('<div id="video-selection"></div>', unsafe_allow_html=True)
 # ===== ONgredients DEMO: YOUTUBE VIDEO SELECTION =====
 if selected_project == "dbc345844047":
-    st.header("05 · YouTube 분석 대상 영상 선별")
-    st.divider()
+    st.header("05 · 분석 영상 선별")
     with st.container():
         st.caption(
             "시연 모드: 기존 규칙 기반 영상 선별 결과를 "
@@ -938,9 +939,10 @@ if selected_project == "dbc345844047":
 
 
 # ===== CONSUMER INSIGHTS: NEXT DEVELOPMENT STAGE =====
-st.markdown('<div id="consumer-analysis"></div>', unsafe_allow_html=True)
-st.header("06 · YouTube 댓글 수집 및 소비자 분석")
+st.markdown("<div style='height:44px'></div>", unsafe_allow_html=True)
 st.divider()
+st.markdown('<div id="consumer-analysis"></div>', unsafe_allow_html=True)
+st.header("06 · 댓글 수집·소비자 분석")
 with st.container():
     if selected_project == DEMO_ID:
         if st.session_state.get("ongredients_demo_selection_revealed", False):
@@ -952,8 +954,10 @@ with st.container():
         st.info("YouTube 댓글 수집·분석 실행 UI는 아직 연결되지 않았습니다. "
                 "이전 분석 결과가 있는 경우 후속 단계에서 연결할 수 있습니다.")
 
+st.markdown("<div style='height:44px'></div>", unsafe_allow_html=True)
+st.divider()
 st.markdown('<div id="positioning-strategy"></div>', unsafe_allow_html=True)
-st.header("07 · AI 시장 기회 및 포지셔닝 전략")
+st.header("07 · 시장 기회·포지셔닝 전략")
 # ===== POSITIONING AGENT V2 DASHBOARD =====
 # Existing strategy dashboard remains unchanged.
 
