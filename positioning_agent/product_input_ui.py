@@ -62,7 +62,7 @@ def render_product_input(project_dir):
             st.session_state.pop(key, None)
         st.session_state["_product_form_project"] = project_key
 
-    if st.button("온그리디언츠 예시 불러오기"):
+    if st.button("[예시 정보 불러오기]"):
         st.session_state.update(example_values)
         st.rerun()
 
