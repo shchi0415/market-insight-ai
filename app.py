@@ -240,15 +240,23 @@ if not project_options:
     st.warning("프로젝트가 없습니다. 새 프로젝트를 생성해 주세요.")
     st.stop()
 
-# Clear obsolete selection left over from the earlier example page.
+# Restore the selected project after a browser refresh (session_state may reset).
+# Keep the project ID in the URL; never trust a URL value not in project_options.
+_url_project = st.query_params.get("project", "")
 if st.session_state.get("selected_project") not in project_options:
-    st.session_state["selected_project"] = next(iter(project_options))
+    st.session_state["selected_project"] = (
+        _url_project if _url_project in project_options else next(iter(project_options))
+    )
 selected_project = st.sidebar.selectbox(
     "프로젝트 선택", options=list(project_options),
     format_func=lambda project_id: project_options[project_id]["label"],
     key="selected_project"
 )
 CURRENT_DATA_DIR = project_options[selected_project]["path"]
+# The selection widget updates this on the next rerun; the saved URL makes it
+# possible to restore selection after refreshing or reopening the same URL.
+if st.query_params.get("project") != selected_project:
+    st.query_params["project"] = selected_project
 
 # Preserve project-specific product_info.json across refreshes and sessions.
 
