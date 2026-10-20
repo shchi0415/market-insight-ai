@@ -92,6 +92,8 @@ with st.sidebar:
 
     if st.button("로그아웃", use_container_width=True):
         st.session_state["logged_in"] = False
+        st.session_state.pop("_step01_initial_jump_done", None)
+        st.session_state.pop("_step01_save_scrolled", None)
         st.rerun()
 
 # ===== END LOGIN GATE =====
@@ -300,35 +302,47 @@ for label, anchor in NAVIGATION:
         unsafe_allow_html=True
     )
 
-# Position the main app at the very top AFTER login (and on a fresh page load).
-# Do not scroll on ordinary analysis-button reruns or sidebar navigation.
-if st.session_state.pop("_scroll_after_login", False) or not st.session_state.get("_main_viewport_initialized", False):
-    st.session_state["_main_viewport_initialized"] = True
+# Scroll only after entering the authenticated app for the first time.
+# The target is the actual 01 heading, not the page/document top.
+_SCROLL_TO_PRODUCT_HEADING = r"""
+<script>
+(() => {
+  const win = window.parent;
+  const doc = win.document;
+  const start = Date.now();
+  const targetId = 'product-input';
+  function go() {
+    const heading = doc.getElementById(targetId);
+    if (!heading) {
+      if (Date.now() - start < 12000) win.setTimeout(go, 120);
+      return;
+    }
+    // Streamlit's scrollable main pane, not the iframe or window body.
+    const pane = heading.closest('[data-testid="stAppViewContainer"]')
+              || doc.querySelector('[data-testid="stAppViewContainer"]');
+    const scrollable = pane && pane.scrollHeight > pane.clientHeight ? pane : null;
+    const move = () => {
+      heading.scrollIntoView({block:'start', inline:'nearest', behavior:'instant'});
+      // A small visual margin prevents the title touching a sticky header.
+    };
+    move();
+    win.requestAnimationFrame(move);
+    win.setTimeout(move, 180);
+    win.setTimeout(move, 420);
+    win.setTimeout(move, 850);
+  }
+  go();
+})();
+</script>
+"""
+
+def _go_to_step01():
     import streamlit.components.v1 as components
-    components.html("""
-    <script>
-    (() => {
-      const root = window.parent;
-      function positionMainAtTop() {
-        try {
-          const doc = root.document;
-          if (root.location.hash) {
-            root.history.replaceState(null, '', root.location.pathname + root.location.search);
-          }
-          const page = doc.querySelector('[data-testid="stAppViewContainer"]')
-                    || doc.querySelector('section.main');
-          if (page) page.scrollTop = 0;
-          doc.documentElement.scrollTop = 0;
-          doc.body.scrollTop = 0;
-          root.scrollTo({top: 0, left: 0, behavior: 'instant'});
-        } catch (_) {}
-      }
-      positionMainAtTop();
-      root.requestAnimationFrame(positionMainAtTop);
-      [100, 300, 650, 1100, 1800].forEach(ms => root.setTimeout(positionMainAtTop, ms));
-    })();
-    </script>
-    """, height=0)
+    components.html(_SCROLL_TO_PRODUCT_HEADING, height=0)
+
+if st.session_state.pop("_scroll_after_login", False) or not st.session_state.get("_step01_initial_jump_done", False):
+    st.session_state["_step01_initial_jump_done"] = True
+    _go_to_step01()
 
 st.title("AI Positioning Agent")
 st.caption("AI 기반 YouTube 시장조사 · 소비자 인사이트 · 제품 포지셔닝")
@@ -349,35 +363,12 @@ st.header("01 · 제품 정보 입력", anchor="product-input")
 with st.container(border=True):
     render_product_input(CURRENT_DATA_DIR)
 
-# Only the first successful product save in Step 01 scrolls to the very top.
-# Reading this on the following Streamlit rerun avoids changing the product form.
-# Buttons in Steps 02-07 never trigger a scroll to top.
+# On first successful product save, jump back to the real 01 heading.
+# The product-input module saves to product_info.json, then calls st.rerun().
 if not st.session_state.get("_step01_save_scrolled", False):
-    product_path = CURRENT_DATA_DIR / "product_info.json"
-    if product_path.is_file():
+    if (CURRENT_DATA_DIR / "product_info.json").is_file():
         st.session_state["_step01_save_scrolled"] = True
-        import streamlit.components.v1 as components
-        components.html("""
-        <script>
-        (() => {
-          const root = window.parent;
-          function scrollToPageTop() {
-            try {
-              const doc = root.document;
-              const page = doc.querySelector('[data-testid="stAppViewContainer"]')
-                        || doc.querySelector('section.main');
-              if (page) page.scrollTop = 0;
-              doc.documentElement.scrollTop = 0;
-              doc.body.scrollTop = 0;
-              root.scrollTo({top: 0, left: 0, behavior: 'instant'});
-            } catch (_) {}
-          }
-          scrollToPageTop();
-          root.requestAnimationFrame(scrollToPageTop);
-          [100, 300].forEach(ms => root.setTimeout(scrollToPageTop, ms));
-        })();
-        </script>
-        """, height=0)
+        _go_to_step01()
 
 st.markdown("<div style='height:44px'></div>", unsafe_allow_html=True)
 st.divider()
