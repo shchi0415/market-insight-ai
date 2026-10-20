@@ -60,7 +60,7 @@ if not st.session_state["logged_in"]:
 
     with center:
         st.title("[AINNOVATOR] AI Positioning Agent")
-        st.caption("AI 기반 시장 인사이트 플랫폼")
+        st.caption("AI 기반 시장조사 및 제품 포지셔닝 플랫폼")
         st.divider()
 
         with st.form("login_form"):
