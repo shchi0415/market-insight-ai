@@ -938,6 +938,66 @@ with st.expander("YouTube 영상 AI 관련성 평가", expanded=False):
         except (OSError, ValueError, TypeError, KeyError):
             st.warning("저장된 영상 검색 결과를 읽지 못했습니다.")
 
+# ===== ONgredients DEMO: YOUTUBE VIDEO SELECTION =====
+if selected_project == "dbc345844047":
+    with st.expander("YouTube 분석 대상 영상 선별", expanded=False):
+        st.caption(
+            "시연 모드: 기존 규칙 기반 영상 선별 결과를 "
+            "불러옵니다. API 호출은 없습니다."
+        )
+
+        relevance_done = st.session_state.get(
+            "ongredients_demo_relevance_revealed", False
+        )
+        selection_done = st.session_state.get(
+            "ongredients_demo_selection_revealed", False
+        )
+
+        demo_selection_dir = (
+            Path(__file__).resolve().parent
+            / "positioning_demo_data"
+            / "ongredients_analysis"
+        )
+
+        selection_path = (
+            demo_selection_dir / "video_selection_results.json"
+        )
+        search_path = (
+            demo_selection_dir / "youtube_search_demo.json"
+        )
+
+        if not relevance_done:
+            st.info("먼저 YouTube 영상 AI 관련성 평가를 완료해 주세요.")
+
+        if not selection_done:
+            if st.button(
+                "분석 대상 영상 선별 실행",
+                key="ongredients_demo_selection_button",
+                disabled=not relevance_done
+            ):
+                if selection_path.is_file() and search_path.is_file():
+                    st.session_state[
+                        "ongredients_demo_selection_revealed"
+                    ] = True
+                    st.rerun()
+                else:
+                    st.error("Demo 영상 선별 데이터가 없습니다.")
+
+        if selection_done:
+            if selection_path.is_file() and search_path.is_file():
+                from positioning_agent.youtube_selection_demo_ui import (
+                    render_youtube_selection_demo
+                )
+
+                render_youtube_selection_demo(
+                    selection_path,
+                    search_path
+                )
+            else:
+                st.error("Demo 영상 선별 데이터를 찾을 수 없습니다.")
+# ===== END ONgredients DEMO: YOUTUBE VIDEO SELECTION =====
+
+
 @st.cache_data
 def load_data(data_dir):
     posts_path = data_dir / "posts_clean.csv"
