@@ -307,7 +307,7 @@ for label, anchor in NAVIGATION:
     st.sidebar.markdown(
         f'<a href="#{anchor}" target="_self" '
         'style="display:block;padding:6px 4px;text-decoration:none;'
-        'font-size:0.80rem;letter-spacing:-0.035em;white-space:nowrap;'
+        'font-size:0.90rem;letter-spacing:-0.035em;white-space:nowrap;'
         f'border-radius:6px">{label}</a>',
         unsafe_allow_html=True
     )
