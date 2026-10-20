@@ -1307,7 +1307,11 @@ with st.container():
                             if not collected:
                                 st.error("댓글을 수집하지 못했습니다. API 설정·할당량·댓글 공개 여부를 확인해 주세요.")
                             else:
-                                prep = preprocess_comments(collected)
+                                try:
+                                    prep = preprocess_comments(collected)
+                                except ValueError:
+                                    st.error("분석 가능한 댓글이 없습니다. 수집 데이터를 확인해 주세요.")
+                                    st.stop()
                                 summary = {"collected_count": len(collected),
                                            "video_count": sum(row["수집 댓글"] > 0 for row in rows),
                                            "videos": rows, "preprocessing": prep["summary"],
@@ -1425,7 +1429,86 @@ with st.container(border=True):
                     except (OSError, ValueError, TypeError, KeyError):
                         st.error("AI 댓글 분석 집계 데이터를 읽지 못했습니다. JSON 구조를 확인해 주세요.")
     else:
-        st.info("새 프로젝트의 AI 소비자 분석 기능은 아직 연결되지 않았습니다.")
+        from positioning_agent.consumer_ai_pipeline import (
+            analyze_consumer_comments, load_input_candidates
+        )
+        import altair as alt
+        analysis_dir = CURRENT_DATA_DIR / "youtube_analysis"
+        candidates_file = analysis_dir / "comments_analysis_candidates.json"
+        result_file = analysis_dir / "consumer_ai_analysis.json"
+        collection_file = analysis_dir / "comments_collection_summary.json"
+        if result_file.is_file():
+            try:
+                result = json.loads(result_file.read_text(encoding="utf-8"))
+                st.success("AI 소비자 분석 결과가 저장되어 있습니다. 새로고침해도 다시 API를 호출하지 않습니다.")
+                st.caption(result.get("limitations", ""))
+                m1, m2, m3 = st.columns(3)
+                m1.metric("AI 분류 댓글", f"{result['record_count']:,}개")
+                m2.metric("소비자 니즈 주제", f"{len(result.get('need_topics', {})):,}개")
+                m3.metric("관련 댓글", f"{result.get('relevance', {}).get('related', 0):,}개")
+                st.markdown("#### 전체 댓글 감성 분포")
+                order = [("긍정", "positive"), ("중립", "neutral"), ("부정", "negative"),
+                         ("혼합", "mixed"), ("기타", "not_applicable")]
+                sentiment_rows = [{"감성": ko, "댓글 수": int(result.get("sentiment", {}).get(en, 0))} for ko, en in order]
+                chart = alt.Chart(alt.Data(values=sentiment_rows)).mark_bar(color="#80C4F6", size=24).encode(
+                    y=alt.Y("감성:N", sort=[x[0] for x in order], title="감성"),
+                    x=alt.X("댓글 수:Q", title="댓글 수"), tooltip=["감성", "댓글 수"]
+                ).properties(height=230)
+                st.altair_chart(chart, use_container_width=True)
+                st.dataframe(sentiment_rows, use_container_width=True, hide_index=True)
+                st.caption("전체 댓글의 감성입니다. 제품 만족도나 구매 후기 비율을 뜻하지 않습니다.")
+                st.markdown("#### 소비자 니즈 관련 주요 주제 (탐색적)")
+                topic_rows = [{"주제": k, "언급 댓글 수": v} for k,v in result.get("need_topics", {}).items()]
+                if topic_rows:
+                    st.altair_chart(alt.Chart(alt.Data(values=topic_rows[:15])).mark_bar(color="#80C4F6", size=24).encode(
+                        y=alt.Y("주제:N", sort=[r["주제"] for r in topic_rows[:15]], title="주제"),
+                        x=alt.X("언급 댓글 수:Q", title="댓글 수"), tooltip=["주제", "언급 댓글 수"]
+                    ).properties(height=max(200, min(15,len(topic_rows))*32)), use_container_width=True)
+                    st.dataframe(topic_rows, use_container_width=True, hide_index=True)
+                else:
+                    st.info("명시적으로 확인된 소비자 니즈 주제가 없습니다.")
+                st.caption("AI가 댓글의 표현을 그대로 요약하므로 유사 주제가 중복될 수 있습니다. 전체 시장 비율로 해석할 수 없습니다.")
+                st.markdown("#### 댓글 내용 유형")
+                labels_ko = {"consumer_need":"소비자 니즈", "product_experience":"제품 경험", "product_evaluation":"제품 평가", "general_reaction":"일반 반응", "purchase_interest":"구매 관심", "irrelevant_spam":"무관/스팸"}
+                label_rows = [{"유형": labels_ko.get(k,k), "댓글 수":v} for k,v in result.get("content_labels", {}).items()]
+                st.dataframe(label_rows, use_container_width=True, hide_index=True)
+                st.caption("댓글별 복수 라벨 허용 · 분류는 AI 추정이며 실제 구매 여부를 검증하지 않습니다.")
+            except (OSError, ValueError, TypeError, KeyError) as error:
+                st.error(f"저장된 AI 분석 결과를 읽지 못했습니다: {type(error).__name__}")
+        elif not collection_file.is_file():
+            st.info("먼저 06-1 · 댓글 수집·전처리를 완료해 주세요.")
+        elif not candidates_file.is_file():
+            st.warning("댓글 분석 후보 파일이 없습니다. 06-1 데이터를 확인해 주세요.")
+        else:
+            try:
+                candidates = load_input_candidates(candidates_file)
+                st.metric("분석 가능 댓글", len(candidates))
+                st.caption("Gemini API로 댓글을 최대 15개씩 분할 분석합니다. 요청 횟수와 비용이 발생할 수 있습니다. 저장된 결과가 있으면 다시 호출하지 않습니다.")
+                if not candidates:
+                    st.warning("개인정보 위험·품질 예비 점검을 통과한 댓글이 없어 AI 분석을 진행할 수 없습니다.")
+                elif st.button("AI 소비자 니즈·감성 분석 실행", key=f"general_ai_comments_{selected_project}"):
+                    key = st.secrets.get("GEMINI_API_KEY")
+                    if not key:
+                        st.error("Gemini API 키가 설정되지 않았습니다.")
+                    else:
+                        try:
+                            product_file = CURRENT_DATA_DIR / "product_info.json"
+                            product = json.loads(product_file.read_text(encoding="utf-8")) if product_file.is_file() else {}
+                            # Send minimal product context to limit needless exposure.
+                            context = {k: product[k] for k in ("brand", "product_name", "category") if k in product}
+                            with st.spinner("댓글을 AI로 분석하고 있습니다. 완료 전에는 결과를 저장하지 않습니다..."):
+                                analysis = analyze_consumer_comments(key, context, candidates)
+                            # Atomic replace: avoid publishing partial/invalid results.
+                            tmp = result_file.with_suffix(".tmp")
+                            tmp.write_text(json.dumps(analysis, ensure_ascii=False, indent=2), encoding="utf-8")
+                            tmp.replace(result_file)
+                            st.rerun()
+                        except Exception as error:
+                            import logging
+                            logging.getLogger(__name__).exception("Consumer AI analysis failed")
+                            st.error(f"AI 댓글 분석 실패 ({type(error).__name__}). 결과는 저장되지 않았으며 일부 API 사용량이 발생했을 수 있습니다.")
+            except (OSError, ValueError, TypeError, KeyError) as error:
+                st.error(f"댓글 후보 데이터를 읽지 못했습니다: {type(error).__name__}")
 
 st.markdown("<div style='height:44px'></div>", unsafe_allow_html=True)
 st.divider()
