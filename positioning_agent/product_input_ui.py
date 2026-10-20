@@ -19,15 +19,50 @@ def render_product_input(project_dir):
 
     st.subheader("제품 정보 입력")
 
-    # 기존 제품 정보가 있으면 자동 덮어쓰기 금지
+    # Saved project inputs are visible on every rerun, not hidden in a collapsed JSON.
+    # Prevent edits after downstream analysis to avoid mismatched research results.
     if product_path.exists():
-        st.success("이 프로젝트에는 저장된 제품 정보가 있습니다.")
+        try:
+            with product_path.open(encoding="utf-8") as f:
+                product_info = json.load(f)
+            if not isinstance(product_info, dict):
+                raise ValueError("저장된 제품 정보의 형식이 올바르지 않습니다.")
+        except (OSError, ValueError, TypeError) as exc:
+            st.error(f"저장된 제품 정보를 읽지 못했습니다: {type(exc).__name__}")
+            return
 
-        with open(product_path, encoding="utf-8") as f:
-            product_info = json.load(f)
-
-        with st.expander("저장된 데이터 확인", expanded=False):
+        st.success("제품 정보가 저장되어 있습니다. 새로고침 후에도 저장된 내용을 표시합니다.")
+        st.markdown("#### 저장된 제품 정보")
+        main_fields = [
+            ("브랜드명", product_info.get("brand") or "-"),
+            ("제품명", product_info.get("product_name") or "-"),
+            ("제품 카테고리", product_info.get("category") or "-"),
+            ("용량 (ml)", product_info.get("volume_ml") or "-"),
+            ("정가 (원)", product_info.get("price_krw") or "-"),
+            ("판매가 (원)", product_info.get("sale_price_krw") or "-"),
+        ]
+        st.dataframe(
+            [{"항목": name, "저장된 값": str(value)} for name, value in main_fields],
+            hide_index=True, use_container_width=True,
+        )
+        for heading, field in [("주요 특징·마케팅 소구점", "marketing_claims"),
+                               ("주요 성분", "ingredients")]:
+            st.markdown(f"**{heading}**")
+            entries = product_info.get(field) or []
+            st.write(" / ".join(map(str, entries)) if isinstance(entries, list) and entries else "-")
+        competitors = product_info.get("competitors") or []
+        st.markdown("**경쟁사 정보**")
+        if isinstance(competitors, list) and competitors:
+            st.dataframe(
+                [{"경쟁사": str(c.get("brand", "")), "제품명": str(c.get("product_name", ""))}
+                 for c in competitors if isinstance(c, dict)],
+                hide_index=True, use_container_width=True,
+            )
+        else:
+            st.write("등록된 경쟁사가 없습니다.")
+        with st.expander("저장된 원본 JSON 확인", expanded=False):
             st.json(product_info)
+        st.caption("분석 결과와 입력 정보가 달라지지 않도록 저장 후 자동 수정은 제한됩니다.")
         return
 
     st.caption(
