@@ -736,7 +736,78 @@ with st.expander("YouTube 영상 AI 관련성 평가", expanded=False):
     search_path = relevance_dir / "youtube_search_results.json"
     relevance_path = relevance_dir / "video_relevance_results.json"
 
-    if relevance_path.is_file():
+   
+    if selected_project == "dbc345844047":
+        demo_dir = (
+            Path(__file__).resolve().parent
+            / "positioning_demo_data"
+            / "ongredients_analysis"
+        )
+
+        demo_relevance_path = (
+            demo_dir / "youtube_relevance_demo.json"
+        )
+        demo_search_path = (
+            demo_dir / "youtube_search_demo.json"
+        )
+
+        youtube_done = st.session_state.get(
+            "ongredients_demo_youtube_revealed", False
+        )
+        relevance_done = st.session_state.get(
+            "ongredients_demo_relevance_revealed", False
+        )
+
+        st.caption(
+            "시연 모드: 사전에 저장된 Gemini 평가 결과를 "
+            "불러옵니다. 새로운 API 호출은 없습니다."
+        )
+
+        if not youtube_done:
+            st.info(
+                "먼저 YouTube 영상 자동 검색 단계를 "
+                "완료해 주세요."
+            )
+
+        if not relevance_done:
+            if st.button(
+                "AI 영상 관련성 평가 실행",
+                key="ongredients_demo_relevance_button",
+                disabled=not youtube_done
+            ):
+                if (
+                    demo_relevance_path.is_file()
+                    and demo_search_path.is_file()
+                ):
+                    st.session_state[
+                        "ongredients_demo_relevance_revealed"
+                    ] = True
+                    st.rerun()
+                else:
+                    st.error(
+                        "Demo 관련성 평가 데이터가 없습니다."
+                    )
+
+        if relevance_done:
+            if (
+                demo_relevance_path.is_file()
+                and demo_search_path.is_file()
+            ):
+                from positioning_agent.youtube_relevance_demo_ui import (
+                    render_youtube_relevance_demo
+                )
+
+                render_youtube_relevance_demo(
+                    demo_relevance_path,
+                    demo_search_path
+                )
+            else:
+                st.error(
+                    "Demo 관련성 평가 데이터를 찾을 수 없습니다."
+                )
+
+    elif relevance_path.is_file():
+
         try:
             saved_relevance = relevance_json.loads(
                 relevance_path.read_text(encoding="utf-8")
