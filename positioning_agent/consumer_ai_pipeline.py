@@ -11,7 +11,7 @@ SENTIMENTS = ("positive", "neutral", "negative", "mixed", "not_applicable")
 CONTENT_LABELS = ("consumer_need", "product_experience", "product_evaluation", "general_reaction", "purchase_interest", "irrelevant_spam")
 
 
-def analyze_consumer_comments(api_key, product, candidates, *, model="gemini-2.5-flash", batch_size=15):
+def analyze_consumer_comments(api_key, product, candidates, *, model="gemini-3.8-flash", batch_size=15):
     from google import genai
     from google.genai import types
 
