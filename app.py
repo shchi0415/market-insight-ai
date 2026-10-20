@@ -129,6 +129,11 @@ section[data-testid="stMain"] .stDownloadButton button {
     font-weight: 550;
 }
 
+/* Navigation links land on the rendered section heading, not an empty spacer. */
+section[data-testid="stMain"] h2[id] {
+    scroll-margin-top: 1.5rem;
+}
+
 /* 메인 페이지 구분선 */
 section[data-testid="stMain"] hr {
     margin-top: 1.2rem;
@@ -334,13 +339,13 @@ if selected_project == DEMO_ID:
 else:
     st.caption("신규 프로젝트: 각 분석 단계는 입력값과 데이터 준비 상태에 따라 실행할 수 있습니다.")
 
-st.markdown('<div id="product-input"></div>', unsafe_allow_html=True)
+
 # ===== POSITIONING AGENT V2 PRODUCT INPUT =====
 from positioning_agent.product_input_ui import (
     render_product_input
 )
 
-st.header("01 · 제품 정보 입력")
+st.header("01 · 제품 정보 입력", anchor="product-input")
 
 with st.container(border=True):
     render_product_input(CURRENT_DATA_DIR)
@@ -377,9 +382,9 @@ if not st.session_state.get("_step01_save_scrolled", False):
 
 st.markdown("<div style='height:44px'></div>", unsafe_allow_html=True)
 st.divider()
-st.markdown('<div id="youtube-keywords"></div>', unsafe_allow_html=True)
+
 # ===== STEP 9-164: AUTOMATED YOUTUBE KEYWORDS =====
-st.header("02 · 검색 키워드 생성")
+st.header("02 · 검색 키워드 생성", anchor="youtube-keywords")
 with st.container(border=True):
     import json as keyword_json
     from positioning_agent.keyword_engine import (
@@ -564,10 +569,10 @@ with st.container(border=True):
 
 st.markdown("<div style='height:44px'></div>", unsafe_allow_html=True)
 st.divider()
-st.markdown('<div id="youtube-search"></div>', unsafe_allow_html=True)
+
 # ===== STEP 9-181: YOUTUBE VIDEO SEARCH UI =====
 if selected_project == "dbc345844047":
-    st.header("03 · YouTube 영상 검색")
+    st.header("03 · YouTube 영상 검색", anchor="youtube-search")
     with st.container(border=True):
         st.caption(
             "시연 모드: 기존 YouTube 검색 결과를 불러옵니다. "
@@ -614,7 +619,7 @@ if selected_project == "dbc345844047":
 
 else:
     # ===== STEP 9-181: YOUTUBE VIDEO SEARCH UI =====
-    st.header("03 · YouTube 영상 검색")
+    st.header("03 · YouTube 영상 검색", anchor="youtube-search")
     with st.container(border=True):
         import json as youtube_json
 
@@ -733,9 +738,9 @@ else:
 
 st.markdown("<div style='height:44px'></div>", unsafe_allow_html=True)
 st.divider()
-st.markdown('<div id="video-relevance"></div>', unsafe_allow_html=True)
+
 # ===== STEP 9-202: VIDEO RELEVANCE UI =====
-st.header("04 · AI 영상 관련성 평가")
+st.header("04 · AI 영상 관련성 평가", anchor="video-relevance")
 st.markdown(
     """<style>
     /* STEP 04의 수치 지표만 개별 카드로 표시 */
@@ -965,10 +970,10 @@ with st.container(border=True, key="video_relevance_card"):
 
 st.markdown("<div style='height:44px'></div>", unsafe_allow_html=True)
 st.divider()
-st.markdown('<div id="video-selection"></div>', unsafe_allow_html=True)
+
 # ===== ONgredients DEMO: YOUTUBE VIDEO SELECTION =====
 if selected_project == "dbc345844047":
-    st.header("05 · 분석 영상 선별")
+    st.header("05 · 분석 영상 선별", anchor="video-selection")
     with st.container(border=True):
         st.caption(
             "시연 모드: 기존 규칙 기반 영상 선별 결과를 "
@@ -1031,8 +1036,8 @@ if selected_project == "dbc345844047":
 # ===== STEP 06: YOUTUBE COMMENT COLLECTION DEMO =====
 st.markdown("<div style='height:44px'></div>", unsafe_allow_html=True)
 st.divider()
-st.markdown('<div id="consumer-analysis"></div>', unsafe_allow_html=True)
-st.header("06 · 댓글 수집 및 소비자 인사이트 분석")
+
+st.header("06 · 댓글 수집 및 소비자 인사이트 분석", anchor="consumer-analysis")
 st.subheader("06-1 · 댓글 수집·전처리")
 with st.container():
     if selected_project == DEMO_ID:
@@ -1156,8 +1161,8 @@ with st.container():
 
 st.markdown("<div style='height:44px'></div>", unsafe_allow_html=True)
 st.divider()
-st.markdown('<div id="consumer-ai-analysis"></div>', unsafe_allow_html=True)
-st.header("06-2 · AI 소비자 분석")
+
+st.header("06-2 · AI 소비자 분석", anchor="consumer-ai-analysis")
 with st.container(border=True):
     if selected_project == DEMO_ID:
         if not st.session_state.get("ongredients_demo_comments_revealed", False):
@@ -1259,8 +1264,8 @@ with st.container(border=True):
 
 st.markdown("<div style='height:44px'></div>", unsafe_allow_html=True)
 st.divider()
-st.markdown('<div id="positioning-strategy"></div>', unsafe_allow_html=True)
-st.header("07 · 시장 기회·포지셔닝 전략")
+
+st.header("07 · 시장 기회·포지셔닝 전략", anchor="positioning-strategy")
 
 # STEP 07: 시장 분석·전략 제안 통합 대시보드
 # 이 함수는 기존 positioning_demo_dashboard.py의 차트·결과 렌더링을
