@@ -269,7 +269,8 @@ NAVIGATION = [
     ("03 · YouTube 영상 검색", "youtube-search"),
     ("04 · AI 영상 관련성 평가", "video-relevance"),
     ("05 · 분석 영상 선별", "video-selection"),
-    ("06 · 댓글 수집·소비자 분석", "consumer-analysis"),
+    ("06-1 · 댓글 수집·전처리", "consumer-analysis"),
+    ("06-2 · AI 소비자 분석", "consumer-ai-analysis"),
     ("07 · 시장 기회·포지셔닝 전략", "positioning-strategy"),
 ]
 for label, anchor in NAVIGATION:
@@ -957,7 +958,7 @@ if selected_project == "dbc345844047":
 st.markdown("<div style='height:44px'></div>", unsafe_allow_html=True)
 st.divider()
 st.markdown('<div id="consumer-analysis"></div>', unsafe_allow_html=True)
-st.header("06 · 댓글 수집·소비자 분석")
+st.header("06-1 · 댓글 수집·전처리")
 with st.container():
     if selected_project == DEMO_ID:
         st.caption(
@@ -1041,7 +1042,6 @@ with st.container():
                             """,
                             unsafe_allow_html=True,
                         )
-                        st.caption("파란색은 핵심 관련(Core), 초록색은 인접 관련(Adjacent) 댓글 비중입니다.")
 
                     with st.container(border=True):
                         st.markdown("#### 전처리 점검")
@@ -1070,7 +1070,22 @@ with st.container():
                 except (OSError, ValueError, TypeError, KeyError) as error:
                     st.error("댓글 집계 데이터를 읽지 못했습니다. JSON 구조를 확인해 주세요.")
 
-            st.markdown("##### AI 소비자 분석")
+    else:
+        st.info(
+            "새 프로젝트에서의 YouTube 댓글 수집·분석 실행 기능은 "
+            "아직 연결되지 않았습니다."
+        )
+
+
+st.markdown("<div style='height:44px'></div>", unsafe_allow_html=True)
+st.divider()
+st.markdown('<div id="consumer-ai-analysis"></div>', unsafe_allow_html=True)
+st.header("06-2 · AI 소비자 분석")
+with st.container(border=True):
+    if selected_project == DEMO_ID:
+        if not st.session_state.get("ongredients_demo_comments_revealed", False):
+            st.info("먼저 06-1 · 댓글 수집·전처리 단계를 완료해 주세요.")
+        else:
             ai_summary_path = (
                 Path(__file__).resolve().parent
                 / "positioning_demo_data"
@@ -1134,10 +1149,7 @@ with st.container():
                     except (OSError, ValueError, TypeError, KeyError):
                         st.error("AI 댓글 분석 집계 데이터를 읽지 못했습니다. JSON 구조를 확인해 주세요.")
     else:
-        st.info(
-            "새 프로젝트에서의 YouTube 댓글 수집·분석 실행 기능은 "
-            "아직 연결되지 않았습니다."
-        )
+        st.info("새 프로젝트의 AI 소비자 분석 기능은 아직 연결되지 않았습니다.")
 
 st.markdown("<div style='height:44px'></div>", unsafe_allow_html=True)
 st.divider()
