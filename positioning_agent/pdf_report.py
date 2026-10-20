@@ -161,7 +161,32 @@ def _bar_chart(rows, styles, title, max_rows=None):
                       fillColor=colors.HexColor('#4289CD'), strokeColor=None))
         draw.add(String(left_w + bar_w + 8, y + 2, str(n), fontName=FONT,
                         fontSize=8, fillColor=colors.HexColor('#263954')))
-    out = [Paragraph(_txt(title), styles['h2']), draw, Spacer(1, 5)]
+    # A ReportLab Drawing cannot split across pages.  Divide long charts into
+    # page-safe chunks so a chart with many categories never exceeds the frame.
+    out = []
+    max_rows_per_chart = 11
+    if len(rows) <= max_rows_per_chart:
+        out.extend([Paragraph(_txt(title), styles['h2']), draw, Spacer(1, 5)])
+    else:
+        for start in range(0, len(rows), max_rows_per_chart):
+            chunk = rows[start:start + max_rows_per_chart]
+            chunk_height = 18 + row_h * len(chunk)
+            chunk_draw = Drawing(left_w + bar_w + right_w, chunk_height)
+            for j, (label, n) in enumerate(chunk):
+                y = chunk_height - 26 - j * row_h
+                chunk_draw.add(String(0, y + 3, _single_line(label, 13),
+                                      fontName=FONT, fontSize=8,
+                                      fillColor=colors.HexColor('#263954')))
+                chunk_draw.add(Rect(left_w, y, bar_w, 11,
+                                    fillColor=colors.HexColor('#EDF1F7'), strokeColor=None))
+                chunk_draw.add(Rect(left_w, y, max(2, bar_w * n / maxval), 11,
+                                    fillColor=colors.HexColor('#4289CD'), strokeColor=None))
+                chunk_draw.add(String(left_w + bar_w + 8, y + 2, str(n),
+                                      fontName=FONT, fontSize=8,
+                                      fillColor=colors.HexColor('#263954')))
+            chunk_title = title if start == 0 else f'{title} (계속)'
+            out.extend([Paragraph(_txt(chunk_title), styles['h2']),
+                        chunk_draw, Spacer(1, 5)])
     data = [[Paragraph('항목', styles['small']), Paragraph('댓글 수', styles['small'])]]
     data.extend([[Paragraph(_txt(k), styles['small']), Paragraph(str(v), styles['small'])] for k,v in rows])
     tab = Table(data, colWidths=[360, 99], hAlign='LEFT', repeatRows=1)
