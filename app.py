@@ -1138,6 +1138,65 @@ else:
 st.markdown("<div style='height:44px'></div>", unsafe_allow_html=True)
 st.divider()
 
+def render_comment_video_table(video_rows, search_results_path, *, demo=False):
+    """Show a project's saved video metadata; never make an API request."""
+    lookup = {}
+    try:
+        if search_results_path.is_file():
+            search_data = json.loads(search_results_path.read_text(encoding="utf-8"))
+            lookup = {
+                str(video.get("video_id")): video
+                for video in search_data.get("videos", [])
+                if isinstance(video, dict) and video.get("video_id")
+            }
+    except (OSError, ValueError, TypeError):
+        st.warning("검색 영상 메타데이터를 읽지 못해 일부 제목이 표시되지 않을 수 있습니다.")
+
+    rows = []
+    for index, video in enumerate(video_rows, 1):
+        if not isinstance(video, dict):
+            continue
+        video_id = str(video.get("video_id") or video.get("영상 ID") or "").strip()
+        if not video_id:
+            continue
+        source = lookup.get(video_id, {})
+        title = source.get("title") or video.get("title") or video.get("영상 제목") or "제목 정보 없음"
+        channel = (source.get("channel_title") or source.get("channelTitle")
+                   or video.get("channel_title") or video.get("channelTitle") or "")
+        count = video.get("comment_count", video.get("수집 댓글", 0))
+        row = {
+            "번호": index,
+            "영상 제목": title,
+            "채널명": channel,
+            "관련성": video.get("video_relevance") or video.get("관련성") or "정보 없음",
+            "수집 댓글": int(count or 0),
+            "YouTube 링크": source.get("youtube_url") or f"https://www.youtube.com/watch?v={video_id}",
+        }
+        if demo:
+            row["중복 추가 표시"] = int(video.get("duplicate_extra", 0))
+        rows.append(row)
+
+    if not rows:
+        st.caption("표시할 영상별 수집 내역이 없습니다.")
+        return
+    if not any(row["채널명"] for row in rows):
+        for row in rows:
+            row.pop("채널명")
+    else:
+        for row in rows:
+            row["채널명"] = row["채널명"] or "정보 없음"
+    st.dataframe(
+        rows,
+        hide_index=True,
+        use_container_width=True,
+        column_config={
+            "영상 제목": st.column_config.TextColumn("영상 제목", width="large"),
+            "YouTube 링크": st.column_config.LinkColumn("YouTube 링크", display_text="영상 보기"),
+        },
+    )
+    st.caption("영상 제목·채널명은 저장된 STEP 03 검색 결과에서 가져옵니다. 데이터가 없다면 추가 API 조회 없이 표시합니다.")
+
+
 st.header("06 · 댓글 수집 및 소비자 인사이트 분석", anchor="consumer-analysis")
 st.subheader("06-1 · 댓글 수집·전처리")
 with st.container():
@@ -1239,16 +1298,11 @@ with st.container():
                             "짧은 댓글과 URL 표시는 별도의 제외 건수가 아닙니다."
                         )
                     with st.expander("영상별 댓글 수집 현황 보기", expanded=False):
-                        rows = [
-                            {
-                                "영상 ID": video.get("video_id", ""),
-                                "관련성": video.get("video_relevance", ""),
-                                "수집 댓글": int(video.get("comment_count", 0)),
-                                "중복 추가 표시": int(video.get("duplicate_extra", 0)),
-                            }
-                            for video in comment_summary.get("videos", [])
-                        ]
-                        st.dataframe(rows, use_container_width=True, hide_index=True)
+                        render_comment_video_table(
+                            comment_summary.get("videos", []),
+                            DEMO_ASSETS / "youtube_search_demo.json",
+                            demo=True,
+                        )
                     st.success("댓글 수집·전처리 집계 결과를 불러왔습니다.")
                 except (OSError, ValueError, TypeError, KeyError) as error:
                     st.error("댓글 집계 데이터를 읽지 못했습니다. JSON 구조를 확인해 주세요.")
@@ -1273,7 +1327,36 @@ with st.container():
                     st.write(f"중복 제거 후 유효 댓글: {summary['preprocessing']['unique_valid_count']:,}개")
                     st.write(f"추가 검토·보류: {summary['preprocessing']['review_hold_count']:,}개")
                     st.caption("길이·한글 문자 수·민감 정보 패턴 기반의 예비 분류입니다. 최종 AI 분석이나 개인정보 익명화 결과가 아닙니다.")
-                st.dataframe(summary.get("videos", []), use_container_width=True, hide_index=True)
+                with st.container(border=True):
+                    st.markdown("#### 영상별 댓글 수집 현황")
+                    videos = summary.get("videos", [])
+                    if videos:
+                        count = len([v for v in videos if int(v.get("수집 댓글", 0)) > 0])
+                        total_count = sum(int(v.get("수집 댓글", 0)) for v in videos)
+                        x, y, z = st.columns(3)
+                        x.metric("선별 영상", f"{len(videos):,}개")
+                        y.metric("수집 댓글", f"{total_count:,}개")
+                        z.metric("영상당 평균", f"{total_count / len(videos):.1f}개")
+                    relevance_path = general_dir / "video_relevance_results.json"
+                    relevance_by_id = {}
+                    try:
+                        if relevance_path.is_file():
+                            relevance_data = json.loads(relevance_path.read_text(encoding="utf-8"))
+                            relevance_by_id = {
+                                str(v.get("video_id")): v.get("relevance", "정보 없음")
+                                for v in relevance_data.get("relevance_result", {}).get("videos", [])
+                                if isinstance(v, dict)
+                            }
+                    except (OSError, ValueError, TypeError):
+                        pass
+                    enriched = [
+                        {**v, "관련성": relevance_by_id.get(str(v.get("영상 ID", "")), "정보 없음")}
+                        for v in videos if isinstance(v, dict)
+                    ]
+                    render_comment_video_table(
+                        enriched,
+                        general_dir / "youtube_search_results.json",
+                    )
                 if summary.get("failed_videos"):
                     st.warning(f"댓글 접근에 실패한 영상: {len(summary['failed_videos'])}개 (댓글 차단·API 오류 등)")
             except (OSError, ValueError, TypeError, KeyError):
