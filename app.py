@@ -347,6 +347,32 @@ st.header("01 · 제품 정보 입력")
 with st.container(border=True):
     render_product_input(CURRENT_DATA_DIR)
 
+# On the FIRST successful Step 01 product save only, return to the page top.
+# The form persists product_info.json; subsequent steps keep their scroll position.
+if not st.session_state.get("_step01_save_scrolled", False):
+    product_path = CURRENT_DATA_DIR / "product_info.json"
+    if product_path.is_file():
+        st.session_state["_step01_save_scrolled"] = True
+        import streamlit.components.v1 as components
+        components.html("""
+            <script>
+            (() => {
+              try {
+                const w = window.parent;
+                const d = w.document;
+                const top = () => {
+                  const el = d.querySelector('[data-testid="stAppViewContainer"]')
+                          || d.querySelector('section.main');
+                  if (el) el.scrollTop = 0;
+                  w.scrollTo(0, 0);
+                };
+                top();
+                requestAnimationFrame(top);
+                setTimeout(top, 150);
+              } catch (e) {}
+            })();
+            </script>
+        """, height=0)
 
 st.markdown("<div style='height:44px'></div>", unsafe_allow_html=True)
 st.divider()
@@ -1090,6 +1116,8 @@ with st.container():
                             """,
                             unsafe_allow_html=True,
                         )
+                        # Reserve space below the custom bar within the card boundary.
+                        st.markdown("<div style='height:28px'></div>", unsafe_allow_html=True)
 
                     with st.container(border=True):
                         st.markdown("#### 전처리 점검")
@@ -1172,7 +1200,23 @@ with st.container(border=True):
                             st.markdown("#### 전체 댓글 감성 분포")
                             order = [("긍정","positive"),("중립","neutral"),("부정","negative"),("혼합","mixed"),("기타","not_applicable")]
                             sentiment_rows = [{"감성": name, "댓글 수": int(sc.get(key,0))} for name,key in order if sc.get(key,0)]
-                            st.bar_chart(sentiment_rows, x="감성", y="댓글 수", horizontal=True)
+                            import altair as alt
+                            chart = (
+                                alt.Chart(alt.Data(values=sentiment_rows))
+                                .mark_bar(color="#80C4F6", size=24)
+                                .encode(
+                                    y=alt.Y(
+                                        "감성:N",
+                                        sort=["긍정", "중립", "부정", "혼합", "기타"],
+                                        title="감성",
+                                        axis=alt.Axis(labelAngle=0),
+                                    ),
+                                    x=alt.X("댓글 수:Q", title="댓글 수"),
+                                    tooltip=["감성:N", "댓글 수:Q"],
+                                )
+                                .properties(height=230)
+                            )
+                            st.altair_chart(chart, use_container_width=True)
                             st.dataframe(sentiment_rows, use_container_width=True, hide_index=True)
                             st.caption("영상에 대한 호감과 제품 평가 등이 혼재한 전체 댓글 감성입니다. 제품 만족도 분포로 해석하지 마세요.")
                         with st.container(border=True):
