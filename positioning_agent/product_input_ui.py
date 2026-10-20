@@ -64,8 +64,8 @@ def render_product_input(project_dir):
         
     if project_dir.name == "dbc345844047":
         if st.button("[예시 정보 불러오기]"):
-        st.session_state.update(example_values)
-        st.rerun()
+            st.session_state.update(example_values)
+            st.rerun()
 
     with st.form("product_input_form"):
         brand = st.text_input("브랜드명 *", key="example_brand")
