@@ -1,0 +1,48 @@
+{
+  "product_name": "온그리디언츠 바쿠글로우 캡슐 로션",
+  "product_category": "스킨케어 로션",
+  "source_type": "youtube_video_descriptions",
+  "features": [
+    {
+      "feature": "바쿠치올·글루타치온",
+      "claimed_benefit": "피부결·광채·탄력 관련 메시지",
+      "evidence_level": "promotional_claim",
+      "requires_validation": true
+    },
+    {
+      "feature": "캡슐 로션 제형",
+      "claimed_benefit": "캡슐이 녹아드는 사용감",
+      "evidence_level": "video_description",
+      "requires_validation": true
+    },
+    {
+      "feature": "수분·보습",
+      "claimed_benefit": "촉촉함과 수분감",
+      "evidence_level": "promotional_claim",
+      "requires_validation": true
+    },
+    {
+      "feature": "가벼운 사용감",
+      "claimed_benefit": "끈적임이 적은 사용감",
+      "evidence_level": "promotional_claim",
+      "requires_validation": true
+    },
+    {
+      "feature": "메이크업 호환성",
+      "claimed_benefit": "화장이 잘 받는 피부 표현",
+      "evidence_level": "promotional_claim",
+      "requires_validation": true
+    }
+  ],
+  "verified_consumer_experience": {
+    "review_candidates": 1,
+    "finding": "여름철 사용 만족을 표현한 댓글 1건",
+    "limitations": "제품을 제공받아 사용한 것으로 보이며 대표성 없음"
+  },
+  "unverified_claims": [
+    "경쟁사 대비 저자극",
+    "모든 피부 타입 적합성",
+    "피부 장벽 개선 효능",
+    "경쟁사 대비 우수한 보습력"
+  ]
+}

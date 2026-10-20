@@ -1,0 +1,121 @@
+{
+  "analysis_type": "positioning_opportunity",
+  "mode": "precomputed_demo",
+  "market_comment_count": 2724,
+  "market_need_counts": {
+    "피부 타입·민감성": 488,
+    "트러블·여드름": 435,
+    "진정·홍조": 521,
+    "수분·보습": 447,
+    "사용감·제형": 154,
+    "피부 장벽": 236,
+    "피부결·광채": 29
+  },
+  "hydration_cooccurrence": {
+    "진정·홍조": {
+      "comment_count": 124,
+      "base_comment_count": 447
+    },
+    "피부 장벽": {
+      "comment_count": 84,
+      "base_comment_count": 447
+    },
+    "트러블·여드름": {
+      "comment_count": 114,
+      "base_comment_count": 447
+    },
+    "피부 타입·민감성": {
+      "comment_count": 179,
+      "base_comment_count": 447
+    },
+    "사용감·제형": {
+      "comment_count": 51,
+      "base_comment_count": 447
+    },
+    "피부결·광채": {
+      "comment_count": 11,
+      "base_comment_count": 447
+    }
+  },
+  "competitor_analysis": {
+    "aestura": {
+      "analyzed_comments": 197,
+      "review_candidates": 98,
+      "category_sentiments": {
+        "진정·피부 개선": {
+          "positive": 19,
+          "negative": 1
+        },
+        "전반적 만족도": {
+          "positive": 31,
+          "negative": 1,
+          "neutral": 1
+        },
+        "피부 적합성·자극": {
+          "positive": 12,
+          "negative": 23,
+          "neutral": 1
+        },
+        "보습력": {
+          "positive": 18,
+          "negative": 7
+        },
+        "사용감·제형": {
+          "positive": 21,
+          "negative": 7,
+          "neutral": 1
+        },
+        "재구매 의향": {
+          "positive": 9,
+          "negative": 2
+        },
+        "기타·검토 필요": {
+          "positive": 3,
+          "neutral": 1,
+          "negative": 1
+        },
+        "가격·가치": {
+          "negative": 1,
+          "positive": 3
+        }
+      }
+    },
+    "roundlab": {
+      "analyzed_comments": 121,
+      "review_candidates": 13,
+      "category_sentiments": {
+        "사용감·제형": {
+          "negative": 2
+        },
+        "재구매 의향": {
+          "positive": 1
+        },
+        "전반적 만족도": {
+          "positive": 1
+        },
+        "피부 적합성·자극": {
+          "negative": 4,
+          "positive": 2
+        },
+        "진정·피부 개선": {
+          "positive": 1
+        },
+        "가격·가치": {
+          "neutral": 1
+        },
+        "향·냄새": {
+          "negative": 1
+        }
+      }
+    }
+  },
+  "positioning_hypothesis": "피부 타입에 적합한 보습과 산뜻한 사용감",
+  "hypothesis_status": "requires_product_validation",
+  "limitations": [
+    "YouTube 댓글 비대표성 표본",
+    "AI 추출 표현의 규칙 기반 표준화",
+    "댓글 내 동시 언급은 인과관계를 의미하지 않음",
+    "경쟁사 간 후기 후보 규모 차이",
+    "자사 제품의 상대적 성능은 검증되지 않음"
+  ]
+}

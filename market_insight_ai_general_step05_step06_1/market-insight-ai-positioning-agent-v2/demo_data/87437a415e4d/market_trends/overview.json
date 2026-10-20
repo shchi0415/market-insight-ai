@@ -1,0 +1,12 @@
+{
+  "posts": 1149,
+  "analyzed_comments": 1698,
+  "relevant_comments": 1009,
+  "irrelevant_comments": 689,
+  "uncertain_comments": 0,
+  "relevance_rate": 59.42,
+  "analysis_versions": {
+    "unknown": 1698
+  },
+  "methodology_note": "인스타그램 수집 표본의 댓글 언급 분포입니다. 시장 전체 수요나 시장점유율을 의미하지 않습니다. 분석 버전이 혼합된 경우 분류 기준 차이에 유의해야 합니다."
+}

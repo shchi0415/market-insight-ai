@@ -1,0 +1,63 @@
+{
+  "product_name": "에스트라 아토베리어365 크림",
+  "analysis_type": "youtube_comment_analysis",
+  "mode": "precomputed_demo",
+  "source_scope": "YouTube 영상 1개",
+  "analyzed_comments": 197,
+  "review_candidates": 98,
+  "review_candidate_definition": "목표 제품 관련성이 exact_product 또는 likely_product이고, 명시적 사용 경험이 있으며 광고 의심 분류가 없는 댓글",
+  "sentiment_counts": {
+    "positive": 63,
+    "negative": 24,
+    "mixed": 10,
+    "neutral": 1,
+    "unclear": 0
+  },
+  "category_sentiments": {
+    "진정·피부 개선": {
+      "positive": 19,
+      "negative": 1
+    },
+    "전반적 만족도": {
+      "positive": 31,
+      "negative": 1,
+      "neutral": 1
+    },
+    "피부 적합성·자극": {
+      "positive": 12,
+      "negative": 23,
+      "neutral": 1
+    },
+    "보습력": {
+      "positive": 18,
+      "negative": 7
+    },
+    "사용감·제형": {
+      "positive": 21,
+      "negative": 7,
+      "neutral": 1
+    },
+    "재구매 의향": {
+      "positive": 9,
+      "negative": 2
+    },
+    "기타·검토 필요": {
+      "positive": 3,
+      "neutral": 1,
+      "negative": 1
+    },
+    "가격·가치": {
+      "negative": 1,
+      "positive": 3
+    }
+  },
+  "category_method": "표준 키워드 분류 v2; 댓글-카테고리-감성 조합 중복 제거; 한 댓글의 복수 카테고리 허용",
+  "limitations": [
+    "비대표성 YouTube 댓글 표본",
+    "AI 분류 기반의 제품 사용 후기 후보",
+    "구매 인증이나 실제 사용자 신원 확인 불가",
+    "영상별 제품 관련성 및 표본 차이 존재",
+    "속성 분류 결과에 수작업 검토가 추가로 필요"
+  ],
+  "generated_at_utc": "2026-10-20T11:43:34.520634+00:00"
+}
