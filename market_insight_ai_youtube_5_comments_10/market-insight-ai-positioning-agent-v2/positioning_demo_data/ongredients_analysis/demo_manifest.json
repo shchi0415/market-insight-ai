@@ -1,0 +1,16 @@
+{
+  "project_id": "dbc345844047",
+  "project_name": "온그리디언츠 · AI 포지셔닝 분석 DEMO",
+  "demo_mode": true,
+  "demo_type": "precomputed_analysis",
+  "data_source": "positioning_demo_data/ongredients_analysis",
+  "description": "사전에 수집·분석한 YouTube 댓글과 Gemini 전략 분석 결과를 조회하는 예시 프로젝트",
+  "analysis_stages": [
+    "market_needs",
+    "product_comparison",
+    "market_opportunities",
+    "stp_positioning",
+    "final_strategy"
+  ],
+  "runtime_ai_calls": false
+}

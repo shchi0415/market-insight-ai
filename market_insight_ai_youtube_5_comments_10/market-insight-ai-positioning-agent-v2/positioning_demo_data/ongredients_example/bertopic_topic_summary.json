@@ -1,0 +1,68 @@
+{
+  "analysis_type": "youtube_bertopic",
+  "analysis_stage": "exploratory_test",
+  "product_case": "ongredients_example",
+  "sample": {
+    "total_comments": 169,
+    "total_videos": 6,
+    "sampling_note": "Purposefully selected videos; not representative of the entire market."
+  },
+  "topics": [
+    {
+      "topic_id": -1,
+      "topic_name": "미분류",
+      "comment_count": 18,
+      "unique_video_count": 5,
+      "max_video_share_pct": 27.8,
+      "analysis_status": "제외"
+    },
+    {
+      "topic_id": 0,
+      "topic_name": "피부 열감·홍조 완화 방법",
+      "comment_count": 54,
+      "unique_video_count": 4,
+      "max_video_share_pct": 42.6,
+      "analysis_status": "핵심 후보"
+    },
+    {
+      "topic_id": 1,
+      "topic_name": "수분 제품별 사용감·보습력 비교",
+      "comment_count": 31,
+      "unique_video_count": 3,
+      "max_video_share_pct": 90.3,
+      "analysis_status": "편중 주의"
+    },
+    {
+      "topic_id": 2,
+      "topic_name": "콘텐츠 반응 및 일반 의견",
+      "comment_count": 28,
+      "unique_video_count": 6,
+      "max_video_share_pct": 25.0,
+      "analysis_status": "소비자 니즈 분석 제외"
+    },
+    {
+      "topic_id": 3,
+      "topic_name": "스킨케어 사용 순서·방법",
+      "comment_count": 20,
+      "unique_video_count": 3,
+      "max_video_share_pct": 70.0,
+      "analysis_status": "편중 주의"
+    },
+    {
+      "topic_id": 4,
+      "topic_name": "피부 타입별 제품 적합성·사용 경험",
+      "comment_count": 10,
+      "unique_video_count": 1,
+      "max_video_share_pct": 100.0,
+      "analysis_status": "추가 검증"
+    },
+    {
+      "topic_id": 5,
+      "topic_name": "민감성 피부의 관리법·제품 적합성 질문",
+      "comment_count": 8,
+      "unique_video_count": 1,
+      "max_video_share_pct": 100.0,
+      "analysis_status": "추가 검증"
+    }
+  ]
+}

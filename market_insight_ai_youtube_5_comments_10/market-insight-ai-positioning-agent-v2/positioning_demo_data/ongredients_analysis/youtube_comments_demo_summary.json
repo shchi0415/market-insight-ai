@@ -1,0 +1,243 @@
+{
+  "source": "youtube_comment_preprocessing_demo_aggregate",
+  "description": "Precomputed, aggregate-only summary of YouTube comment preprocessing; no comment text, comment IDs or author IDs.",
+  "original_source": "youtube_comment_preprocessing",
+  "source_created_at_utc": "2026-10-19T13:22:12.190780+00:00",
+  "validation_status": "rule_based_not_human_verified",
+  "preprocessing_version": "v1",
+  "statistics": {
+    "total_comments": 2826,
+    "analysis_eligible": 2826,
+    "duplicate_extra": 15,
+    "short_text_review": 40,
+    "url_present": 7,
+    "core_comments": 1709,
+    "adjacent_comments": 1117,
+    "videos_with_comments": 27,
+    "deduplicated_if_duplicate_extra_excluded": 2811
+  },
+  "notes": [
+    "analysis_eligible is a preprocessing flag, not evidence of AI relevance or spam-screening completion.",
+    "duplicate_extra comments remain in the 2826 total; 2811 is a derived count after excluding 15 extra duplicates, not a separately validated corpus.",
+    "short_text_review and url_present are diagnostic flags, not removal counts.",
+    "All aggregate counts are precomputed from a saved dataset. No YouTube API call occurs in this demo."
+  ],
+  "videos": [
+    {
+      "video_id": "8b8HnOhthbY",
+      "comment_count": 410,
+      "duplicate_extra": 3,
+      "short_text_review": 13,
+      "url_present": 1,
+      "video_relevance": "Core"
+    },
+    {
+      "video_id": "3Qzlyk7xO6k",
+      "comment_count": 281,
+      "duplicate_extra": 0,
+      "short_text_review": 2,
+      "url_present": 0,
+      "video_relevance": "Core"
+    },
+    {
+      "video_id": "i9L7hFtGZNA",
+      "comment_count": 276,
+      "duplicate_extra": 2,
+      "short_text_review": 5,
+      "url_present": 0,
+      "video_relevance": "Adjacent"
+    },
+    {
+      "video_id": "2HbP8G-dO1s",
+      "comment_count": 196,
+      "duplicate_extra": 0,
+      "short_text_review": 2,
+      "url_present": 0,
+      "video_relevance": "Core"
+    },
+    {
+      "video_id": "pmKo6-L4X1I",
+      "comment_count": 195,
+      "duplicate_extra": 1,
+      "short_text_review": 2,
+      "url_present": 0,
+      "video_relevance": "Core"
+    },
+    {
+      "video_id": "Sy4BKP2xUUc",
+      "comment_count": 165,
+      "duplicate_extra": 1,
+      "short_text_review": 1,
+      "url_present": 1,
+      "video_relevance": "Adjacent"
+    },
+    {
+      "video_id": "VnE2fn4-4Kk",
+      "comment_count": 145,
+      "duplicate_extra": 2,
+      "short_text_review": 1,
+      "url_present": 0,
+      "video_relevance": "Adjacent"
+    },
+    {
+      "video_id": "3PZXvNe2CQw",
+      "comment_count": 144,
+      "duplicate_extra": 0,
+      "short_text_review": 1,
+      "url_present": 0,
+      "video_relevance": "Core"
+    },
+    {
+      "video_id": "aCfT35G_6os",
+      "comment_count": 132,
+      "duplicate_extra": 2,
+      "short_text_review": 1,
+      "url_present": 0,
+      "video_relevance": "Adjacent"
+    },
+    {
+      "video_id": "Z6TjUKOtgRs",
+      "comment_count": 103,
+      "duplicate_extra": 1,
+      "short_text_review": 3,
+      "url_present": 1,
+      "video_relevance": "Adjacent"
+    },
+    {
+      "video_id": "cFmZI2zPymA",
+      "comment_count": 94,
+      "duplicate_extra": 2,
+      "short_text_review": 2,
+      "url_present": 0,
+      "video_relevance": "Core"
+    },
+    {
+      "video_id": "mGu5nADemX4",
+      "comment_count": 85,
+      "duplicate_extra": 0,
+      "short_text_review": 0,
+      "url_present": 0,
+      "video_relevance": "Core"
+    },
+    {
+      "video_id": "tgQArC68uzU",
+      "comment_count": 81,
+      "duplicate_extra": 0,
+      "short_text_review": 0,
+      "url_present": 0,
+      "video_relevance": "Core"
+    },
+    {
+      "video_id": "2wPRAoDxpxw",
+      "comment_count": 80,
+      "duplicate_extra": 0,
+      "short_text_review": 1,
+      "url_present": 0,
+      "video_relevance": "Adjacent"
+    },
+    {
+      "video_id": "byYVDC7_SQ4",
+      "comment_count": 69,
+      "duplicate_extra": 1,
+      "short_text_review": 0,
+      "url_present": 0,
+      "video_relevance": "Adjacent"
+    },
+    {
+      "video_id": "TvIR6y0t7zM",
+      "comment_count": 67,
+      "duplicate_extra": 0,
+      "short_text_review": 0,
+      "url_present": 0,
+      "video_relevance": "Adjacent"
+    },
+    {
+      "video_id": "CYOpCHeihso",
+      "comment_count": 62,
+      "duplicate_extra": 0,
+      "short_text_review": 1,
+      "url_present": 1,
+      "video_relevance": "Core"
+    },
+    {
+      "video_id": "qcp_MZuYr8A",
+      "comment_count": 45,
+      "duplicate_extra": 0,
+      "short_text_review": 1,
+      "url_present": 1,
+      "video_relevance": "Core"
+    },
+    {
+      "video_id": "mO6rHPXnfIc",
+      "comment_count": 42,
+      "duplicate_extra": 0,
+      "short_text_review": 0,
+      "url_present": 0,
+      "video_relevance": "Adjacent"
+    },
+    {
+      "video_id": "xFFn4byQ__U",
+      "comment_count": 38,
+      "duplicate_extra": 0,
+      "short_text_review": 3,
+      "url_present": 0,
+      "video_relevance": "Adjacent"
+    },
+    {
+      "video_id": "wYuNgFHZBnA",
+      "comment_count": 28,
+      "duplicate_extra": 0,
+      "short_text_review": 0,
+      "url_present": 1,
+      "video_relevance": "Core"
+    },
+    {
+      "video_id": "CTdoes-iJx8",
+      "comment_count": 20,
+      "duplicate_extra": 0,
+      "short_text_review": 0,
+      "url_present": 0,
+      "video_relevance": "Core"
+    },
+    {
+      "video_id": "qs1YjzRquGw",
+      "comment_count": 20,
+      "duplicate_extra": 0,
+      "short_text_review": 0,
+      "url_present": 0,
+      "video_relevance": "Core"
+    },
+    {
+      "video_id": "3VEIqGaYZ1I",
+      "comment_count": 13,
+      "duplicate_extra": 0,
+      "short_text_review": 0,
+      "url_present": 1,
+      "video_relevance": "Core"
+    },
+    {
+      "video_id": "Omt1Io09-EM",
+      "comment_count": 13,
+      "duplicate_extra": 0,
+      "short_text_review": 0,
+      "url_present": 0,
+      "video_relevance": "Core"
+    },
+    {
+      "video_id": "gmikf01BYtk",
+      "comment_count": 12,
+      "duplicate_extra": 0,
+      "short_text_review": 0,
+      "url_present": 0,
+      "video_relevance": "Core"
+    },
+    {
+      "video_id": "8MRuC8V7z5s",
+      "comment_count": 10,
+      "duplicate_extra": 0,
+      "short_text_review": 1,
+      "url_present": 0,
+      "video_relevance": "Core"
+    }
+  ]
+}

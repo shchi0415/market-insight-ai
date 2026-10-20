@@ -1,0 +1,79 @@
+{
+  "project": "87437a415e4d",
+  "opportunity_audits": [
+    {
+      "opportunity_number": 1,
+      "opportunity_name": "환절기 '화잘먹' 결 정돈 솔루션",
+      "target_customer": "환절기 메이크업 들뜸과 속건조로 고민하는 2030 여성",
+      "positioning": "베이스 메이크업의 밀착력을 높이는 화잘먹 특화 기능성 스킨케어",
+      "ai_confidence": "높음",
+      "cited_count": 1,
+      "valid_evidence_count": 1,
+      "unique_post_count": 1,
+      "duplicate_keys": [],
+      "missing_keys": [],
+      "evidence_status": "근거 매우 제한적",
+      "evidence_details": [
+        {
+          "comment_key": "DEMO-9eb8622f0e223712",
+          "consumer_comment": "닦토패드로 1차 피부결 정돈해주고 2차 히알루론산 부스터 토너로 수분 팍팍 채우는 로벡틴 화잘먹 듀오 이렇게만 하면 피부고민 끝✨💙 환절기엔 메이크업이 잘 뜨는데 화장 전 스킨케어로 꼭 사용해보고싶어요!!🥹",
+          "validated_insight": "환절기 메이크업 들뜸 해결을 위해 화잘먹 조합 사용 희망",
+          "concern": "보습·장벽",
+          "behavior_stage": "사용 의향",
+          "source_url": ""
+        }
+      ],
+      "semantic_support_checked": false
+    },
+    {
+      "opportunity_number": 2,
+      "opportunity_name": "국소 부위 착색 개선 미백 케어",
+      "target_customer": "무릎, 팔꿈치 등 신체 착색을 고민하는 소비자",
+      "positioning": "얼굴뿐만 아니라 바디까지 케어 가능한 집중형 미백 솔루션",
+      "ai_confidence": "중간",
+      "cited_count": 1,
+      "valid_evidence_count": 1,
+      "unique_post_count": 1,
+      "duplicate_keys": [],
+      "missing_keys": [],
+      "evidence_status": "근거 매우 제한적",
+      "evidence_details": [
+        {
+          "comment_key": "DEMO-209a8b25a3517322",
+          "consumer_comment": "무릎과 발꿈치가 요즘 거뭇거뭇해져서 고민인데. 이 제품 꼭 써볼래용",
+          "validated_insight": "무릎과 발꿈치 착색 고민으로 제품 사용 의향을 밝힘",
+          "concern": "미백·잡티",
+          "behavior_stage": "사용 의향",
+          "source_url": ""
+        }
+      ],
+      "semantic_support_checked": false
+    },
+    {
+      "opportunity_number": 3,
+      "opportunity_name": "모공·트러블 흔적 복합 케어",
+      "target_customer": "모공과 트러블 흔적이 동시에 고민인 피부",
+      "positioning": "피부 결점(모공/흔적)을 매끈하게 지우는 고효능 세럼",
+      "ai_confidence": "낮음",
+      "cited_count": 1,
+      "valid_evidence_count": 1,
+      "unique_post_count": 1,
+      "duplicate_keys": [],
+      "missing_keys": [],
+      "evidence_status": "근거 매우 제한적",
+      "evidence_details": [
+        {
+          "comment_key": "DEMO-e10bdc2f5ea07e30",
+          "consumer_comment": "요즘 피부결이 거칠고 모공이 도드라져 보여서 깔끔하게 관리해보고 싶어요✨ 피지부터 모공과 트러블 흔적까지 한 번에 케어할 수 있다니 꾸준히 사용해보고 싶어요💜[계정 비공개] [계정 비공개] [계정 비공개]",
+          "validated_insight": "거친 피부결과 모공, 트러블 흔적 케어를 위해 사용 희망",
+          "concern": "모공·피지",
+          "behavior_stage": "사용 의향",
+          "source_url": ""
+        }
+      ],
+      "semantic_support_checked": false
+    }
+  ],
+  "audit_scope": "근거 ID 존재 여부, 중복 및 근거 수량 확인. 인용 댓글이 전략 주장을 의미적으로 뒷받침하는지는 아직 검증하지 않았습니다.",
+  "count_threshold_note": "근거 수량 경고는 개발용 점검 기준이며 통계적 유의성이나 전략의 성공 확률을 의미하지 않습니다."
+}

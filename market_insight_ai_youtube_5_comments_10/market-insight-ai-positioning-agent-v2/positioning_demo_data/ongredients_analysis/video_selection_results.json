@@ -1,0 +1,292 @@
+{
+  "source": "rule_based_video_selection",
+  "validation_status": "automated_not_human_verified",
+  "saved_at_utc": "2026-10-19T12:24:03.667500+00:00",
+  "selection_result": {
+    "unique_video_count": 28,
+    "market_video_count": 27,
+    "brand_monitoring_video_count": 1,
+    "videos": [
+      {
+        "video_id": "3PZXvNe2CQw",
+        "purposes": [
+          "market_research"
+        ],
+        "market_collection_eligible": true,
+        "brand_monitoring": false,
+        "exact_product_match_verified": null,
+        "requires_review": false
+      },
+      {
+        "video_id": "3VEIqGaYZ1I",
+        "purposes": [
+          "market_research"
+        ],
+        "market_collection_eligible": true,
+        "brand_monitoring": false,
+        "exact_product_match_verified": null,
+        "requires_review": false
+      },
+      {
+        "video_id": "pmKo6-L4X1I",
+        "purposes": [
+          "market_research"
+        ],
+        "market_collection_eligible": true,
+        "brand_monitoring": false,
+        "exact_product_match_verified": null,
+        "requires_review": false
+      },
+      {
+        "video_id": "qcp_MZuYr8A",
+        "purposes": [
+          "market_research"
+        ],
+        "market_collection_eligible": true,
+        "brand_monitoring": false,
+        "exact_product_match_verified": null,
+        "requires_review": false
+      },
+      {
+        "video_id": "wYuNgFHZBnA",
+        "purposes": [
+          "market_research"
+        ],
+        "market_collection_eligible": true,
+        "brand_monitoring": false,
+        "exact_product_match_verified": null,
+        "requires_review": false
+      },
+      {
+        "video_id": "3Qzlyk7xO6k",
+        "purposes": [
+          "market_research"
+        ],
+        "market_collection_eligible": true,
+        "brand_monitoring": false,
+        "exact_product_match_verified": null,
+        "requires_review": false
+      },
+      {
+        "video_id": "CTdoes-iJx8",
+        "purposes": [
+          "market_research"
+        ],
+        "market_collection_eligible": true,
+        "brand_monitoring": false,
+        "exact_product_match_verified": null,
+        "requires_review": false
+      },
+      {
+        "video_id": "qs1YjzRquGw",
+        "purposes": [
+          "market_research"
+        ],
+        "market_collection_eligible": true,
+        "brand_monitoring": false,
+        "exact_product_match_verified": null,
+        "requires_review": false
+      },
+      {
+        "video_id": "Omt1Io09-EM",
+        "purposes": [
+          "market_research"
+        ],
+        "market_collection_eligible": true,
+        "brand_monitoring": false,
+        "exact_product_match_verified": null,
+        "requires_review": false
+      },
+      {
+        "video_id": "8b8HnOhthbY",
+        "purposes": [
+          "market_research"
+        ],
+        "market_collection_eligible": true,
+        "brand_monitoring": false,
+        "exact_product_match_verified": null,
+        "requires_review": false
+      },
+      {
+        "video_id": "2HbP8G-dO1s",
+        "purposes": [
+          "market_research"
+        ],
+        "market_collection_eligible": true,
+        "brand_monitoring": false,
+        "exact_product_match_verified": null,
+        "requires_review": false
+      },
+      {
+        "video_id": "mGu5nADemX4",
+        "purposes": [
+          "market_research"
+        ],
+        "market_collection_eligible": true,
+        "brand_monitoring": false,
+        "exact_product_match_verified": null,
+        "requires_review": false
+      },
+      {
+        "video_id": "CYOpCHeihso",
+        "purposes": [
+          "market_research"
+        ],
+        "market_collection_eligible": true,
+        "brand_monitoring": false,
+        "exact_product_match_verified": null,
+        "requires_review": false
+      },
+      {
+        "video_id": "gmikf01BYtk",
+        "purposes": [
+          "market_research"
+        ],
+        "market_collection_eligible": true,
+        "brand_monitoring": false,
+        "exact_product_match_verified": null,
+        "requires_review": false
+      },
+      {
+        "video_id": "8MRuC8V7z5s",
+        "purposes": [
+          "market_research"
+        ],
+        "market_collection_eligible": true,
+        "brand_monitoring": false,
+        "exact_product_match_verified": null,
+        "requires_review": false
+      },
+      {
+        "video_id": "cFmZI2zPymA",
+        "purposes": [
+          "market_research"
+        ],
+        "market_collection_eligible": true,
+        "brand_monitoring": false,
+        "exact_product_match_verified": null,
+        "requires_review": false
+      },
+      {
+        "video_id": "tgQArC68uzU",
+        "purposes": [
+          "market_research"
+        ],
+        "market_collection_eligible": true,
+        "brand_monitoring": false,
+        "exact_product_match_verified": null,
+        "requires_review": false
+      },
+      {
+        "video_id": "Z6TjUKOtgRs",
+        "purposes": [
+          "market_research"
+        ],
+        "market_collection_eligible": true,
+        "brand_monitoring": false,
+        "exact_product_match_verified": null,
+        "requires_review": false
+      },
+      {
+        "video_id": "byYVDC7_SQ4",
+        "purposes": [
+          "market_research"
+        ],
+        "market_collection_eligible": true,
+        "brand_monitoring": false,
+        "exact_product_match_verified": null,
+        "requires_review": false
+      },
+      {
+        "video_id": "i9L7hFtGZNA",
+        "purposes": [
+          "market_research"
+        ],
+        "market_collection_eligible": true,
+        "brand_monitoring": false,
+        "exact_product_match_verified": null,
+        "requires_review": false
+      },
+      {
+        "video_id": "Sy4BKP2xUUc",
+        "purposes": [
+          "market_research"
+        ],
+        "market_collection_eligible": true,
+        "brand_monitoring": false,
+        "exact_product_match_verified": null,
+        "requires_review": false
+      },
+      {
+        "video_id": "VnE2fn4-4Kk",
+        "purposes": [
+          "market_research"
+        ],
+        "market_collection_eligible": true,
+        "brand_monitoring": false,
+        "exact_product_match_verified": null,
+        "requires_review": false
+      },
+      {
+        "video_id": "aCfT35G_6os",
+        "purposes": [
+          "market_research"
+        ],
+        "market_collection_eligible": true,
+        "brand_monitoring": false,
+        "exact_product_match_verified": null,
+        "requires_review": false
+      },
+      {
+        "video_id": "2wPRAoDxpxw",
+        "purposes": [
+          "market_research"
+        ],
+        "market_collection_eligible": true,
+        "brand_monitoring": false,
+        "exact_product_match_verified": null,
+        "requires_review": false
+      },
+      {
+        "video_id": "TvIR6y0t7zM",
+        "purposes": [
+          "market_research"
+        ],
+        "market_collection_eligible": true,
+        "brand_monitoring": false,
+        "exact_product_match_verified": null,
+        "requires_review": false
+      },
+      {
+        "video_id": "mO6rHPXnfIc",
+        "purposes": [
+          "market_research"
+        ],
+        "market_collection_eligible": true,
+        "brand_monitoring": false,
+        "exact_product_match_verified": null,
+        "requires_review": false
+      },
+      {
+        "video_id": "xFFn4byQ__U",
+        "purposes": [
+          "market_research"
+        ],
+        "market_collection_eligible": true,
+        "brand_monitoring": false,
+        "exact_product_match_verified": null,
+        "requires_review": false
+      },
+      {
+        "video_id": "FenoLc0w2s8",
+        "purposes": [
+          "brand_monitoring"
+        ],
+        "market_collection_eligible": false,
+        "brand_monitoring": true,
+        "exact_product_match_verified": false,
+        "requires_review": true
+      }
+    ]
+  }
+}
