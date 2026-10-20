@@ -233,6 +233,20 @@ selected_project = st.sidebar.selectbox(
 )
 CURRENT_DATA_DIR = project_options[selected_project]["path"]
 
+# The input form stores a product_info.json on disk. Reset only when a new
+# browser session begins, not on Streamlit button-triggered reruns.
+# Do not delete any of the precomputed Demo research assets.
+if "_product_input_initialized_projects" not in st.session_state:
+    st.session_state["_product_input_initialized_projects"] = set()
+if selected_project not in st.session_state["_product_input_initialized_projects"]:
+    saved_product_input = CURRENT_DATA_DIR / "product_info.json"
+    if saved_product_input.is_file():
+        try:
+            saved_product_input.unlink()
+        except OSError as exc:
+            st.warning(f"이전 제품 입력값을 초기화하지 못했습니다: {exc}")
+    st.session_state["_product_input_initialized_projects"].add(selected_project)
+
 @st.dialog("프로젝트 삭제 확인")
 def confirm_project_deletion():
     st.warning(f"'{project_options[selected_project]['label']}' 프로젝트를 삭제하시겠습니까?")
@@ -279,6 +293,40 @@ for label, anchor in NAVIGATION:
         f'border-radius:6px">{label}</a>',
         unsafe_allow_html=True
     )
+
+# On a fresh browser session (first visit or page refresh), start at the top.
+# Streamlit widget-triggered reruns do NOT re-run this scroll script.
+# Section navigation remains the existing sidebar anchor links.
+if "_initial_viewport_positioned" not in st.session_state:
+    st.session_state["_initial_viewport_positioned"] = True
+    import streamlit.components.v1 as components
+
+    components.html("""
+        <script>
+        (() => {
+          function moveToTop() {
+            try {
+              const win = window.parent;
+              const doc = win.document;
+              // Clear a stale section anchor from a prior visit / refresh.
+              if (win.location.hash) {
+                win.history.replaceState(null, '',
+                  win.location.pathname + win.location.search);
+              }
+              const scroller = doc.querySelector('[data-testid="stAppViewContainer"]')
+                            || doc.querySelector('section.main');
+              if (scroller) scroller.scrollTop = 0;
+              win.scrollTo(0, 0);
+            } catch (err) {
+              // Browser security settings may restrict access to parent.
+            }
+          }
+          moveToTop();
+          requestAnimationFrame(moveToTop);
+          setTimeout(moveToTop, 150);
+        })();
+        </script>
+    """, height=0)
 
 st.title("AI Positioning Agent")
 st.caption("AI 기반 YouTube 시장조사 · 소비자 인사이트 · 제품 포지셔닝")
