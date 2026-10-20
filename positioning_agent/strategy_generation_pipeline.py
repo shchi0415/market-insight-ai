@@ -95,14 +95,21 @@ def generate_strategy(api_key, project_dir, *, model=MODEL):
         "Provide testable hypotheses and specific validation methods, not proven recommendations.\n"
         "EVIDENCE JSON:\n" + json.dumps(evidence, ensure_ascii=False)
     )
-    response = genai.Client(api_key=api_key).models.generate_content(
-        model=model,
-        contents=prompt,
-        config=types.GenerateContentConfig(
-            response_mime_type="application/json", temperature=0.2,
-            max_output_tokens=6000,
-        ),
-    )
+    # Keep the HTTP client alive throughout the request. A temporary
+    # genai.Client(...).models call can be garbage-collected prematurely,
+    # closing the underlying httpx client before send() completes.
+    client = genai.Client(api_key=api_key)
+    try:
+        response = client.models.generate_content(
+            model=model,
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                response_mime_type="application/json", temperature=0.2,
+                max_output_tokens=6000,
+            ),
+        )
+    finally:
+        client.close()
     if not response.text:
         raise ValueError("Empty strategy response")
     strategy = json.loads(response.text)
