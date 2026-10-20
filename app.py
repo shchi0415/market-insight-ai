@@ -294,38 +294,36 @@ for label, anchor in NAVIGATION:
         unsafe_allow_html=True
     )
 
-# On a fresh browser session (first visit or page refresh), start at the top.
-# Streamlit widget-triggered reruns do NOT re-run this scroll script.
-# Section navigation remains the existing sidebar anchor links.
+# A new Streamlit browser session is created on first visit / hard refresh.
+# Do not execute this block on widget-triggered reruns; leave navigation anchors intact.
 if "_initial_viewport_positioned" not in st.session_state:
     st.session_state["_initial_viewport_positioned"] = True
     import streamlit.components.v1 as components
-
     components.html("""
-        <script>
-        (() => {
-          function moveToTop() {
-            try {
-              const win = window.parent;
-              const doc = win.document;
-              // Clear a stale section anchor from a prior visit / refresh.
-              if (win.location.hash) {
-                win.history.replaceState(null, '',
-                  win.location.pathname + win.location.search);
-              }
-              const scroller = doc.querySelector('[data-testid="stAppViewContainer"]')
-                            || doc.querySelector('section.main');
-              if (scroller) scroller.scrollTop = 0;
-              win.scrollTo(0, 0);
-            } catch (err) {
-              // Browser security settings may restrict access to parent.
-            }
+    <script>
+    (() => {
+      const root = window.parent;
+      function scrollToPageTop() {
+        try {
+          const doc = root.document;
+          // A previously selected sidebar anchor can be restored by the browser.
+          if (root.location.hash) {
+            root.history.replaceState(null, '', root.location.pathname + root.location.search);
           }
-          moveToTop();
-          requestAnimationFrame(moveToTop);
-          setTimeout(moveToTop, 150);
-        })();
-        </script>
+          const page = doc.querySelector('[data-testid="stAppViewContainer"]')
+                    || doc.querySelector('section.main');
+          if (page) page.scrollTop = 0;
+          doc.documentElement.scrollTop = 0;
+          doc.body.scrollTop = 0;
+          root.scrollTo({top: 0, left: 0, behavior: 'instant'});
+        } catch (_) {}
+      }
+      scrollToPageTop();
+      root.requestAnimationFrame(scrollToPageTop);
+      // Wait for Streamlit's initial render and browser scroll restoration.
+      [120, 350, 800].forEach(ms => root.setTimeout(scrollToPageTop, ms));
+    })();
+    </script>
     """, height=0)
 
 st.title("AI Positioning Agent")
@@ -347,31 +345,34 @@ st.header("01 · 제품 정보 입력")
 with st.container(border=True):
     render_product_input(CURRENT_DATA_DIR)
 
-# On the FIRST successful Step 01 product save only, return to the page top.
-# The form persists product_info.json; subsequent steps keep their scroll position.
+# Only the first successful product save in Step 01 scrolls to the very top.
+# Reading this on the following Streamlit rerun avoids changing the product form.
+# Buttons in Steps 02-07 never trigger a scroll to top.
 if not st.session_state.get("_step01_save_scrolled", False):
     product_path = CURRENT_DATA_DIR / "product_info.json"
     if product_path.is_file():
         st.session_state["_step01_save_scrolled"] = True
         import streamlit.components.v1 as components
         components.html("""
-            <script>
-            (() => {
-              try {
-                const w = window.parent;
-                const d = w.document;
-                const top = () => {
-                  const el = d.querySelector('[data-testid="stAppViewContainer"]')
-                          || d.querySelector('section.main');
-                  if (el) el.scrollTop = 0;
-                  w.scrollTo(0, 0);
-                };
-                top();
-                requestAnimationFrame(top);
-                setTimeout(top, 150);
-              } catch (e) {}
-            })();
-            </script>
+        <script>
+        (() => {
+          const root = window.parent;
+          function scrollToPageTop() {
+            try {
+              const doc = root.document;
+              const page = doc.querySelector('[data-testid="stAppViewContainer"]')
+                        || doc.querySelector('section.main');
+              if (page) page.scrollTop = 0;
+              doc.documentElement.scrollTop = 0;
+              doc.body.scrollTop = 0;
+              root.scrollTo({top: 0, left: 0, behavior: 'instant'});
+            } catch (_) {}
+          }
+          scrollToPageTop();
+          root.requestAnimationFrame(scrollToPageTop);
+          [100, 300].forEach(ms => root.setTimeout(scrollToPageTop, ms));
+        })();
+        </script>
         """, height=0)
 
 st.markdown("<div style='height:44px'></div>", unsafe_allow_html=True)
