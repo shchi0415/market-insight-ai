@@ -988,28 +988,38 @@ with st.container():
                     stats = comment_summary["statistics"]
                     total = int(stats["total_comments"])
                     duplicates = int(stats["duplicate_extra"])
-                    c1, c2, c3 = st.columns(3)
-                    c1.metric("수집 댓글", f"{total:,}개")
-                    c2.metric("댓글 수집 영상", f"{int(stats['videos_with_comments']):,}개")
-                    c3.metric("중복 추가 표시", f"{duplicates:,}개")
+                    with st.container(border=True):
+                        st.markdown("#### 댓글 수집 현황")
+                        st.caption("선별한 영상에서 과거 수집한 댓글의 집계 결과입니다.")
+                        c1, c2, c3 = st.columns(3, gap="medium")
+                        c1.metric("수집 댓글", f"{total:,}개")
+                        c2.metric("댓글 수집 영상", f"{int(stats['videos_with_comments']):,}개")
+                        c3.metric("중복 추가 표시", f"{duplicates:,}개")
 
-                    st.markdown("**영상 관련성에 따른 댓글 분포**")
-                    a, b = st.columns(2)
-                    a.metric("핵심 관련(Core)", f"{int(stats['core_comments']):,}개")
-                    b.metric("인접 관련(Adjacent)", f"{int(stats['adjacent_comments']):,}개")
+                    with st.container(border=True):
+                        st.markdown("#### 영상 관련성별 댓글 분포")
+                        core = int(stats["core_comments"])
+                        adjacent = int(stats["adjacent_comments"])
+                        core_pct = core / total * 100 if total else 0
+                        adjacent_pct = adjacent / total * 100 if total else 0
+                        left, right = st.columns(2)
+                        left.markdown(f"**핵심 관련(Core)**　{core:,}개 · {core_pct:.1f}%")
+                        right.markdown(f"**인접 관련(Adjacent)**　{adjacent:,}개 · {adjacent_pct:.1f}%")
+                        st.progress(min(max(core / total if total else 0, 0.0), 1.0))
+                        st.caption("막대의 채워진 부분은 핵심 관련 댓글 비중이며, 나머지는 인접 관련 댓글입니다.")
 
-                    st.markdown("**전처리 점검 결과**")
-                    st.write(
-                        f"중복 추가 표시 {duplicates:,}개 · "
-                        f"짧은 댓글 검토 표시 {int(stats['short_text_review']):,}개 · "
-                        f"URL 포함 표시 {int(stats['url_present']):,}개"
-                    )
-                    st.caption(
-                        f"규칙 기반으로 분석 가능 표시된 댓글은 {int(stats['analysis_eligible']):,}개입니다. "
-                        f"중복 추가 표시 {duplicates:,}개를 제외한 단순 계산값은 "
-                        f"{total - duplicates:,}개이며, 최종 AI 분석 표본으로 검증된 수치는 아닙니다. "
-                        "짧은 댓글/URL 표시는 별도 제외 건수가 아닙니다."
-                    )
+                    with st.container(border=True):
+                        st.markdown("#### 전처리 점검")
+                        f1, f2, f3 = st.columns(3)
+                        f1.metric("중복 추가 표시", f"{duplicates:,}개")
+                        f2.metric("짧은 댓글 검토 표시", f"{int(stats['short_text_review']):,}개")
+                        f3.metric("URL 포함 표시", f"{int(stats['url_present']):,}개")
+                        st.caption(
+                            f"규칙 기반으로 분석 가능 표시된 댓글은 {int(stats['analysis_eligible']):,}개입니다. "
+                            f"중복 추가 표시를 제외한 단순 계산값은 {total - duplicates:,}개이지만, "
+                            "최종 AI 분석 표본으로 검증된 수치는 아닙니다. "
+                            "짧은 댓글과 URL 표시는 별도의 제외 건수가 아닙니다."
+                        )
                     with st.expander("영상별 댓글 수집 현황 보기", expanded=False):
                         rows = [
                             {
