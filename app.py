@@ -1066,12 +1066,73 @@ with st.container():
                             for video in comment_summary.get("videos", [])
                         ]
                         st.dataframe(rows, use_container_width=True, hide_index=True)
-                    st.info(
-                        "댓글 수집·전처리 결과를 불러왔습니다. "
-                        "소비자 니즈와 감성의 AI 분석 결과는 아직 연결되지 않았습니다."
-                    )
+                    st.success("댓글 수집·전처리 집계 결과를 불러왔습니다.")
                 except (OSError, ValueError, TypeError, KeyError) as error:
                     st.error("댓글 집계 데이터를 읽지 못했습니다. JSON 구조를 확인해 주세요.")
+
+            st.markdown("##### AI 소비자 분석")
+            ai_summary_path = (
+                Path(__file__).resolve().parent
+                / "positioning_demo_data"
+                / "ongredients_analysis"
+                / "youtube_comment_ai_demo_summary.json"
+            )
+            ai_done = st.session_state.get("ongredients_demo_ai_comments_revealed", False)
+            if not ai_done:
+                if st.button(
+                    "AI 소비자 니즈·감성 분석 결과 확인",
+                    key="ongredients_demo_ai_comments_button",
+                ):
+                    if ai_summary_path.is_file():
+                        st.session_state["ongredients_demo_ai_comments_revealed"] = True
+                        st.rerun()
+                    else:
+                        st.error("AI 댓글 분석 Demo 집계 파일을 찾을 수 없습니다. JSON 파일을 먼저 업로드해 주세요.")
+            if ai_done:
+                if not ai_summary_path.is_file():
+                    st.error("AI 댓글 분석 Demo 집계 파일을 찾을 수 없습니다.")
+                else:
+                    try:
+                        with ai_summary_path.open("r", encoding="utf-8") as f:
+                            ai_data = json.load(f)
+                        sc = ai_data["sentiment"]
+                        status = ai_data["analysis_status"]
+                        n = int(ai_data["record_count"])
+                        with st.container(border=True):
+                            st.markdown("#### AI 댓글 분석 요약")
+                            a1,a2,a3 = st.columns(3)
+                            a1.metric("AI 분류 처리 댓글", f"{n:,}개")
+                            a2.metric("분석 완료 상태", f"{int(status.get('analyzed',0)):,}개")
+                            a3.metric("추가 검토 필요", f"{int(status.get('requires_review',0)):,}개")
+                            st.caption("사전 저장된 Gemini 분석 결과입니다. 분류 결과는 사람의 검증을 거친 확정 판정이 아닙니다.")
+                        with st.container(border=True):
+                            st.markdown("#### 전체 댓글 감성 분포")
+                            order = [("긍정","positive"),("중립","neutral"),("부정","negative"),("혼합","mixed"),("기타","not_applicable")]
+                            sentiment_rows = [{"감성": name, "댓글 수": int(sc.get(key,0))} for name,key in order if sc.get(key,0)]
+                            st.bar_chart(sentiment_rows, x="감성", y="댓글 수", horizontal=True)
+                            st.dataframe(sentiment_rows, use_container_width=True, hide_index=True)
+                            st.caption("영상에 대한 호감과 제품 평가 등이 혼재한 전체 댓글 감성입니다. 제품 만족도 분포로 해석하지 마세요.")
+                        with st.container(border=True):
+                            st.markdown("#### 소비자 니즈 관련 주요 주제")
+                            themes = ai_data.get("themes_keyword_based_overlapping",{})
+                            theme_rows = [{"주제": k, "관련 댓글 수": int(v)} for k,v in sorted(themes.items(), key=lambda kv:-kv[1])]
+                            st.bar_chart(theme_rows, x="주제", y="관련 댓글 수", horizontal=True)
+                            st.dataframe(theme_rows, use_container_width=True, hide_index=True)
+                            st.caption(f"'소비자 니즈'로 분류된 {int(ai_data.get('theme_denominator',0)):,}개 댓글의 텍스트를 키워드 규칙으로 묶은 탐색적 집계입니다. 한 댓글이 여러 주제에 포함될 수 있습니다.")
+                        with st.container(border=True):
+                            st.markdown("#### 분석 내용 유형 및 평가 대상")
+                            st.write("**내용 분류** (복수 선택 가능)")
+                            labels = ai_data.get("content_labels",{})
+                            labels_ko = {"consumer_need":"소비자 니즈", "product_experience":"제품 경험", "product_evaluation":"제품 평가", "general_reaction":"일반 반응", "purchase_interest":"구매 관심", "irrelevant_spam":"무관/스팸"}
+                            st.dataframe([{"유형":labels_ko.get(k,k),"댓글 수":v} for k,v in labels.items()], use_container_width=True, hide_index=True)
+                            with st.expander("감성 평가 대상·스팸 검토 상태", expanded=False):
+                                st.write("감성 평가 대상")
+                                st.json(ai_data.get("sentiment_target",{}))
+                                st.write("홍보·스팸 의심 여부 (검토용)")
+                                st.json(ai_data.get("spam_review_status",{}))
+                        st.success("AI 댓글 분석 결과를 불러왔습니다. 다음 07단계에서 시장 기회와 포지셔닝 전략을 확인할 수 있습니다.")
+                    except (OSError, ValueError, TypeError, KeyError):
+                        st.error("AI 댓글 분석 집계 데이터를 읽지 못했습니다. JSON 구조를 확인해 주세요.")
     else:
         st.info(
             "새 프로젝트에서의 YouTube 댓글 수집·분석 실행 기능은 "
@@ -1104,7 +1165,7 @@ if positioning_package_path.is_file():
 
 
 # ===== ONgredients POSITIONING DEMO DASHBOARD =====
-if selected_project == "dbc345844047":
+if selected_project == DEMO_ID and st.session_state.get("ongredients_demo_ai_comments_revealed", False):
     st.divider()
 
     from positioning_agent.positioning_demo_dashboard import (
