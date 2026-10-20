@@ -2133,14 +2133,11 @@ else:
         if new_package_path.is_file():
             render_positioning_strategy_dashboard(new_package_path)
         else:
-            if old_package_path.is_file():
-                st.info("이전 3C·SWOT·4P 분석은 보존돼 있어요. 새 5단계 분석을 별도로 생성할 수 있습니다.")
             if not source_path.is_file():
                 st.info("먼저 06-2 · AI 소비자 분석을 완료해 주세요.")
             elif not product_path.is_file():
                 st.warning("01단계의 저장된 제품 정보를 확인할 수 없습니다.")
             else:
-                st.caption("새 5단계 시장 분석: 시장 니즈 → 제품·경쟁 환경 → 시장 기회 → STP → 마케팅 전략·KPI")
                 st.warning("소수의 선별 댓글에 기반한 탐색적 분석입니다. 경쟁사별 실제 비교 데이터가 없으면 직접 비교하지 않습니다.")
                 if st.button("새로운 STEP 07 분석 생성", key=f"step07_generate_v2_{selected_project}"):
                     api_key = st.secrets.get("GEMINI_API_KEY")
