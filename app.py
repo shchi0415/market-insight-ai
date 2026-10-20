@@ -94,3 +94,878 @@ with st.sidebar:
         st.rerun()
 
 # ===== END LOGIN GATE =====
+
+# ===== STEP 29-6B: DASHBOARD DESIGN SYSTEM =====
+st.markdown("""
+<style>
+
+/* 메인 페이지 제목 */
+section[data-testid="stMain"] h1 {
+    font-size: 2.5rem;
+    font-weight: 750;
+    letter-spacing: -0.035em;
+}
+
+/* Project Overview 및 STEP 01~04 제목 */
+section[data-testid="stMain"] h2 {
+    font-size: 1.85rem;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    padding-top: 0.2rem;
+}
+
+/* 섹션 내부 소제목 */
+section[data-testid="stMain"] h3 {
+    font-size: 1.3rem;
+    font-weight: 650;
+    letter-spacing: -0.015em;
+}
+
+/* 버튼 디자인 통일 */
+section[data-testid="stMain"] .stButton button,
+section[data-testid="stMain"] .stDownloadButton button {
+    border-radius: 9px;
+    min-height: 2.65rem;
+    font-weight: 550;
+}
+
+/* 메인 페이지 구분선 */
+section[data-testid="stMain"] hr {
+    margin-top: 1.2rem;
+    margin-bottom: 1.2rem;
+    opacity: 0.55;
+}
+
+/* 데이터 표 모서리 */
+section[data-testid="stMain"] [data-testid="stDataFrame"] {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+/* 캡션 가독성 */
+section[data-testid="stMain"] [data-testid="stCaptionContainer"] {
+    line-height: 1.5;
+}
+
+</style>
+""", unsafe_allow_html=True)
+# ===== END DASHBOARD DESIGN SYSTEM =====
+
+
+
+
+# ===== PROJECTS: NO LEGACY BEAUTY MARKET TEST AUTO-CREATION =====
+APP_DIR = Path(__file__).resolve().parent
+DATA_DIR = APP_DIR / "data"
+PROJECTS_DIR = DATA_DIR / "projects"
+PROJECTS_DIR.mkdir(parents=True, exist_ok=True)
+DEMO_ID = "dbc345844047"
+DEMO_ASSETS = APP_DIR / "positioning_demo_data" / "ongredients_analysis"
+manifest_path = DEMO_ASSETS / "demo_manifest.json"
+
+if manifest_path.is_file():
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    demo_id = manifest.get("project_id", DEMO_ID)
+    if demo_id != DEMO_ID:
+        st.error("온그리디언츠 Demo 프로젝트 ID가 예상과 다릅니다.")
+        st.stop()
+    demo_folder = PROJECTS_DIR / DEMO_ID
+    demo_folder.mkdir(parents=True, exist_ok=True)
+    demo_info = demo_folder / "project_info.json"
+    if not demo_info.exists():
+        demo_info.write_text(json.dumps({
+            "project_id": DEMO_ID,
+            "project_name": manifest.get("project_name", "온그리디언츠 · AI 포지셔닝 분석 DEMO"),
+            "demo_mode": True,
+            "demo_type": "precomputed_analysis",
+        }, ensure_ascii=False, indent=2), encoding="utf-8")
+
+project_options = {}
+for folder in sorted(PROJECTS_DIR.iterdir()):
+    if not folder.is_dir() or folder.name == "87437a415e4d":
+        continue  # Old example stays on disk but is hidden from this app.
+    project_info = folder / "project_info.json"
+    if project_info.is_file():
+        try:
+            info = json.loads(project_info.read_text(encoding="utf-8"))
+            project_name = info.get("project_name", folder.name)
+        except (OSError, ValueError, TypeError):
+            project_name = folder.name
+    else:
+        project_name = folder.name
+    project_options[folder.name] = {"label": project_name, "path": folder}
+
+st.sidebar.subheader("분석 프로젝트")
+with st.sidebar.expander("+ 새 프로젝트 생성", expanded=False):
+    new_project_name = st.text_input("프로젝트 이름", key="new_project_name")
+    if st.button("프로젝트 생성", key="create_new_project_button"):
+        name = new_project_name.strip()
+        if not name:
+            st.error("프로젝트 이름을 입력해 주세요.")
+        elif len(name) > 50:
+            st.error("프로젝트 이름은 50자 이내로 입력해 주세요.")
+        else:
+            new_id = uuid.uuid4().hex[:12]
+            dest = PROJECTS_DIR / new_id
+            dest.mkdir(parents=True, exist_ok=False)
+            (dest / "project_info.json").write_text(
+                json.dumps({"project_id": new_id, "project_name": name},
+                           ensure_ascii=False, indent=2), encoding="utf-8"
+            )
+            st.session_state["selected_project"] = new_id
+            st.rerun()
+
+project_options = dict(sorted(project_options.items(),
+    key=lambda item: (item[0] != DEMO_ID, item[1]["label"])))
+if not project_options:
+    st.warning("프로젝트가 없습니다. 새 프로젝트를 생성해 주세요.")
+    st.stop()
+
+# Clear obsolete selection left over from the earlier example page.
+if st.session_state.get("selected_project") not in project_options:
+    st.session_state["selected_project"] = next(iter(project_options))
+selected_project = st.sidebar.selectbox(
+    "프로젝트 선택", options=list(project_options),
+    format_func=lambda project_id: project_options[project_id]["label"],
+    key="selected_project"
+)
+CURRENT_DATA_DIR = project_options[selected_project]["path"]
+
+@st.dialog("프로젝트 삭제 확인")
+def confirm_project_deletion():
+    st.warning(f"'{project_options[selected_project]['label']}' 프로젝트를 삭제하시겠습니까?")
+    st.caption("데이터는 삭제하지 않고 휴지통 폴더로 이동합니다.")
+    a, b = st.columns(2)
+    with a:
+        if st.button("취소", use_container_width=True):
+            st.rerun()
+    with b:
+        if st.button("삭제하기", type="primary", use_container_width=True):
+            target = CURRENT_DATA_DIR.resolve()
+            if (selected_project == DEMO_ID
+                    or target.parent != PROJECTS_DIR.resolve()
+                    or target.name != selected_project
+                    or not target.is_dir()
+                    or CURRENT_DATA_DIR.is_symlink()):
+                st.error("삭제할 수 없는 프로젝트입니다.")
+                return
+            trash = DATA_DIR / "project_trash"
+            trash.mkdir(exist_ok=True)
+            shutil.move(str(target), str(trash / f"{selected_project}_{uuid.uuid4().hex[:8]}"))
+            st.session_state.pop("selected_project", None)
+            st.rerun()
+
+if st.sidebar.button("🗑️ 프로젝트 삭제", disabled=(selected_project == DEMO_ID)):
+    confirm_project_deletion()
+
+# ===== SECTION NAVIGATION =====
+st.sidebar.divider()
+st.sidebar.markdown("### Navigation")
+NAVIGATION = [
+    ("01 · 제품 정보", "product-input"),
+    ("02 · YouTube 검색 키워드", "youtube-keywords"),
+    ("03 · YouTube 영상 검색", "youtube-search"),
+    ("04 · 영상 AI 관련성 평가", "video-relevance"),
+    ("05 · 분석 대상 영상 선별", "video-selection"),
+    ("06 · 소비자 댓글 분석", "consumer-analysis"),
+    ("07 · AI 포지셔닝 전략", "positioning-strategy"),
+]
+for label, anchor in NAVIGATION:
+    st.sidebar.markdown(
+        f'<a href="#{anchor}" target="_self" '
+        'style="display:block;padding:6px 10px;text-decoration:none;'
+        f'border-radius:6px">{label}</a>',
+        unsafe_allow_html=True
+    )
+
+st.title("AI Positioning Agent")
+st.caption("AI 기반 YouTube 시장조사 · 소비자 인사이트 · 제품 포지셔닝")
+if selected_project == DEMO_ID:
+    st.info("온그리디언츠 DEMO · 과거 분석 결과를 단계별로 재현합니다. "
+            "실제 Gemini/YouTube API를 새로 호출하지 않습니다.")
+else:
+    st.caption("신규 프로젝트: 각 분석 단계는 입력값과 데이터 준비 상태에 따라 실행할 수 있습니다.")
+
+st.markdown('<div id="product-input"></div>', unsafe_allow_html=True)
+# ===== POSITIONING AGENT V2 PRODUCT INPUT =====
+from positioning_agent.product_input_ui import (
+    render_product_input
+)
+
+with st.expander("제품 정보 입력 및 확인", expanded=False):
+    render_product_input(CURRENT_DATA_DIR)
+
+
+st.markdown('<div id="youtube-keywords"></div>', unsafe_allow_html=True)
+# ===== STEP 9-164: AUTOMATED YOUTUBE KEYWORDS =====
+with st.expander("YouTube 시장조사 · 검색 키워드", expanded=False):
+    import json as keyword_json
+    from positioning_agent.keyword_engine import (
+        generate_and_select_keywords,
+        save_keyword_generation
+    )
+
+    keyword_result_path = (
+        CURRENT_DATA_DIR
+        / "youtube_analysis"
+        / "keyword_generation.json"
+    )
+
+    is_ongredients_demo = selected_project == "dbc345844047"
+
+    if is_ongredients_demo:
+        demo_keyword_path = (
+            Path(__file__).resolve().parent
+            / "positioning_demo_data"
+            / "ongredients_analysis"
+            / "keyword_generation.json"
+        )
+        demo_keyword_revealed = st.session_state.get(
+            "ongredients_demo_keywords_revealed", False
+        )
+
+        # 결과 공개 전에는 기존 결과를 표시하지 않는다.
+        keyword_result_path = (
+            demo_keyword_path
+            if demo_keyword_revealed
+            else CURRENT_DATA_DIR / "_demo_keywords_not_revealed.json"
+        )
+
+    keyword_product_path = CURRENT_DATA_DIR / "product_info.json"
+
+    if is_ongredients_demo and not demo_keyword_revealed:
+        st.caption(
+            "시연 모드: 사전에 생성한 키워드 결과를 불러옵니다. "
+            "Gemini API는 호출하지 않습니다."
+        )
+
+        if st.button(
+            "검색 키워드 자동 생성",
+            key="ongredients_demo_keyword_button"
+        ):
+            if demo_keyword_path.is_file():
+                st.session_state[
+                    "ongredients_demo_keywords_revealed"
+                ] = True
+                st.rerun()
+            else:
+                st.error("Demo 키워드 데이터가 없습니다.")
+
+    if keyword_result_path.is_file():
+        try:
+            keyword_result = keyword_json.loads(
+                keyword_result_path.read_text(encoding="utf-8")
+            )
+
+            st.success("검색 키워드 생성 결과가 저장되어 있습니다.")
+
+            st.caption(
+                "AI 생성 및 규칙 기반 보완 키워드입니다. "
+                "검색 결과나 시장 수요가 검증된 것은 아닙니다."
+            )
+
+            keyword_sections = {
+                "market_keywords": (
+                    "시장 동향 분석",
+                    "시장 전반의 트렌드를 파악하기 위한 검색어"
+                ),
+                "consumer_need_keywords": (
+                    "소비자 니즈 분석",
+                    "소비자의 피부 고민과 구매 니즈를 살펴볼 검색어"
+                ),
+                "own_product_keywords": (
+                    "자사 제품 분석",
+                    "자사 제품 관련 콘텐츠를 찾기 위한 검색어"
+                ),
+                "competitor_keywords": (
+                    "경쟁 제품 분석",
+                    "유사 제품과 비교 콘텐츠를 탐색할 검색어"
+                )
+            }
+
+            selected_keywords = keyword_result.get(
+                "search_keywords", {}
+            )
+
+            total_keywords = sum(
+                len(selected_keywords.get(category, []))
+                for category in keyword_sections
+            )
+
+            st.markdown(
+                f"**YouTube 검색 키워드 · 총 {total_keywords}개**"
+            )
+
+            for category, (title, description) in keyword_sections.items():
+                keywords = selected_keywords.get(category, [])
+
+                st.markdown(f"#### {title}")
+                st.caption(description)
+
+                if keywords:
+                    st.markdown(
+                        "　 ·　 ".join(
+                            f"`{keyword}`" for keyword in keywords
+                        )
+                    )
+                else:
+                    st.caption("생성된 검색어가 없습니다.")
+
+            if keyword_result.get(
+                "keyword_quality", {}
+            ).get("own_product_review_required"):
+                st.info(
+                    "일부 자사 제품 검색어는 규칙으로 보완되었습니다."
+                )
+
+        except (OSError, ValueError, TypeError):
+            st.warning("저장된 키워드 결과를 읽지 못했습니다.")
+
+    elif is_ongredients_demo:
+        st.info("위의 버튼을 눌러 Demo 키워드 결과를 확인해 주세요.")
+
+    elif not keyword_product_path.is_file():
+        st.info("먼저 제품 정보를 입력하고 저장해 주세요.")
+
+    else:
+        st.caption(
+            "현재 프로젝트의 제품 정보를 바탕으로 "
+            "YouTube 검색 키워드를 생성합니다."
+        )
+        st.caption(
+            "Gemini API 1회가 호출될 수 있으며, "
+            "서비스 이용 조건에 따라 비용이 발생할 수 있습니다."
+        )
+
+        if st.button(
+            "검색 키워드 자동 생성",
+            key=f"generate_keywords_{selected_project}"
+        ):
+            try:
+                gemini_key = st.secrets.get("GEMINI_API_KEY")
+
+                if not gemini_key:
+                    st.error("Gemini API 키가 설정되어 있지 않습니다.")
+
+                else:
+                    product_data = keyword_json.loads(
+                        keyword_product_path.read_text(encoding="utf-8")
+                    )
+
+                    with st.spinner("검색 키워드를 생성하고 있습니다..."):
+                        keyword_result = generate_and_select_keywords(
+                            api_key=gemini_key,
+                            product_info=product_data
+                        )
+
+                        save_keyword_generation(
+                            keyword_result,
+                            CURRENT_DATA_DIR
+                        )
+
+                    st.success("검색 키워드 생성 및 저장 완료!")
+                    st.rerun()
+
+            except FileExistsError:
+                st.info("이미 키워드 결과가 저장되어 있습니다.")
+                st.rerun()
+
+            except Exception:
+                st.error(
+                    "키워드 생성 중 오류가 발생했습니다. "
+                    "기존 프로젝트 데이터는 유지됩니다."
+                )
+
+
+
+
+
+st.markdown('<div id="youtube-search"></div>', unsafe_allow_html=True)
+# ===== STEP 9-181: YOUTUBE VIDEO SEARCH UI =====
+if selected_project == "dbc345844047":
+    with st.expander("YouTube 영상 자동 검색", expanded=False):
+        st.caption(
+            "시연 모드: 기존 YouTube 검색 결과를 불러옵니다. "
+            "실제 API는 호출하지 않습니다."
+        )
+
+        keyword_done = st.session_state.get(
+            "ongredients_demo_keywords_revealed", False
+        )
+
+        youtube_done = st.session_state.get(
+            "ongredients_demo_youtube_revealed", False
+        )
+
+        demo_youtube_path = (
+            Path(__file__).resolve().parent
+            / "positioning_demo_data"
+            / "ongredients_analysis"
+            / "youtube_search_demo.json"
+        )
+
+        if not keyword_done:
+            st.info("먼저 검색 키워드 생성 단계를 완료해 주세요.")
+
+        if not youtube_done:
+            if st.button(
+                "YouTube 영상 검색 실행",
+                key="ongredients_demo_youtube_search",
+                disabled=not keyword_done
+            ):
+                if demo_youtube_path.is_file():
+                    st.session_state[
+                        "ongredients_demo_youtube_revealed"
+                    ] = True
+                    st.rerun()
+                else:
+                    st.error("Demo 영상 검색 결과 파일이 없습니다.")
+
+        if youtube_done:
+            from positioning_agent.youtube_search_demo_ui import (
+                render_youtube_search_demo
+            )
+            render_youtube_search_demo(demo_youtube_path)
+
+else:
+    # ===== STEP 9-181: YOUTUBE VIDEO SEARCH UI =====
+    with st.expander("YouTube 영상 자동 검색", expanded=False):
+        import json as youtube_json
+
+        from positioning_agent.youtube_engine import (
+            run_project_video_search_safely
+        )
+
+        youtube_analysis_dir = CURRENT_DATA_DIR / "youtube_analysis"
+
+        youtube_keyword_path = (
+            youtube_analysis_dir / "keyword_generation.json"
+        )
+
+        youtube_result_path = (
+            youtube_analysis_dir / "youtube_search_results.json"
+        )
+
+        if youtube_result_path.is_file():
+            try:
+                saved_search = youtube_json.loads(
+                    youtube_result_path.read_text(encoding="utf-8")
+                )
+
+                st.success("YouTube 영상 검색이 완료되었습니다.")
+                st.metric(
+                    "수집된 고유 영상",
+                    saved_search.get("video_count", 0)
+                )
+                st.caption(
+                    "검색 결과에 포함된 영상은 아직 AI 관련성 평가를 "
+                    "거치지 않았습니다."
+                )
+
+            except (OSError, ValueError, TypeError):
+                st.warning("저장된 영상 검색 결과를 읽지 못했습니다.")
+
+        elif not youtube_keyword_path.is_file():
+            st.info("먼저 YouTube 검색 키워드를 생성해 주세요.")
+
+        else:
+            try:
+                saved_keywords = youtube_json.loads(
+                    youtube_keyword_path.read_text(encoding="utf-8")
+                )["search_keywords"]
+
+                keyword_count = sum(
+                    len(values) for values in saved_keywords.values()
+                )
+
+                st.write(f"**검색 예정 키워드: {keyword_count}개**")
+                st.write(
+                    f"**예상 YouTube API 할당량: "
+                    f"{keyword_count * 100:,}단위**"
+                )
+
+                st.caption(
+                    "YouTube Data API의 search.list 요청은 "
+                    "검색어당 일반적으로 100단위를 사용합니다."
+                )
+
+                if st.button(
+                    "YouTube 영상 검색 실행",
+                    key=f"youtube_search_{selected_project}"
+                ):
+                    youtube_key = st.secrets.get("YOUTUBE_API_KEY")
+
+                    if not youtube_key:
+                        st.error(
+                            "YouTube API 키가 설정되지 않았습니다."
+                        )
+
+                    else:
+                        with st.spinner(
+                            "YouTube 영상을 검색하고 있습니다..."
+                        ):
+                            try:
+                                result = run_project_video_search_safely(
+                                    api_key=youtube_key,
+                                    project_dir=CURRENT_DATA_DIR,
+                                    max_results=10
+                                )
+
+                                if result["status"] == "completed":
+                                    st.success(
+                                        f"검색 완료: "
+                                        f"{result['video_count']}개 영상"
+                                    )
+                                    st.rerun()
+
+                                elif result["status"] == "already_exists":
+                                    st.info(
+                                        "이미 저장된 검색 결과를 사용합니다."
+                                    )
+                                    st.rerun()
+
+                                elif result["status"] == "already_running":
+                                    st.warning(
+                                        "현재 프로젝트의 영상 검색이 "
+                                        "이미 진행 중입니다."
+                                    )
+
+                            except Exception:
+                                st.error(
+                                    "영상 검색 중 오류가 발생했습니다. "
+                                    "일부 API 할당량이 사용되었을 수 있습니다. "
+                                    "원인을 확인하기 전에는 재실행하지 마세요."
+                                )
+
+            except (OSError, ValueError, TypeError, KeyError):
+                st.warning(
+                    "저장된 검색 키워드를 읽지 못했습니다."
+                )
+
+
+
+
+st.markdown('<div id="video-relevance"></div>', unsafe_allow_html=True)
+# ===== STEP 9-202: VIDEO RELEVANCE UI =====
+with st.expander("YouTube 영상 AI 관련성 평가", expanded=False):
+    import json as relevance_json
+    from collections import Counter
+
+    from positioning_agent.video_relevance_engine import (
+        run_batched_video_relevance_safely
+    )
+
+    relevance_dir = CURRENT_DATA_DIR / "youtube_analysis"
+    search_path = relevance_dir / "youtube_search_results.json"
+    relevance_path = relevance_dir / "video_relevance_results.json"
+
+   
+    if selected_project == "dbc345844047":
+        demo_dir = (
+            Path(__file__).resolve().parent
+            / "positioning_demo_data"
+            / "ongredients_analysis"
+        )
+
+        demo_relevance_path = (
+            demo_dir / "youtube_relevance_demo.json"
+        )
+        demo_search_path = (
+            demo_dir / "youtube_search_demo.json"
+        )
+
+        youtube_done = st.session_state.get(
+            "ongredients_demo_youtube_revealed", False
+        )
+        relevance_done = st.session_state.get(
+            "ongredients_demo_relevance_revealed", False
+        )
+
+        st.caption(
+            "시연 모드: 사전에 저장된 Gemini 평가 결과를 "
+            "불러옵니다. 새로운 API 호출은 없습니다."
+        )
+
+        if not youtube_done:
+            st.info(
+                "먼저 YouTube 영상 자동 검색 단계를 "
+                "완료해 주세요."
+            )
+
+        if not relevance_done:
+            if st.button(
+                "AI 영상 관련성 평가 실행",
+                key="ongredients_demo_relevance_button",
+                disabled=not youtube_done
+            ):
+                if (
+                    demo_relevance_path.is_file()
+                    and demo_search_path.is_file()
+                ):
+                    st.session_state[
+                        "ongredients_demo_relevance_revealed"
+                    ] = True
+                    st.rerun()
+                else:
+                    st.error(
+                        "Demo 관련성 평가 데이터가 없습니다."
+                    )
+
+        if relevance_done:
+            if (
+                demo_relevance_path.is_file()
+                and demo_search_path.is_file()
+            ):
+                from positioning_agent.youtube_relevance_demo_ui import (
+                    render_youtube_relevance_demo
+                )
+
+                render_youtube_relevance_demo(
+                    demo_relevance_path,
+                    demo_search_path
+                )
+            else:
+                st.error(
+                    "Demo 관련성 평가 데이터를 찾을 수 없습니다."
+                )
+
+    elif relevance_path.is_file():
+
+        try:
+            saved_relevance = relevance_json.loads(
+                relevance_path.read_text(encoding="utf-8")
+            )
+
+            classified_videos = saved_relevance[
+                "relevance_result"
+            ]["videos"]
+
+            counts = Counter(
+                video["relevance"]
+                for video in classified_videos
+            )
+
+            st.success("영상 AI 관련성 평가 결과가 저장되어 있습니다.")
+            st.caption(
+                "영상 제목·설명 기반 AI 분류이며, "
+                "실제 영상 내용을 시청하거나 사람이 검증한 결과는 아닙니다."
+            )
+
+            st.metric("평가 완료 영상", len(classified_videos))
+
+            labels = {
+                "Core": "핵심 관련",
+                "Adjacent": "인접 관련",
+                "Uncertain": "추가 검토",
+                "Exclude": "제외"
+            }
+
+            for label, description in labels.items():
+                st.write(
+                    f"**{description}: {counts.get(label, 0)}개**"
+                )
+
+        except (OSError, ValueError, TypeError, KeyError):
+            st.warning("저장된 영상 평가 결과를 읽지 못했습니다.")
+
+    elif not search_path.is_file():
+        st.info("먼저 YouTube 영상 자동 검색을 실행해 주세요.")
+
+    else:
+        try:
+            search_data = relevance_json.loads(
+                search_path.read_text(encoding="utf-8")
+            )
+
+            video_count = len(search_data["videos"])
+
+            st.write(f"**AI 평가 예정 영상: {video_count}개**")
+
+            st.caption(
+                "Gemini API를 사용해 영상의 제목, 설명, "
+                "검색 카테고리를 평가합니다."
+            )
+
+            st.caption(
+                "실제 영상 시청이나 댓글 분석은 수행하지 않습니다. "
+                "API 사용량과 비용이 발생할 수 있습니다."
+            )
+
+            if st.button(
+                "AI 영상 관련성 평가 실행",
+                key=f"video_relevance_{selected_project}"
+            ):
+                gemini_key = st.secrets.get("GEMINI_API_KEY")
+
+                if not gemini_key:
+                    st.error("Gemini API 키가 설정되지 않았습니다.")
+
+                else:
+                    with st.spinner(
+                        "Gemini가 영상을 15개씩 나누어 평가하고 있습니다..."
+                    ):
+                        try:
+                            result = run_batched_video_relevance_safely(
+                                api_key=gemini_key,
+                                project_dir=CURRENT_DATA_DIR
+                            )
+
+                            if result["status"] == "completed":
+                                st.success("AI 영상 관련성 평가 완료!")
+                                st.rerun()
+
+                            elif result["status"] == "already_exists":
+                                st.info("기존 평가 결과를 불러옵니다.")
+                                st.rerun()
+
+                            elif result["status"] == "already_running":
+                                st.warning(
+                                    "현재 프로젝트에서 AI 평가가 "
+                                    "이미 진행 중입니다."
+                                )
+
+                        except Exception as error:
+                            import logging
+
+                            error_type = type(error).__name__
+                            status_code = getattr(error, "code", None)
+
+                            if status_code is None:
+                                status_code = getattr(
+                                    error, "status_code", None
+                                )
+
+                            safe_status = (
+                                str(status_code)
+                                if isinstance(status_code, int)
+                                and 400 <= status_code <= 599
+                                else "확인 불가"
+                            )
+
+                            logging.getLogger(__name__).error(
+                                "Video relevance evaluation failed: "
+                                "type=%s, status=%s",
+                                error_type,
+                                safe_status
+                            )
+
+                            st.error(
+                                "영상 관련성 평가 중 오류가 발생했습니다. "
+                                "원인 확인 전 재실행하지 마세요."
+                            )
+                            st.caption(
+                                f"오류 유형: {error_type} / "
+                                f"HTTP 상태: {safe_status}"
+                            )
+
+        except (OSError, ValueError, TypeError, KeyError):
+            st.warning("저장된 영상 검색 결과를 읽지 못했습니다.")
+
+st.markdown('<div id="video-selection"></div>', unsafe_allow_html=True)
+# ===== ONgredients DEMO: YOUTUBE VIDEO SELECTION =====
+if selected_project == "dbc345844047":
+    with st.expander("YouTube 분석 대상 영상 선별", expanded=False):
+        st.caption(
+            "시연 모드: 기존 규칙 기반 영상 선별 결과를 "
+            "불러옵니다. API 호출은 없습니다."
+        )
+
+        relevance_done = st.session_state.get(
+            "ongredients_demo_relevance_revealed", False
+        )
+        selection_done = st.session_state.get(
+            "ongredients_demo_selection_revealed", False
+        )
+
+        demo_selection_dir = (
+            Path(__file__).resolve().parent
+            / "positioning_demo_data"
+            / "ongredients_analysis"
+        )
+
+        selection_path = (
+            demo_selection_dir / "video_selection_results.json"
+        )
+        search_path = (
+            demo_selection_dir / "youtube_search_demo.json"
+        )
+
+        if not relevance_done:
+            st.info("먼저 YouTube 영상 AI 관련성 평가를 완료해 주세요.")
+
+        if not selection_done:
+            if st.button(
+                "분석 대상 영상 선별 실행",
+                key="ongredients_demo_selection_button",
+                disabled=not relevance_done
+            ):
+                if selection_path.is_file() and search_path.is_file():
+                    st.session_state[
+                        "ongredients_demo_selection_revealed"
+                    ] = True
+                    st.rerun()
+                else:
+                    st.error("Demo 영상 선별 데이터가 없습니다.")
+
+        if selection_done:
+            if selection_path.is_file() and search_path.is_file():
+                from positioning_agent.youtube_selection_demo_ui import (
+                    render_youtube_selection_demo
+                )
+
+                render_youtube_selection_demo(
+                    selection_path,
+                    search_path
+                )
+            else:
+                st.error("Demo 영상 선별 데이터를 찾을 수 없습니다.")
+# ===== END ONgredients DEMO: YOUTUBE VIDEO SELECTION =====
+
+
+
+# ===== CONSUMER INSIGHTS: NEXT DEVELOPMENT STAGE =====
+st.markdown('<div id="consumer-analysis"></div>', unsafe_allow_html=True)
+with st.expander("YouTube 댓글 수집 및 소비자 분석", expanded=False):
+    if selected_project == DEMO_ID:
+        if st.session_state.get("ongredients_demo_selection_revealed", False):
+            st.info("댓글 수집 및 소비자 니즈 분석 시연은 다음 개발 단계에서 연결됩니다. "
+                    "아직 실제 댓글 분석을 새로 실행하지 않습니다.")
+        else:
+            st.info("먼저 분석 대상 영상 선별 단계를 완료해 주세요.")
+    else:
+        st.info("YouTube 댓글 수집·분석 실행 UI는 아직 연결되지 않았습니다. "
+                "이전 분석 결과가 있는 경우 후속 단계에서 연결할 수 있습니다.")
+
+st.markdown('<div id="positioning-strategy"></div>', unsafe_allow_html=True)
+st.header("AI 시장 기회 및 포지셔닝 전략")
+# ===== POSITIONING AGENT V2 DASHBOARD =====
+# Existing strategy dashboard remains unchanged.
+
+from positioning_agent.strategy_dashboard import (
+    render_positioning_strategy_dashboard
+)
+
+positioning_package_path = (
+    CURRENT_DATA_DIR
+    / "positioning_strategy"
+    / "strategy_package.json"
+)
+
+if positioning_package_path.is_file():
+    st.divider()
+    render_positioning_strategy_dashboard(
+        positioning_package_path
+    )
+
+
+
+# ===== ONgredients POSITIONING DEMO DASHBOARD =====
+if selected_project == "dbc345844047":
+    st.divider()
+
+    from positioning_agent.positioning_demo_dashboard import (
+        render_positioning_demo_dashboard
+    )
+
+    render_positioning_demo_dashboard(CURRENT_DATA_DIR)
+# ===== END POSITIONING DEMO DASHBOARD =====
