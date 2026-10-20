@@ -1663,8 +1663,9 @@ with _pdf_col:
                 key=f"report_pdf_{selected_project}",
                 use_container_width=True,
             )
-        except Exception:
-            st.caption("PDF 보고서를 생성하지 못했습니다.")
+        except Exception as error:
+            st.error(f"PDF 생성 오류: {type(error).__name__}")
+            st.exception(error)
     else:
         st.button("📄 PDF 보고서 다운로드", disabled=True, use_container_width=True,
                   help="STEP 07 분석 결과가 준비되면 다운로드할 수 있습니다.")
