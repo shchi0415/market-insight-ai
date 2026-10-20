@@ -2124,48 +2124,40 @@ if selected_project == DEMO_ID:
             st.info("먼저 06-2 · AI 소비자 분석 결과를 확인해 주세요.")
 else:
     from positioning_agent.strategy_dashboard import render_positioning_strategy_dashboard
-    positioning_package_path = (
-        CURRENT_DATA_DIR / "positioning_strategy" / "strategy_package.json"
-    )
-    if positioning_package_path.is_file():
-        with st.container(border=True):
-            render_positioning_strategy_dashboard(positioning_package_path)
-    else:
-        with st.container(border=True):
-            source_path = CURRENT_DATA_DIR / "youtube_analysis" / "consumer_ai_analysis.json"
-            product_path = CURRENT_DATA_DIR / "product_info.json"
+    strategy_dir = CURRENT_DATA_DIR / "positioning_strategy"
+    new_package_path = strategy_dir / "strategy_package_v2.json"
+    old_package_path = strategy_dir / "strategy_package.json"
+    source_path = CURRENT_DATA_DIR / "youtube_analysis" / "consumer_ai_analysis.json"
+    product_path = CURRENT_DATA_DIR / "product_info.json"
+    with st.container(border=True):
+        if new_package_path.is_file():
+            render_positioning_strategy_dashboard(new_package_path)
+        else:
+            if old_package_path.is_file():
+                st.info("이전 3C·SWOT·4P 분석은 보존돼 있어요. 새 5단계 분석을 별도로 생성할 수 있습니다.")
             if not source_path.is_file():
                 st.info("먼저 06-2 · AI 소비자 분석을 완료해 주세요.")
             elif not product_path.is_file():
-                st.warning("제품 정보 파일이 없습니다. 01단계에서 제품 정보를 저장해 주세요.")
+                st.warning("01단계의 저장된 제품 정보를 확인할 수 없습니다.")
             else:
-                st.caption(
-                    "저장된 06-2 댓글 집계와 제품 정보로 3C·SWOT·STP·4P 전략 초안을 생성합니다. "
-                    "AI 호출은 실행 버튼을 누를 때 한 번 발생하며, 비용이 발생할 수 있습니다."
-                )
-                st.warning(
-                    "현재 댓글 표본은 최대 50개입니다. 전략은 검증 전 가설이며 "
-                    "경쟁사 분석·시장 대표성·효능 검증을 대신하지 않습니다."
-                )
-                if st.button("AI 시장 기회·포지셔닝 전략 생성", key=f"step07_generate_{selected_project}"):
+                st.caption("새 5단계 시장 분석: 시장 니즈 → 제품·경쟁 환경 → 시장 기회 → STP → 마케팅 전략·KPI")
+                st.warning("소수의 선별 댓글에 기반한 탐색적 분석입니다. 경쟁사별 실제 비교 데이터가 없으면 직접 비교하지 않습니다.")
+                if st.button("새로운 STEP 07 분석 생성", key=f"step07_generate_v2_{selected_project}"):
                     api_key = st.secrets.get("GEMINI_API_KEY")
                     if not api_key:
                         st.error("Gemini API 키가 설정되지 않았습니다.")
                     else:
                         try:
-                            from positioning_agent.strategy_generation_pipeline import (
-                                generate_strategy, save_strategy,
-                            )
-                            with st.spinner("댓글 분석 결과를 바탕으로 전략 초안을 생성하고 검증 중입니다..."):
+                            from positioning_agent.strategy_generation_pipeline import generate_strategy, save_strategy
+                            with st.spinner("새로운 5단계 분석을 생성하고 검증 중입니다..."):
                                 package = generate_strategy(api_key, CURRENT_DATA_DIR)
                                 save_strategy(package, CURRENT_DATA_DIR)
-                            st.success("전략 초안 생성 및 저장 완료!")
+                            st.success("새 STEP 07 분석 결과가 저장되었습니다.")
                             st.rerun()
                         except FileExistsError:
-                            st.info("이미 저장된 전략 결과가 있습니다. 화면을 새로고침해 주세요.")
+                            st.info("이미 새 분석 결과가 저장되어 있습니다.")
                         except Exception as error:
                             import logging
-                            logging.getLogger(__name__).exception("STEP 07 strategy generation failed")
+                            logging.getLogger(__name__).exception("STEP 07 new analysis failed")
                             status = getattr(error, "code", None) or getattr(error, "status_code", None)
-                            st.error(f"전략 생성 실패 ({type(error).__name__}, HTTP: {status or '확인 불가'}). "
-                                     "결과는 저장되지 않았습니다. 로그를 확인한 후 재실행해 주세요.")
+                            st.error(f"새 분석 생성 실패 ({type(error).__name__}, HTTP: {status or '확인 불가'}). 분석 결과가 새로 저장되지 않았습니다.")
