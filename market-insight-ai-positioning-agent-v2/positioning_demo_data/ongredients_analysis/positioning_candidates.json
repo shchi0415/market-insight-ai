@@ -1,0 +1,41 @@
+{
+  "status": "hypotheses_not_validated",
+  "candidates": [
+    {
+      "id": "A",
+      "name": "피부 타입에 맞춘 산뜻한 보습 로션",
+      "market_evidence": {
+        "hydration_skin_type_cooccurrence": 179
+      },
+      "product_fit": "수분·보습 및 가벼운 사용감 메시지",
+      "validation_needed": [
+        "피부 타입별 사용 적합성",
+        "지성·수부지 대상 사용감"
+      ]
+    },
+    {
+      "id": "B",
+      "name": "끈적임 없이 보습하는 데일리 로션",
+      "market_evidence": {
+        "hydration_texture_cooccurrence": 51
+      },
+      "product_fit": "끈적임이 적다는 제품 설명",
+      "validation_needed": [
+        "끈적임·흡수력 실사용 평가",
+        "보습 지속력"
+      ]
+    },
+    {
+      "id": "C",
+      "name": "수분감과 광채를 강조하는 캡슐 로션",
+      "market_evidence": {
+        "glow_related_comments": 29
+      },
+      "product_fit": "바쿠글로우 캡슐 제형·광채 메시지",
+      "validation_needed": [
+        "피부 광채·피부결 효과",
+        "소비자의 광채 기능 중요도"
+      ]
+    }
+  ]
+}

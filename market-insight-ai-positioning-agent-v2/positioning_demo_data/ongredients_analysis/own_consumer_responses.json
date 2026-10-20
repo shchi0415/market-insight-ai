@@ -1,0 +1,24 @@
+{
+  "product_name": "온그리디언츠 바쿠글로우 캡슐 로션",
+  "analysis_type": "consumer_response_analysis",
+  "mode": "precomputed_demo",
+  "analyzed_comments": 73,
+  "product_related_comments": 14,
+  "review_candidates": 1,
+  "response_counts": {
+    "product_interest": 7,
+    "expected_benefit": 3,
+    "trial_intent": 3,
+    "information_question": 2,
+    "actual_experience": 1,
+    "purchase_barrier": 1
+  },
+  "classification_method": "manual_review_v2",
+  "limitations": [
+    "제품 관련 댓글 14건에 대한 탐색적 분류",
+    "하나의 댓글이 복수 유형에 포함될 수 있음",
+    "실제 구매·체험 행동과 구매 전 관심은 구분됨",
+    "광고·리뷰 영상 중심의 비대표성 표본"
+  ],
+  "privacy_note": "개별 댓글 원문과 댓글 ID는 공개용 데이터에서 제외했습니다."
+}

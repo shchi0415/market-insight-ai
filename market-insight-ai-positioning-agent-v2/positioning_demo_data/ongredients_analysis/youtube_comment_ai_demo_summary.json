@@ -1,0 +1,63 @@
+{
+  "source": "youtube_comment_analysis_v2.json",
+  "schema_version": "comment_ai_demo_summary_v1",
+  "analysis_kind": "precomputed_gemini_comment_classification",
+  "declared_analyzed_comment_count": 2826,
+  "record_count": 2826,
+  "analysis_status": {
+    "analyzed": 2804,
+    "requires_review": 22
+  },
+  "sentiment": {
+    "positive": 1355,
+    "neutral": 876,
+    "negative": 354,
+    "mixed": 240,
+    "not_applicable": 1
+  },
+  "sentiment_target": {
+    "product": 1207,
+    "video": 732,
+    "uncertain": 279,
+    "skin_concern": 237,
+    "other": 229,
+    "none": 110,
+    "brand": 32
+  },
+  "content_labels": {
+    "product_experience": 1184,
+    "product_evaluation": 1074,
+    "consumer_need": 1068,
+    "general_reaction": 1055,
+    "purchase_interest": 279,
+    "irrelevant_spam": 8
+  },
+  "product_experience_status": {
+    "no_experience_evidence": 1490,
+    "explicit_user_experience": 1139,
+    "possible_user_experience": 160,
+    "uncertain": 37
+  },
+  "spam_review_status": {
+    "not_suspected": 2725,
+    "requires_review": 61,
+    "suspected": 40
+  },
+  "themes_keyword_based_overlapping": {
+    "트러블·여드름": 213,
+    "보습·속건조": 195,
+    "장벽·민감성·저자극": 236,
+    "진정·붉은기": 188,
+    "흔적·색소·피부결": 43,
+    "사용법·루틴": 196,
+    "가격·구매": 36
+  },
+  "theme_denominator": 1068,
+  "notes": [
+    "사전 저장된 Gemini 댓글 분류 결과의 집계. 새 AI/API 호출 없이 재생함.",
+    "전체 감성은 영상·제품·피부 고민 등 평가 대상이 혼재하므로 제품 만족도와 동일하지 않음.",
+    "감성 및 분류 결과에는 검토 필요 항목이 포함됨. 사람이 검증한 확정 결과가 아님.",
+    "주제 그룹은 consumer_need로 분류된 댓글의 소비자 니즈/문제/희망 결과에 키워드 규칙을 적용한 탐색적 다중 집계임. 그룹 간 중복 가능.",
+    "개별 댓글 원문 및 ID를 포함하지 않음."
+  ]
+}
