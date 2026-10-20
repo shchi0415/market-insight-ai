@@ -79,19 +79,6 @@ def render_youtube_search_demo(data_path):
     st.markdown(f"#### {category_name}")
     st.caption(f"검색된 영상 {len(category_videos)}개")
 
-    # 저장된 검색 결과 순서 기준, 최대 3개.
-    for video in category_videos[:3]:
-        title = video.get("title") or "제목 없음"
-        published = (
-            video.get("published_at") or "게시일 정보 없음"
-        )[:10]
-        url = video.get("youtube_url", "")
-
-        st.markdown(f"**{title}**")
-        st.caption(f"게시일: {published}")
-
-        if url:
-            st.markdown(f"[YouTube에서 영상 보기]({url})")
 
     # 펼쳐보기 1: 선택한 카테고리에 속한 영상 전체
     with st.expander(
