@@ -1036,12 +1036,74 @@ else:
             try:
                 selected_data = json.loads(general_selection_path.read_text(encoding="utf-8"))
                 st.success("영상 선별 결과가 저장되어 있습니다.")
-                st.metric("분석 대상 영상", len(selected_data.get("selected_video_ids", [])))
-                st.dataframe(selected_data.get("selected_videos", []), use_container_width=True, hide_index=True)
-                if not selected_data.get("selected_video_ids"):
+                selected_ids = selected_data.get("selected_video_ids", [])
+                st.metric("분석 대상 영상", len(selected_ids))
+
+                # Link existing STEP 05 results to the original STEP 03 search
+                # and STEP 04 classification; no additional API calls.
+                search_result_path = general_dir / "youtube_search_results.json"
+                video_lookup = {}
+                if search_result_path.is_file():
+                    search_results = json.loads(search_result_path.read_text(encoding="utf-8"))
+                    video_lookup = {
+                        str(v.get("video_id")): v
+                        for v in search_results.get("videos", [])
+                        if isinstance(v, dict) and v.get("video_id")
+                    }
+                relevance_lookup = {}
+                if general_relevance_path.is_file():
+                    relevance_results = json.loads(general_relevance_path.read_text(encoding="utf-8"))
+                    relevance_lookup = {
+                        str(v.get("video_id")): v
+                        for v in relevance_results.get("relevance_result", {}).get("videos", [])
+                        if isinstance(v, dict) and v.get("video_id")
+                    }
+                saved_lookup = {
+                    str(v.get("video_id")): v
+                    for v in selected_data.get("selected_videos", [])
+                    if isinstance(v, dict) and v.get("video_id")
+                }
+                rows = []
+                for index, video_id in enumerate(selected_ids, 1):
+                    video_id = str(video_id)
+                    source = video_lookup.get(video_id, {})
+                    classified = relevance_lookup.get(video_id, {})
+                    saved = saved_lookup.get(video_id, {})
+                    title = source.get("title") or saved.get("title") or "제목 정보 없음"
+                    channel = (
+                        source.get("channel_title") or source.get("channelTitle")
+                        or saved.get("channel_title") or saved.get("channelTitle") or ""
+                    )
+                    label = classified.get("relevance") or saved.get("관련성") or saved.get("relevance") or "정보 없음"
+                    rows.append({
+                        "번호": index,
+                        "영상 제목": title,
+                        "채널명": channel,
+                        "관련성": label,
+                        "YouTube 링크": f"https://www.youtube.com/watch?v={video_id}",
+                    })
+                if rows:
+                    # Older saved results may have no channel title. Omit the
+                    # column entirely unless at least one result has it.
+                    if not any(row.get("채널명") for row in rows):
+                        for row in rows:
+                            row.pop("채널명", None)
+                    else:
+                        for row in rows:
+                            row["채널명"] = row["채널명"] or "정보 없음"
+                    st.dataframe(
+                        rows, use_container_width=True, hide_index=True,
+                        column_config={
+                            "YouTube 링크": st.column_config.LinkColumn(
+                                "YouTube 링크", display_text="영상 보기"
+                            ),
+                        },
+                    )
+                    st.caption("영상 제목과 채널명은 STEP 03의 저장 데이터에서 불러옵니다. 기존 데이터에 채널명이 없다면 추가 조회하지 않습니다. 선별 기준은 STEP 04의 AI 관련성 분류입니다.")
+                else:
                     st.warning("수집 대상으로 선정된 영상이 없습니다. 관련성 평가 결과를 확인해 주세요.")
-            except (OSError, ValueError, TypeError):
-                st.error("저장된 영상 선별 결과를 읽지 못했습니다.")
+            except (OSError, ValueError, TypeError, KeyError) as error:
+                st.error(f"저장된 영상 선별 결과를 읽지 못했습니다: {type(error).__name__}")
         elif not general_relevance_path.is_file():
             st.info("먼저 04 · AI 영상 관련성 평가를 완료해 주세요.")
         elif st.button("분석 대상 영상 선별 실행", key=f"general_select_{selected_project}"):
