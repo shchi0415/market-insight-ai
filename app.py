@@ -2124,4 +2124,40 @@ else:
             render_positioning_strategy_dashboard(positioning_package_path)
     else:
         with st.container(border=True):
-            st.info("아직 포지셔닝 전략 분석 결과가 없습니다.")
+            source_path = CURRENT_DATA_DIR / "youtube_analysis" / "consumer_ai_analysis.json"
+            product_path = CURRENT_DATA_DIR / "product_info.json"
+            if not source_path.is_file():
+                st.info("먼저 06-2 · AI 소비자 분석을 완료해 주세요.")
+            elif not product_path.is_file():
+                st.warning("제품 정보 파일이 없습니다. 01단계에서 제품 정보를 저장해 주세요.")
+            else:
+                st.caption(
+                    "저장된 06-2 댓글 집계와 제품 정보로 3C·SWOT·STP·4P 전략 초안을 생성합니다. "
+                    "AI 호출은 실행 버튼을 누를 때 한 번 발생하며, 비용이 발생할 수 있습니다."
+                )
+                st.warning(
+                    "현재 댓글 표본은 최대 50개입니다. 전략은 검증 전 가설이며 "
+                    "경쟁사 분석·시장 대표성·효능 검증을 대신하지 않습니다."
+                )
+                if st.button("AI 시장 기회·포지셔닝 전략 생성", key=f"step07_generate_{selected_project}"):
+                    api_key = st.secrets.get("GEMINI_API_KEY")
+                    if not api_key:
+                        st.error("Gemini API 키가 설정되지 않았습니다.")
+                    else:
+                        try:
+                            from positioning_agent.strategy_generation_pipeline import (
+                                generate_strategy, save_strategy,
+                            )
+                            with st.spinner("댓글 분석 결과를 바탕으로 전략 초안을 생성하고 검증 중입니다..."):
+                                package = generate_strategy(api_key, CURRENT_DATA_DIR)
+                                save_strategy(package, CURRENT_DATA_DIR)
+                            st.success("전략 초안 생성 및 저장 완료!")
+                            st.rerun()
+                        except FileExistsError:
+                            st.info("이미 저장된 전략 결과가 있습니다. 화면을 새로고침해 주세요.")
+                        except Exception as error:
+                            import logging
+                            logging.getLogger(__name__).exception("STEP 07 strategy generation failed")
+                            status = getattr(error, "code", None) or getattr(error, "status_code", None)
+                            st.error(f"전략 생성 실패 ({type(error).__name__}, HTTP: {status or '확인 불가'}). "
+                                     "결과는 저장되지 않았습니다. 로그를 확인한 후 재실행해 주세요.")
