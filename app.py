@@ -1223,7 +1223,20 @@ with st.container(border=True):
                             st.markdown("#### 소비자 니즈 관련 주요 주제")
                             themes = ai_data.get("themes_keyword_based_overlapping",{})
                             theme_rows = [{"주제": k, "관련 댓글 수": int(v)} for k,v in sorted(themes.items(), key=lambda kv:-kv[1])]
-                            st.bar_chart(theme_rows, x="주제", y="관련 댓글 수", horizontal=True)
+                            # 표와 동일한 행 순서 및 수치를 차트에 사용
+                            theme_order = [row["주제"] for row in theme_rows]
+                            if theme_rows:
+                                theme_chart = (
+                                    alt.Chart(alt.Data(values=theme_rows))
+                                    .mark_bar(color="#80C4F6", size=24)
+                                    .encode(
+                                        y=alt.Y("주제:N", sort=theme_order, title="주제", axis=alt.Axis(labelAngle=0)),
+                                        x=alt.X("관련 댓글 수:Q", title="관련 댓글 수"),
+                                        tooltip=["주제:N", "관련 댓글 수:Q"],
+                                    )
+                                    .properties(height=max(220, len(theme_rows) * 36))
+                                )
+                                st.altair_chart(theme_chart, use_container_width=True)
                             st.dataframe(theme_rows, use_container_width=True, hide_index=True)
                             st.caption(f"'소비자 니즈'로 분류된 {int(ai_data.get('theme_denominator',0)):,}개 댓글의 텍스트를 키워드 규칙으로 묶은 탐색적 집계입니다. 한 댓글이 여러 주제에 포함될 수 있습니다.")
                         with st.container(border=True):
@@ -1329,11 +1342,22 @@ def render_integrated_positioning_demo(project_dir):
                 ascending=False
             )
 
-            st.bar_chart(
-                df.set_index("니즈 카테고리")[
-                    "언급 댓글 수"
-                ]
-            )
+            # 표에서 사용하는 데이터프레임을 그대로 차트에 전달
+            import altair as alt
+            chart_rows = df.to_dict(orient="records")
+            chart_order = df["니즈 카테고리"].tolist()
+            if chart_rows:
+                market_needs_chart = (
+                    alt.Chart(alt.Data(values=chart_rows))
+                    .mark_bar(color="#80C4F6", size=24)
+                    .encode(
+                        y=alt.Y("니즈 카테고리:N", sort=chart_order, title="니즈 카테고리", axis=alt.Axis(labelAngle=0)),
+                        x=alt.X("언급 댓글 수:Q", title="언급 댓글 수"),
+                        tooltip=["니즈 카테고리:N", "언급 댓글 수:Q", "언급 비율 (%):Q"],
+                    )
+                    .properties(height=max(240, len(chart_rows) * 38))
+                )
+                st.altair_chart(market_needs_chart, use_container_width=True)
 
             st.dataframe(
                 df,
