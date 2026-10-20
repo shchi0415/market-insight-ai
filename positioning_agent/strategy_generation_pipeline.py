@@ -92,6 +92,12 @@ def generate_strategy(api_key, project_dir, *, model=MODEL):
         "stp (object with segmentation, targeting, positioning), "
         "four_p (object with product, price, place, promotion). "
         "For 3C, SWOT, STP and 4P use Korean text or arrays of Korean strings only. "
+        "Additionally include market_insights (list of 2-4 objects with insight, evidence, interpretation, limitations), "
+        "opportunity_areas (list of 2-3 objects with opportunity_name, consumer_need, "
+        "supporting_evidence, validation_needed), strategic_risks (list of objects with risk, reason), "
+        "and action_plan (list of 2-4 objects with action, objective, execution_steps, kpi, "
+        "measurement_method, evidence_basis, validation_needed). "
+        "Every insight must clearly distinguish actual counts and model inference, and avoid invented numbers. "
         "Provide testable hypotheses and specific validation methods, not proven recommendations.\n"
         "EVIDENCE JSON:\n" + json.dumps(evidence, ensure_ascii=False)
     )
