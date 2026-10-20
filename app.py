@@ -133,7 +133,9 @@ section[data-testid="stMain"] .stDownloadButton button {
 section[data-testid="stMain"] hr {
     margin-top: 1.2rem;
     margin-bottom: 1.2rem;
-    opacity: 0.55;
+    border: 0 !important;
+    border-top: 6px solid rgba(165, 180, 200, 0.65) !important;
+    opacity: 1 !important;
 }
 
 /* 데이터 표 모서리 */
