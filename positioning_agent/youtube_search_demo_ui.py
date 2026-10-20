@@ -8,6 +8,39 @@ import pandas as pd
 import streamlit as st
 
 
+def _video_table(videos, categories):
+    """Create a table of videos with clickable links."""
+    rows = []
+
+    for video in videos:
+        matched = [
+            categories[key]
+            for key in video.get("matched_categories", [])
+            if key in categories
+        ]
+
+        rows.append({
+            "분석 구분": ", ".join(matched),
+            "영상 제목": video.get("title", ""),
+            "게시일": (
+                video.get("published_at") or ""
+            )[:10],
+            "YouTube 링크": video.get("youtube_url", "")
+        })
+
+    st.dataframe(
+        pd.DataFrame(rows),
+        hide_index=True,
+        width="stretch",
+        column_config={
+            "YouTube 링크": st.column_config.LinkColumn(
+                "YouTube 링크",
+                display_text="영상 보기"
+            )
+        }
+    )
+
+
 def render_youtube_search_demo(data_path):
     """Render saved search results without API calls."""
 
@@ -26,72 +59,59 @@ def render_youtube_search_demo(data_path):
 
     st.metric("수집된 고유 영상", len(videos))
 
-    for category_key, category_name in categories.items():
-        category_videos = [
-            video for video in videos
-            if category_key in video.get("matched_categories", [])
-        ]
+    category_keys = list(categories.keys())
 
-        st.markdown(f"#### {category_name}")
-        st.caption(f"검색 결과 {len(category_videos)}개 영상")
+    selected_category = st.radio(
+        "분석 구분 선택",
+        options=category_keys,
+        format_func=lambda key: categories[key],
+        horizontal=True,
+        key="ongredients_demo_video_category"
+    )
 
-        if not category_videos:
-            st.info("해당 카테고리의 영상이 없습니다.")
-            continue
+    category_name = categories[selected_category]
 
-        # 검색 결과에 저장된 순서대로 최대 3개 표시.
-        # 관련성이나 품질에 따른 순위는 아님.
-        for video in category_videos[:3]:
-            title = video.get("title") or "제목 없음"
-            published = (
-                video.get("published_at") or "게시일 정보 없음"
-            )[:10]
-            url = video.get("youtube_url", "")
+    category_videos = [
+        video for video in videos
+        if selected_category in video.get("matched_categories", [])
+    ]
 
-            st.markdown(f"**{title}**")
-            st.caption(f"게시일: {published}")
+    st.markdown(f"#### {category_name}")
+    st.caption(f"검색된 영상 {len(category_videos)}개")
 
-            if url:
-                st.markdown(f"[YouTube에서 영상 보기]({url})")
+    # 저장된 검색 결과 순서 기준, 최대 3개.
+    for video in category_videos[:3]:
+        title = video.get("title") or "제목 없음"
+        published = (
+            video.get("published_at") or "게시일 정보 없음"
+        )[:10]
+        url = video.get("youtube_url", "")
 
-        st.divider()
+        st.markdown(f"**{title}**")
+        st.caption(f"게시일: {published}")
 
+        if url:
+            st.markdown(f"[YouTube에서 영상 보기]({url})")
+
+    # 펼쳐보기 1: 선택한 카테고리에 속한 영상 전체
     with st.expander(
-        f"전체 수집 영상 보기 ({len(videos)}개)",
+        f"선택한 카테고리의 전체 영상 보기 "
+        f"({len(category_videos)}개)",
         expanded=False
     ):
-        rows = []
+        _video_table(category_videos, categories)
 
-        for video in videos:
-            matched = [
-                categories[key]
-                for key in video.get("matched_categories", [])
-                if key in categories
-            ]
+    st.divider()
 
-            rows.append({
-                "분석 구분": ", ".join(matched),
-                "영상 제목": video.get("title", ""),
-                "게시일": (
-                    video.get("published_at") or ""
-                )[:10],
-                "YouTube 링크": video.get("youtube_url", "")
-            })
-
-        st.dataframe(
-            pd.DataFrame(rows),
-            hide_index=True,
-            width="stretch",
-            column_config={
-                "YouTube 링크": st.column_config.LinkColumn(
-                    "YouTube 링크",
-                    display_text="영상 보기"
-                )
-            }
-        )
+    # 펼쳐보기 2: 전체 고유 영상 62개
+    with st.expander(
+        f"전체 {len(videos)}개 영상 목록",
+        expanded=False
+    ):
+        _video_table(videos, categories)
 
     st.caption(
-        "하나의 영상이 여러 검색 구분에 포함될 수 있습니다. "
-        "대표 영상은 저장된 검색 결과 순서대로 표시하며, "
-        "추천 순위나 관련성 평가 결과를 의미하지 않습니다."
+        "한 영상이 여러 분석 구분에 속할 수 있습니다. "
+        "대표 영상은 검색 결과 저장 순서대로 표시하며 "
+        "관련성 평가 결과나 추천 순위를 의미하지 않습니다."
     )
