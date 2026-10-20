@@ -940,21 +940,98 @@ if selected_project == "dbc345844047":
 
 
 
-# ===== CONSUMER INSIGHTS: NEXT DEVELOPMENT STAGE =====
+# ===== STEP 06: YOUTUBE COMMENT COLLECTION DEMO =====
 st.markdown("<div style='height:44px'></div>", unsafe_allow_html=True)
 st.divider()
 st.markdown('<div id="consumer-analysis"></div>', unsafe_allow_html=True)
 st.header("06 · 댓글 수집·소비자 분석")
 with st.container():
     if selected_project == DEMO_ID:
-        if st.session_state.get("ongredients_demo_selection_revealed", False):
-            st.info("댓글 수집 및 소비자 니즈 분석 시연은 다음 개발 단계에서 연결됩니다. "
-                    "아직 실제 댓글 분석을 새로 실행하지 않습니다.")
-        else:
-            st.info("먼저 분석 대상 영상 선별 단계를 완료해 주세요.")
+        st.caption(
+            "시연 모드: 과거에 수집·전처리한 YouTube 댓글의 집계 결과를 "
+            "불러옵니다. YouTube API나 Gemini API를 새로 호출하지 않습니다."
+        )
+        selection_done = st.session_state.get(
+            "ongredients_demo_selection_revealed", False
+        )
+        comment_done = st.session_state.get(
+            "ongredients_demo_comments_revealed", False
+        )
+        summary_path = (
+            Path(__file__).resolve().parent
+            / "positioning_demo_data"
+            / "ongredients_analysis"
+            / "youtube_comments_demo_summary.json"
+        )
+
+        if not selection_done:
+            st.info("먼저 05 · 분석 영상 선별을 완료해 주세요.")
+        if not comment_done:
+            if st.button(
+                "YouTube 댓글 수집·전처리 결과 확인",
+                key="ongredients_demo_comments_button",
+                disabled=not selection_done,
+            ):
+                if summary_path.is_file():
+                    st.session_state["ongredients_demo_comments_revealed"] = True
+                    st.rerun()
+                else:
+                    st.error("댓글 수집 Demo 집계 파일을 찾을 수 없습니다.")
+
+        if comment_done:
+            if not summary_path.is_file():
+                st.error("댓글 수집 Demo 집계 파일을 찾을 수 없습니다.")
+            else:
+                try:
+                    with summary_path.open("r", encoding="utf-8") as f:
+                        comment_summary = json.load(f)
+                    stats = comment_summary["statistics"]
+                    total = int(stats["total_comments"])
+                    duplicates = int(stats["duplicate_extra"])
+                    c1, c2, c3 = st.columns(3)
+                    c1.metric("수집 댓글", f"{total:,}개")
+                    c2.metric("댓글 수집 영상", f"{int(stats['videos_with_comments']):,}개")
+                    c3.metric("중복 추가 표시", f"{duplicates:,}개")
+
+                    st.markdown("**영상 관련성에 따른 댓글 분포**")
+                    a, b = st.columns(2)
+                    a.metric("핵심 관련(Core)", f"{int(stats['core_comments']):,}개")
+                    b.metric("인접 관련(Adjacent)", f"{int(stats['adjacent_comments']):,}개")
+
+                    st.markdown("**전처리 점검 결과**")
+                    st.write(
+                        f"중복 추가 표시 {duplicates:,}개 · "
+                        f"짧은 댓글 검토 표시 {int(stats['short_text_review']):,}개 · "
+                        f"URL 포함 표시 {int(stats['url_present']):,}개"
+                    )
+                    st.caption(
+                        f"규칙 기반으로 분석 가능 표시된 댓글은 {int(stats['analysis_eligible']):,}개입니다. "
+                        f"중복 추가 표시 {duplicates:,}개를 제외한 단순 계산값은 "
+                        f"{total - duplicates:,}개이며, 최종 AI 분석 표본으로 검증된 수치는 아닙니다. "
+                        "짧은 댓글/URL 표시는 별도 제외 건수가 아닙니다."
+                    )
+                    with st.expander("영상별 댓글 수집 현황 보기", expanded=False):
+                        rows = [
+                            {
+                                "영상 ID": video.get("video_id", ""),
+                                "관련성": video.get("video_relevance", ""),
+                                "수집 댓글": int(video.get("comment_count", 0)),
+                                "중복 추가 표시": int(video.get("duplicate_extra", 0)),
+                            }
+                            for video in comment_summary.get("videos", [])
+                        ]
+                        st.dataframe(rows, use_container_width=True, hide_index=True)
+                    st.info(
+                        "댓글 수집·전처리 결과를 불러왔습니다. "
+                        "소비자 니즈와 감성의 AI 분석 결과는 아직 연결되지 않았습니다."
+                    )
+                except (OSError, ValueError, TypeError, KeyError) as error:
+                    st.error("댓글 집계 데이터를 읽지 못했습니다. JSON 구조를 확인해 주세요.")
     else:
-        st.info("YouTube 댓글 수집·분석 실행 UI는 아직 연결되지 않았습니다. "
-                "이전 분석 결과가 있는 경우 후속 단계에서 연결할 수 있습니다.")
+        st.info(
+            "새 프로젝트에서의 YouTube 댓글 수집·분석 실행 기능은 "
+            "아직 연결되지 않았습니다."
+        )
 
 st.markdown("<div style='height:44px'></div>", unsafe_allow_html=True)
 st.divider()
