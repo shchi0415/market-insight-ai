@@ -35,43 +35,72 @@ def render_product_input(project_dir):
         "AI 포지셔닝 분석의 기초 자료로 활용됩니다."
     )
 
+
+    # 온그리디언츠 예시 입력값
+    example_values = {
+        "example_brand": "온그리디언츠",
+        "example_product_name": "바쿠글로우 캡슐 로션",
+        "example_category": "수분·진정 로션",
+        "example_volume": 150,
+        "example_price": 28000,
+        "example_sale_price": 24600,
+        "example_claims": "\n".join([
+            "바쿠글로우 캡슐 로션",
+            "수분광 캡슐 콘셉트",
+            "쿨링 및 피부 진정 소구"
+        ]),
+        "example_ingredients": ""
+    }
+
+    project_key = str(project_dir.resolve())
+    if st.session_state.get("_product_form_project") != project_key:
+        for key in example_values:
+            st.session_state.pop(key, None)
+        st.session_state["_product_form_project"] = project_key
+
+    if st.button("온그리디언츠 예시 불러오기"):
+        st.session_state.update(example_values)
+        st.rerun()
+
     with st.form("product_input_form"):
-        brand = st.text_input("브랜드명 *")
-        product_name = st.text_input("제품명 *")
+        brand = st.text_input("브랜드명 *", key="example_brand")
+        product_name = st.text_input("제품명 *", key="example_product_name")
         category = st.text_input(
             "제품 카테고리 *",
-            placeholder="예: 수분 로션"
+            placeholder="예: 수분 로션", key="example_category"
         )
 
         volume_ml = st.number_input(
             "용량 (ml)",
             min_value=0,
-            value=0,
+            key="example_volume",
             step=1
         )
 
         price_krw = st.number_input(
             "정가 (원)",
             min_value=0,
-            value=0,
+            key="example_price",
             step=100
         )
 
         sale_price_krw = st.number_input(
             "판매가 (원)",
             min_value=0,
-            value=0,
+            key="example_sale_price",
             step=100
         )
 
         claims_text = st.text_area(
             "주요 특징·마케팅 소구점",
-            placeholder="한 줄에 하나씩 입력"
+            placeholder="한 줄에 하나씩 입력",
+            key="example_claims"
         )
 
         ingredients_text = st.text_area(
             "주요 성분 (선택)",
-            placeholder="한 줄에 하나씩 입력"
+            placeholder="한 줄에 하나씩 입력",
+            key="example_ingredients"
         )
 
         submitted = st.form_submit_button(
