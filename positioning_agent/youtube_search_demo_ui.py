@@ -87,8 +87,7 @@ def render_youtube_search_demo(data_path):
         expanded=False
     ):
         _video_table(category_videos, categories)
-
-    st.divider()
+        
 
     # 펼쳐보기 2: 전체 고유 영상 62개
     with st.expander(
