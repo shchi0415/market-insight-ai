@@ -269,8 +269,7 @@ NAVIGATION = [
     ("03 · YouTube 영상 검색", "youtube-search"),
     ("04 · AI 영상 관련성 평가", "video-relevance"),
     ("05 · 분석 영상 선별", "video-selection"),
-    ("06-1 · 댓글 수집·전처리", "consumer-analysis"),
-    ("06-2 · AI 소비자 분석", "consumer-ai-analysis"),
+    ("06 · 댓글 수집 및 소비자 인사이트 분석", "consumer-analysis"),
     ("07 · 시장 기회·포지셔닝 전략", "positioning-strategy"),
 ]
 for label, anchor in NAVIGATION:
@@ -958,7 +957,8 @@ if selected_project == "dbc345844047":
 st.markdown("<div style='height:44px'></div>", unsafe_allow_html=True)
 st.divider()
 st.markdown('<div id="consumer-analysis"></div>', unsafe_allow_html=True)
-st.header("06-1 · 댓글 수집·전처리")
+st.header("06 · 댓글 수집 및 소비자 인사이트 분석")
+st.subheader("06-1 · 댓글 수집·전처리")
 with st.container():
     if selected_project == DEMO_ID:
         st.caption(
