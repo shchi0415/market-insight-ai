@@ -1,0 +1,27 @@
+{
+  "review_status": "human_reviewed_draft",
+  "gemini_recommendation": "A",
+  "review_decision": "A와 B의 장점을 결합한 가설 검토",
+  "revised_positioning_hypothesis": "피부 타입에 따른 보습 고민을 고려한 산뜻한 데일리 캡슐 로션",
+  "message_hypothesis": "무거운 보습이 부담스러울 때, 가벼운 수분감을 제안하는 캡슐 로션",
+  "supported_observations": [
+    "보습과 피부 타입 관련 표현의 동시 언급 179건",
+    "보습과 사용감 관련 표현의 동시 언급 51건",
+    "경쟁사 후기 후보의 피부 적합성 및 제형 관련 부정 언급",
+    "자사 영상에서 수분감과 가벼운 사용감 강조"
+  ],
+  "claims_to_avoid_without_validation": [
+    "모든 피부 타입에 적합",
+    "수부지 및 민감성 맞춤형",
+    "저자극 인증 또는 저자극 효능",
+    "경쟁사 대비 우수한 보습력",
+    "메이크업 밀림 방지 효과",
+    "피부결 및 광채 개선 효과 확정"
+  ],
+  "next_validation": [
+    "피부 타입별 실사용 평가",
+    "보습 지속력 및 사용감 평가",
+    "메이크업 호환성 테스트",
+    "포지셔닝 메시지별 구매 의향 비교"
+  ]
+}

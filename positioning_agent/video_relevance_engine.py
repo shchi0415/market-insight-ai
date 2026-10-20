@@ -242,6 +242,10 @@ def run_video_relevance(
         result
     )
 
+    # Record the model requested by this application.
+    # Do not rely on the model returning its own name.
+    result["model"] = model_name
+
     return result
 
 
@@ -964,3 +968,69 @@ def run_and_merge_video_relevance_batches(
         "batch_count": merged["batch_count"],
         "batch_models": merged["batch_models"]
     }
+
+
+def run_batched_video_relevance_safely(
+    api_key,
+    project_dir,
+    model_name="gemini-3.8-flash"
+):
+    """Safely run batched Gemini evaluation for one project."""
+
+    import os
+    from pathlib import Path
+
+    project_dir = Path(project_dir)
+
+    if not project_dir.is_dir():
+        raise ValueError("Project directory does not exist.")
+
+    if not (project_dir / "project_info.json").is_file():
+        raise ValueError("Project metadata is missing.")
+
+    analysis_dir = project_dir / "youtube_analysis"
+    analysis_dir.mkdir(parents=True, exist_ok=True)
+
+    output_path = analysis_dir / "video_relevance_results.json"
+
+    # Use the same lock file as the previous evaluation runner.
+    lock_path = analysis_dir / ".video_relevance.lock"
+
+    if output_path.exists():
+        return {
+            "status": "already_exists",
+            "output_path": str(output_path),
+            "model_calls": 0
+        }
+
+    try:
+        fd = os.open(
+            str(lock_path),
+            os.O_CREAT | os.O_EXCL | os.O_WRONLY,
+            0o600
+        )
+    except FileExistsError:
+        return {
+            "status": "already_running",
+            "model_calls": 0
+        }
+
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            f.write(str(os.getpid()))
+
+        if output_path.exists():
+            return {
+                "status": "already_exists",
+                "output_path": str(output_path),
+                "model_calls": 0
+            }
+
+        return run_and_merge_video_relevance_batches(
+            api_key=api_key,
+            project_dir=project_dir,
+            model_name=model_name
+        )
+
+    finally:
+        lock_path.unlink(missing_ok=True)

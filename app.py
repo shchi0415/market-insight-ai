@@ -196,6 +196,50 @@ if DEMO_SOURCE.exists():
 
 PROJECTS_DIR = DATA_DIR / "projects"
 
+# ===== ONgredients DEMO PROJECT INITIALIZATION =====
+ongredients_manifest_path = (
+    Path(__file__).resolve().parent
+    / "positioning_demo_data"
+    / "ongredients_analysis"
+    / "demo_manifest.json"
+)
+
+if ongredients_manifest_path.is_file():
+    with open(
+        ongredients_manifest_path,
+        encoding="utf-8"
+    ) as f:
+        ongredients_manifest = json.load(f)
+
+    ongredients_id = ongredients_manifest["project_id"]
+    ongredients_project_dir = PROJECTS_DIR / ongredients_id
+    ongredients_project_dir.mkdir(
+        parents=True,
+        exist_ok=True
+    )
+
+    ongredients_info_path = (
+        ongredients_project_dir / "project_info.json"
+    )
+
+    if not ongredients_info_path.exists():
+        ongredients_info_path.write_text(
+            json.dumps(
+                {
+                    "project_id": ongredients_id,
+                    "project_name": ongredients_manifest["project_name"],
+                    "demo_mode": True,
+                    "demo_type": "precomputed_analysis"
+                },
+                ensure_ascii=False,
+                indent=2
+            ),
+            encoding="utf-8"
+        )
+# ===== END ONgredients DEMO PROJECT INITIALIZATION =====
+
+
+
 project_options = {}
 
 if PROJECTS_DIR.exists():
@@ -596,7 +640,7 @@ with st.expander("YouTube 영상 AI 관련성 평가", expanded=False):
     from collections import Counter
 
     from positioning_agent.video_relevance_engine import (
-        run_project_video_relevance_safely
+        run_batched_video_relevance_safely
     )
 
     relevance_dir = CURRENT_DATA_DIR / "youtube_analysis"
@@ -675,10 +719,10 @@ with st.expander("YouTube 영상 AI 관련성 평가", expanded=False):
 
                 else:
                     with st.spinner(
-                        "Gemini가 영상 관련성을 평가하고 있습니다..."
+                        "Gemini가 영상을 15개씩 나누어 평가하고 있습니다..."
                     ):
                         try:
-                            result = run_project_video_relevance_safely(
+                            result = run_batched_video_relevance_safely(
                                 api_key=gemini_key,
                                 project_dir=CURRENT_DATA_DIR
                             )
@@ -2649,3 +2693,15 @@ else:
         "현재 프로젝트에 저장된 YouTube 댓글 "
         "AI 분류 결과가 없습니다."
     )
+
+
+# ===== ONgredients POSITIONING DEMO DASHBOARD =====
+if selected_project == "dbc345844047":
+    st.divider()
+
+    from positioning_agent.positioning_demo_dashboard import (
+        render_positioning_demo_dashboard
+    )
+
+    render_positioning_demo_dashboard(CURRENT_DATA_DIR)
+# ===== END POSITIONING DEMO DASHBOARD =====
