@@ -182,13 +182,22 @@ if manifest_path.is_file():
     demo_folder = PROJECTS_DIR / DEMO_ID
     demo_folder.mkdir(parents=True, exist_ok=True)
     demo_info = demo_folder / "project_info.json"
-    if not demo_info.exists():
-        demo_info.write_text(json.dumps({
+    # Keep the sample project's visible title consistent even when its
+    # project_info.json was created by an earlier deployment.
+    try:
+        existing_demo_info = json.loads(demo_info.read_text(encoding="utf-8")) if demo_info.exists() else {}
+        if not isinstance(existing_demo_info, dict):
+            existing_demo_info = {}
+    except (OSError, ValueError, TypeError):
+        existing_demo_info = {}
+    if existing_demo_info.get("project_name") != "[Sample Analysis]" or not demo_info.exists():
+        existing_demo_info.update({
             "project_id": DEMO_ID,
-            "project_name": manifest.get("project_name", "온그리디언츠 · AI 포지셔닝 분석 DEMO"),
+            "project_name": "[Sample Analysis]",
             "demo_mode": True,
             "demo_type": "precomputed_analysis",
-        }, ensure_ascii=False, indent=2), encoding="utf-8")
+        })
+        demo_info.write_text(json.dumps(existing_demo_info, ensure_ascii=False, indent=2), encoding="utf-8")
 
 project_options = {}
 for folder in sorted(PROJECTS_DIR.iterdir()):
@@ -297,7 +306,8 @@ NAVIGATION = [
 for label, anchor in NAVIGATION:
     st.sidebar.markdown(
         f'<a href="#{anchor}" target="_self" '
-        'style="display:block;padding:6px 10px;text-decoration:none;'
+        'style="display:block;padding:6px 4px;text-decoration:none;'
+        'font-size:0.72rem;letter-spacing:-0.035em;white-space:nowrap;'
         f'border-radius:6px">{label}</a>',
         unsafe_allow_html=True
     )
