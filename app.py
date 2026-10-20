@@ -250,19 +250,7 @@ selected_project = st.sidebar.selectbox(
 )
 CURRENT_DATA_DIR = project_options[selected_project]["path"]
 
-# The input form stores a product_info.json on disk. Reset only when a new
-# browser session begins, not on Streamlit button-triggered reruns.
-# Do not delete any of the precomputed Demo research assets.
-if "_product_input_initialized_projects" not in st.session_state:
-    st.session_state["_product_input_initialized_projects"] = set()
-if selected_project not in st.session_state["_product_input_initialized_projects"]:
-    saved_product_input = CURRENT_DATA_DIR / "product_info.json"
-    if saved_product_input.is_file():
-        try:
-            saved_product_input.unlink()
-        except OSError as exc:
-            st.warning(f"이전 제품 입력값을 초기화하지 못했습니다: {exc}")
-    st.session_state["_product_input_initialized_projects"].add(selected_project)
+# Preserve project-specific product_info.json across refreshes and sessions.
 
 @st.dialog("프로젝트 삭제 확인")
 def confirm_project_deletion():
@@ -623,6 +611,7 @@ else:
     # ===== STEP 9-181: YOUTUBE VIDEO SEARCH UI =====
     st.header("03 · YouTube 영상 검색", anchor="youtube-search")
     with st.container(border=True):
+        st.info("테스트 모드: 일반 프로젝트는 YouTube 영상 검색 결과를 전체 최대 5개로 제한합니다.")
         import json as youtube_json
 
         from positioning_agent.youtube_engine import (
@@ -701,7 +690,7 @@ else:
                                 result = run_project_video_search_safely(
                                     api_key=youtube_key,
                                     project_dir=CURRENT_DATA_DIR,
-                                    max_results=10
+                                    max_results=5
                                 )
 
                                 if result["status"] == "completed":
@@ -1035,6 +1024,54 @@ if selected_project == "dbc345844047":
 
 
 
+
+else:
+    st.header("05 · 분석 영상 선별", anchor="video-selection")
+    with st.container(border=True):
+        st.caption("관련성 평가 결과를 기준으로 Core 영상을 우선하고, 부족하면 Adjacent 영상에서 최대 5개를 선택합니다. 추가 검토·제외 영상은 자동 선정하지 않습니다.")
+        general_dir = CURRENT_DATA_DIR / "youtube_analysis"
+        general_relevance_path = general_dir / "video_relevance_results.json"
+        general_selection_path = general_dir / "selected_videos.json"
+        if general_selection_path.is_file():
+            try:
+                selected_data = json.loads(general_selection_path.read_text(encoding="utf-8"))
+                st.success("영상 선별 결과가 저장되어 있습니다.")
+                st.metric("분석 대상 영상", len(selected_data.get("selected_video_ids", [])))
+                st.dataframe(selected_data.get("selected_videos", []), use_container_width=True, hide_index=True)
+                if not selected_data.get("selected_video_ids"):
+                    st.warning("수집 대상으로 선정된 영상이 없습니다. 관련성 평가 결과를 확인해 주세요.")
+            except (OSError, ValueError, TypeError):
+                st.error("저장된 영상 선별 결과를 읽지 못했습니다.")
+        elif not general_relevance_path.is_file():
+            st.info("먼저 04 · AI 영상 관련성 평가를 완료해 주세요.")
+        elif st.button("분석 대상 영상 선별 실행", key=f"general_select_{selected_project}"):
+            try:
+                from positioning_agent.video_relevance_engine import select_videos_for_collection
+                relevance_payload = json.loads(general_relevance_path.read_text(encoding="utf-8"))
+                relevance_videos = relevance_payload["relevance_result"]["videos"]
+                # Prefer Core irrespective of the order Gemini returned.
+                core = [v for v in relevance_videos if v.get("relevance") == "Core" and v.get("requires_review") is False]
+                adjacent = [v for v in relevance_videos if v.get("relevance") == "Adjacent" and v.get("requires_review") is False]
+                chosen = (core + adjacent)[:5]
+                selected_ids = [v["video_id"] for v in chosen]
+                selection = select_videos_for_collection(relevance_payload["relevance_result"], max_core=5, max_adjacent=5)
+                output = {
+                    "selected_video_ids": selected_ids,
+                    "selected_videos": [{"video_id": v["video_id"], "관련성": v["relevance"]} for v in chosen],
+                    "core_count": sum(v["relevance"] == "Core" for v in chosen),
+                    "adjacent_count": sum(v["relevance"] == "Adjacent" for v in chosen),
+                    "held_count": len(selection["held_video_ids"]),
+                    "excluded_count": len(selection["excluded_video_ids"]),
+                    "method": "core_first_adjacent_second_max_5",
+                }
+                general_dir.mkdir(parents=True, exist_ok=True)
+                general_selection_path.write_text(json.dumps(output, ensure_ascii=False, indent=2), encoding="utf-8")
+                st.rerun()
+            except (OSError, ValueError, TypeError, KeyError) as error:
+                st.error(f"영상 선별 실패: {type(error).__name__}. 저장된 분류 결과를 확인해 주세요.")
+
+
+
 # ===== STEP 06: YOUTUBE COMMENT COLLECTION DEMO =====
 st.markdown("<div style='height:44px'></div>", unsafe_allow_html=True)
 st.divider()
@@ -1155,10 +1192,74 @@ with st.container():
                     st.error("댓글 집계 데이터를 읽지 못했습니다. JSON 구조를 확인해 주세요.")
 
     else:
-        st.info(
-            "새 프로젝트에서의 YouTube 댓글 수집·분석 실행 기능은 "
-            "아직 연결되지 않았습니다."
-        )
+        st.info("테스트 모드: 일반 프로젝트는 최대 5개 영상에서 영상당 댓글 10개까지 수집합니다.")
+        general_dir = CURRENT_DATA_DIR / "youtube_analysis"
+        selection_path = general_dir / "selected_videos.json"
+        comments_path = general_dir / "comments_collection_summary.json"
+        if comments_path.is_file():
+            try:
+                summary = json.loads(comments_path.read_text(encoding="utf-8"))
+                st.success("댓글 수집·전처리 결과가 저장되어 있습니다.")
+                with st.container(border=True):
+                    st.markdown("#### 댓글 수집 현황")
+                    a, b, c = st.columns(3)
+                    a.metric("수집 댓글", f"{summary['collected_count']:,}개")
+                    b.metric("댓글 수집 영상", f"{summary['video_count']:,}개")
+                    c.metric("분석 가능 후보", f"{summary['preprocessing']['analysis_candidate_count']:,}개")
+                with st.container(border=True):
+                    st.markdown("#### 전처리 점검")
+                    st.write(f"중복 제거 후 유효 댓글: {summary['preprocessing']['unique_valid_count']:,}개")
+                    st.write(f"추가 검토·보류: {summary['preprocessing']['review_hold_count']:,}개")
+                    st.caption("길이·한글 문자 수·민감 정보 패턴 기반의 예비 분류입니다. 최종 AI 분석이나 개인정보 익명화 결과가 아닙니다.")
+                st.dataframe(summary.get("videos", []), use_container_width=True, hide_index=True)
+                if summary.get("failed_videos"):
+                    st.warning(f"댓글 접근에 실패한 영상: {len(summary['failed_videos'])}개 (댓글 차단·API 오류 등)")
+            except (OSError, ValueError, TypeError, KeyError):
+                st.error("댓글 수집 결과 파일을 읽을 수 없습니다.")
+        elif not selection_path.is_file():
+            st.info("먼저 05 · 분석 영상 선별을 완료해 주세요.")
+        else:
+            try:
+                video_ids = json.loads(selection_path.read_text(encoding="utf-8")).get("selected_video_ids", [])[:5]
+                if not video_ids:
+                    st.warning("선별된 영상이 없어 댓글을 수집할 수 없습니다.")
+                else:
+                    st.caption(f"선별된 {len(video_ids)}개 영상에서 공개 댓글을 수집합니다. YouTube API 호출이 발생합니다.")
+                    if st.button("YouTube 댓글 수집·전처리 실행", key=f"general_collect_{selected_project}"):
+                        youtube_key = st.secrets.get("YOUTUBE_API_KEY")
+                        if not youtube_key:
+                            st.error("YouTube API 키가 설정되지 않았습니다.")
+                        else:
+                            from positioning_agent.youtube_engine import get_video_comments
+                            from positioning_agent.comment_preprocess import preprocess_comments
+                            collected, failures, rows = [], [], []
+                            with st.spinner("YouTube 댓글을 수집하고 전처리 중입니다..."):
+                                for vid in video_ids:
+                                    try:
+                                        comments = get_video_comments(youtube_key, vid, max_comments=10)
+                                        collected.extend(comments)
+                                        rows.append({"영상 ID": vid, "수집 댓글": len(comments)})
+                                    except Exception as err:
+                                        failures.append({"video_id": vid, "error_type": type(err).__name__})
+                                        rows.append({"영상 ID": vid, "수집 댓글": 0})
+                            if not collected:
+                                st.error("댓글을 수집하지 못했습니다. API 설정·할당량·댓글 공개 여부를 확인해 주세요.")
+                            else:
+                                prep = preprocess_comments(collected)
+                                summary = {"collected_count": len(collected),
+                                           "video_count": sum(row["수집 댓글"] > 0 for row in rows),
+                                           "videos": rows, "preprocessing": prep["summary"],
+                                           "failed_videos": failures,
+                                           "limits": {"max_videos": 5, "max_comments_per_video": 10}}
+                                general_dir.mkdir(parents=True, exist_ok=True)
+                                comments_path.write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
+                                # Store screened candidate comments privately per project for STEP 06-2 later.
+                                candidates_path = general_dir / "comments_analysis_candidates.json"
+                                candidate_rows = prep["analysis_candidates"].to_dict(orient="records")
+                                candidates_path.write_text(json.dumps(candidate_rows, ensure_ascii=False, indent=2), encoding="utf-8")
+                                st.rerun()
+            except (OSError, ValueError, TypeError, KeyError):
+                st.error("선별 영상 데이터를 불러오지 못했습니다.")
 
 
 st.markdown("<div style='height:44px'></div>", unsafe_allow_html=True)
