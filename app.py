@@ -292,13 +292,13 @@ from positioning_agent.product_input_ui import (
     render_product_input
 )
 
-with st.expander("제품 정보 입력 및 확인", expanded=False):
+with st.expander("제품 정보 입력 및 확인", expanded=True):
     render_product_input(CURRENT_DATA_DIR)
 
 
 st.markdown('<div id="youtube-keywords"></div>', unsafe_allow_html=True)
 # ===== STEP 9-164: AUTOMATED YOUTUBE KEYWORDS =====
-with st.expander("YouTube 시장조사 · 검색 키워드", expanded=False):
+with st.expander("YouTube 시장조사 · 검색 키워드", expanded=True):
     import json as keyword_json
     from positioning_agent.keyword_engine import (
         generate_and_select_keywords,
@@ -483,7 +483,7 @@ with st.expander("YouTube 시장조사 · 검색 키워드", expanded=False):
 st.markdown('<div id="youtube-search"></div>', unsafe_allow_html=True)
 # ===== STEP 9-181: YOUTUBE VIDEO SEARCH UI =====
 if selected_project == "dbc345844047":
-    with st.expander("YouTube 영상 자동 검색", expanded=False):
+    with st.expander("YouTube 영상 자동 검색", expanded=True):
         st.caption(
             "시연 모드: 기존 YouTube 검색 결과를 불러옵니다. "
             "실제 API는 호출하지 않습니다."
@@ -529,7 +529,7 @@ if selected_project == "dbc345844047":
 
 else:
     # ===== STEP 9-181: YOUTUBE VIDEO SEARCH UI =====
-    with st.expander("YouTube 영상 자동 검색", expanded=False):
+    with st.expander("YouTube 영상 자동 검색", expanded=True):
         import json as youtube_json
 
         from positioning_agent.youtube_engine import (
@@ -647,7 +647,7 @@ else:
 
 st.markdown('<div id="video-relevance"></div>', unsafe_allow_html=True)
 # ===== STEP 9-202: VIDEO RELEVANCE UI =====
-with st.expander("YouTube 영상 AI 관련성 평가", expanded=False):
+with st.expander("YouTube 영상 AI 관련성 평가", expanded=True):
     import json as relevance_json
     from collections import Counter
 
@@ -864,7 +864,7 @@ with st.expander("YouTube 영상 AI 관련성 평가", expanded=False):
 st.markdown('<div id="video-selection"></div>', unsafe_allow_html=True)
 # ===== ONgredients DEMO: YOUTUBE VIDEO SELECTION =====
 if selected_project == "dbc345844047":
-    with st.expander("YouTube 분석 대상 영상 선별", expanded=False):
+    with st.expander("YouTube 분석 대상 영상 선별", expanded=True):
         st.caption(
             "시연 모드: 기존 규칙 기반 영상 선별 결과를 "
             "불러옵니다. API 호출은 없습니다."
@@ -925,7 +925,7 @@ if selected_project == "dbc345844047":
 
 # ===== CONSUMER INSIGHTS: NEXT DEVELOPMENT STAGE =====
 st.markdown('<div id="consumer-analysis"></div>', unsafe_allow_html=True)
-with st.expander("YouTube 댓글 수집 및 소비자 분석", expanded=False):
+with st.expander("YouTube 댓글 수집 및 소비자 분석", expanded=True):
     if selected_project == DEMO_ID:
         if st.session_state.get("ongredients_demo_selection_revealed", False):
             st.info("댓글 수집 및 소비자 니즈 분석 시연은 다음 개발 단계에서 연결됩니다. "
