@@ -14,7 +14,7 @@ KEYWORD_CATEGORIES = (
 SEARCH_URL = "https://www.googleapis.com/youtube/v3/search"
 
 
-def search_videos(api_key, keyword_data, max_results=10):
+def search_videos(api_key, keyword_data, max_results=5):
     """Search YouTube and deduplicate videos across keywords."""
 
     if not api_key:
@@ -26,6 +26,8 @@ def search_videos(api_key, keyword_data, max_results=10):
     if not 1 <= max_results <= 50:
         raise ValueError("max_results must be between 1 and 50.")
 
+    # General-project safety limit: no more than five unique videos in total.
+    max_results = min(max_results, 5)
     results = {}
 
     for category in KEYWORD_CATEGORIES:
@@ -35,6 +37,8 @@ def search_videos(api_key, keyword_data, max_results=10):
             raise ValueError(f"{category} must be a list.")
 
         for keyword in keywords:
+            if len(results) >= 5:
+                return list(results.values())
             if not isinstance(keyword, str) or not keyword.strip():
                 continue
 
@@ -45,7 +49,7 @@ def search_videos(api_key, keyword_data, max_results=10):
                     "part": "snippet",
                     "q": keyword,
                     "type": "video",
-                    "maxResults": max_results,
+                    "maxResults": max(1, min(max_results, 5 - len(results))),
                     "regionCode": "KR",
                     "relevanceLanguage": "ko"
                 },
@@ -64,12 +68,15 @@ def search_videos(api_key, keyword_data, max_results=10):
                 snippet = item.get("snippet", {})
 
                 if video_id not in results:
+                    if len(results) >= 5:
+                        return list(results.values())
                     results[video_id] = {
                         "video_id": video_id,
                         "title": snippet.get("title", ""),
                         "description": snippet.get("description", ""),
                         "published_at": snippet.get("publishedAt", ""),
                         "channel_id": snippet.get("channelId", ""),
+                        "channel_title": snippet.get("channelTitle", ""),
                         "matched_keywords": [],
                         "matched_categories": []
                     }
@@ -124,6 +131,7 @@ def get_video_details(api_key, video_ids):
             results.append({
                 "video_id": item["id"],
                 "title": snippet.get("title", ""),
+                "channel_title": snippet.get("channelTitle", ""),
                 "published_at": snippet.get("publishedAt", ""),
                 "default_language": snippet.get("defaultLanguage"),
                 "view_count": int(statistics.get("viewCount", 0)),
@@ -141,7 +149,7 @@ def get_video_details(api_key, video_ids):
 COMMENTS_URL = "https://www.googleapis.com/youtube/v3/commentThreads"
 
 
-def get_video_comments(api_key, video_id, max_comments=30):
+def get_video_comments(api_key, video_id, max_comments=10):
     """Collect public top-level comments via the YouTube Data API."""
 
     if not api_key:
@@ -153,6 +161,8 @@ def get_video_comments(api_key, video_id, max_comments=30):
     if not isinstance(max_comments, int) or not 1 <= max_comments <= 100:
         raise ValueError("max_comments must be between 1 and 100.")
 
+    # Enforce the per-video ceiling even if callers request more.
+    max_comments = min(max_comments, 10)
     response = requests.get(
         COMMENTS_URL,
         params={
@@ -333,11 +343,11 @@ def run_project_video_search(
     if not api_key:
         raise ValueError("YouTube API key is missing.")
 
-    # One search.list request for each keyword.
+    # Search stops once five unique videos have been collected.
     videos = search_videos(
         api_key=api_key,
         keyword_data=search_keywords,
-        max_results=max_results
+        max_results=min(max_results, 5)
     )
 
     saved_path = save_video_search_results(
@@ -358,7 +368,7 @@ def run_project_video_search(
 def run_project_video_search_safely(
     api_key,
     project_dir,
-    max_results=10
+    max_results=5
 ):
     """Prevent concurrent YouTube searches for the same project."""
 
