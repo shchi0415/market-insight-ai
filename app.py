@@ -262,13 +262,13 @@ if st.sidebar.button("🗑️ 프로젝트 삭제", disabled=(selected_project =
 st.sidebar.divider()
 st.sidebar.markdown("### Navigation")
 NAVIGATION = [
-    ("01 · 제품 정보", "product-input"),
-    ("02 · YouTube 검색 키워드", "youtube-keywords"),
-    ("03 · YouTube 영상 검색", "youtube-search"),
-    ("04 · 영상 AI 관련성 평가", "video-relevance"),
-    ("05 · 분석 대상 영상 선별", "video-selection"),
-    ("06 · 소비자 댓글 분석", "consumer-analysis"),
-    ("07 · AI 포지셔닝 전략", "positioning-strategy"),
+    ("01 · 제품 정보 입력 및 확인", "product-input"),
+    ("02 · YouTube 시장조사 · 검색 키워드", "youtube-keywords"),
+    ("03 · YouTube 영상 자동 검색", "youtube-search"),
+    ("04 · YouTube 영상 AI 관련성 평가", "video-relevance"),
+    ("05 · YouTube 분석 대상 영상 선별", "video-selection"),
+    ("06 · YouTube 댓글 수집 및 소비자 분석", "consumer-analysis"),
+    ("07 · AI 시장 기회 및 포지셔닝 전략", "positioning-strategy"),
 ]
 for label, anchor in NAVIGATION:
     st.sidebar.markdown(
@@ -292,13 +292,19 @@ from positioning_agent.product_input_ui import (
     render_product_input
 )
 
-with st.expander("제품 정보 입력 및 확인", expanded=True):
+st.header("01 · 제품 정보 입력 및 확인")
+
+st.divider()
+
+with st.container():
     render_product_input(CURRENT_DATA_DIR)
 
 
 st.markdown('<div id="youtube-keywords"></div>', unsafe_allow_html=True)
 # ===== STEP 9-164: AUTOMATED YOUTUBE KEYWORDS =====
-with st.expander("YouTube 시장조사 · 검색 키워드", expanded=True):
+st.header("02 · YouTube 시장조사 · 검색 키워드")
+st.divider()
+with st.container():
     import json as keyword_json
     from positioning_agent.keyword_engine import (
         generate_and_select_keywords,
@@ -483,7 +489,9 @@ with st.expander("YouTube 시장조사 · 검색 키워드", expanded=True):
 st.markdown('<div id="youtube-search"></div>', unsafe_allow_html=True)
 # ===== STEP 9-181: YOUTUBE VIDEO SEARCH UI =====
 if selected_project == "dbc345844047":
-    with st.expander("YouTube 영상 자동 검색", expanded=True):
+    st.header("03 · YouTube 영상 자동 검색")
+    st.divider()
+    with st.container():
         st.caption(
             "시연 모드: 기존 YouTube 검색 결과를 불러옵니다. "
             "실제 API는 호출하지 않습니다."
@@ -529,7 +537,9 @@ if selected_project == "dbc345844047":
 
 else:
     # ===== STEP 9-181: YOUTUBE VIDEO SEARCH UI =====
-    with st.expander("YouTube 영상 자동 검색", expanded=True):
+    st.header("03 · YouTube 영상 자동 검색")
+    st.divider()
+    with st.container():
         import json as youtube_json
 
         from positioning_agent.youtube_engine import (
@@ -647,7 +657,9 @@ else:
 
 st.markdown('<div id="video-relevance"></div>', unsafe_allow_html=True)
 # ===== STEP 9-202: VIDEO RELEVANCE UI =====
-with st.expander("YouTube 영상 AI 관련성 평가", expanded=True):
+st.header("04 · YouTube 영상 AI 관련성 평가")
+st.divider()
+with st.container():
     import json as relevance_json
     from collections import Counter
 
@@ -864,7 +876,9 @@ with st.expander("YouTube 영상 AI 관련성 평가", expanded=True):
 st.markdown('<div id="video-selection"></div>', unsafe_allow_html=True)
 # ===== ONgredients DEMO: YOUTUBE VIDEO SELECTION =====
 if selected_project == "dbc345844047":
-    with st.expander("YouTube 분석 대상 영상 선별", expanded=True):
+    st.header("05 · YouTube 분석 대상 영상 선별")
+    st.divider()
+    with st.container():
         st.caption(
             "시연 모드: 기존 규칙 기반 영상 선별 결과를 "
             "불러옵니다. API 호출은 없습니다."
@@ -925,7 +939,9 @@ if selected_project == "dbc345844047":
 
 # ===== CONSUMER INSIGHTS: NEXT DEVELOPMENT STAGE =====
 st.markdown('<div id="consumer-analysis"></div>', unsafe_allow_html=True)
-with st.expander("YouTube 댓글 수집 및 소비자 분석", expanded=True):
+st.header("06 · YouTube 댓글 수집 및 소비자 분석")
+st.divider()
+with st.container():
     if selected_project == DEMO_ID:
         if st.session_state.get("ongredients_demo_selection_revealed", False):
             st.info("댓글 수집 및 소비자 니즈 분석 시연은 다음 개발 단계에서 연결됩니다. "
@@ -937,7 +953,7 @@ with st.expander("YouTube 댓글 수집 및 소비자 분석", expanded=True):
                 "이전 분석 결과가 있는 경우 후속 단계에서 연결할 수 있습니다.")
 
 st.markdown('<div id="positioning-strategy"></div>', unsafe_allow_html=True)
-st.header("AI 시장 기회 및 포지셔닝 전략")
+st.header("07 · AI 시장 기회 및 포지셔닝 전략")
 # ===== POSITIONING AGENT V2 DASHBOARD =====
 # Existing strategy dashboard remains unchanged.
 
