@@ -1533,32 +1533,48 @@ with st.container(border=True):
                 order = [("긍정", "positive"), ("중립", "neutral"), ("부정", "negative"),
                          ("혼합", "mixed"), ("기타", "not_applicable")]
                 sentiment_rows = [{"감성": ko, "댓글 수": int(result.get("sentiment", {}).get(en, 0))} for ko, en in order]
-                # Use the same ordered, explicitly numeric records for the chart and table.
-                # If visual rendering fails, keep the saved results visible without an API retry.
-                st.dataframe(sentiment_rows, use_container_width=True, hide_index=True)
+                # Render chart first, then table, using identical ordered rows.
                 try:
-                    import pandas as pd
-                    sentiment_df = pd.DataFrame(sentiment_rows)
-                    sentiment_df["댓글 수"] = pd.to_numeric(sentiment_df["댓글 수"], errors="coerce").fillna(0).astype(int)
-                    st.bar_chart(sentiment_df.set_index("감성")[["댓글 수"]], horizontal=True, color="#80C4F6")
+                    sentiment_order = [row["감성"] for row in sentiment_rows]
+                    chart = (
+                        alt.Chart(alt.Data(values=sentiment_rows))
+                        .mark_bar(color="#80C4F6", size=24)
+                        .encode(
+                            y=alt.Y("감성:N", sort=sentiment_order, title="감성", axis=alt.Axis(labelAngle=0)),
+                            x=alt.X("댓글 수:Q", title="댓글 수"),
+                            tooltip=["감성:N", "댓글 수:Q"],
+                        )
+                        .properties(height=max(200, len(sentiment_rows) * 42))
+                    )
+                    st.altair_chart(chart, use_container_width=True)
                 except Exception as chart_error:
                     import logging
                     logging.getLogger(__name__).exception("STEP 06-2 sentiment chart rendering failed")
                     st.warning(f"감성 그래프를 표시하지 못했습니다 ({type(chart_error).__name__}). 표의 결과는 정상적으로 확인할 수 있습니다.")
+                st.dataframe(sentiment_rows, use_container_width=True, hide_index=True)
                 st.caption("전체 댓글의 감성입니다. 제품 만족도나 구매 후기 비율을 뜻하지 않습니다.")
                 st.markdown("#### 소비자 니즈 관련 주요 주제 (탐색적)")
                 topic_rows = [{"주제": k, "언급 댓글 수": v} for k,v in result.get("need_topics", {}).items()]
                 if topic_rows:
-                    st.dataframe(topic_rows, use_container_width=True, hide_index=True)
                     try:
-                        import pandas as pd
-                        topic_df = pd.DataFrame(topic_rows[:15])
-                        topic_df["언급 댓글 수"] = pd.to_numeric(topic_df["언급 댓글 수"], errors="coerce").fillna(0).astype(int)
-                        st.bar_chart(topic_df.set_index("주제")[["언급 댓글 수"]], horizontal=True, color="#80C4F6")
+                        chart_rows = [{"주제": row["주제"], "언급 댓글 수": int(row["언급 댓글 수"])} for row in topic_rows]
+                        topic_order = [row["주제"] for row in chart_rows]
+                        topic_chart = (
+                            alt.Chart(alt.Data(values=chart_rows))
+                            .mark_bar(color="#80C4F6", size=24)
+                            .encode(
+                                y=alt.Y("주제:N", sort=topic_order, title="주제", axis=alt.Axis(labelAngle=0)),
+                                x=alt.X("언급 댓글 수:Q", title="언급 댓글 수"),
+                                tooltip=["주제:N", "언급 댓글 수:Q"],
+                            )
+                            .properties(height=max(220, len(chart_rows) * 38))
+                        )
+                        st.altair_chart(topic_chart, use_container_width=True)
                     except Exception as chart_error:
                         import logging
                         logging.getLogger(__name__).exception("STEP 06-2 needs chart rendering failed")
                         st.warning(f"니즈 그래프를 표시하지 못했습니다 ({type(chart_error).__name__}). 표의 결과는 정상적으로 확인할 수 있습니다.")
+                    st.dataframe(topic_rows, use_container_width=True, hide_index=True)
                 else:
                     st.info("명시적으로 확인된 소비자 니즈 주제가 없습니다.")
                 st.caption("AI가 댓글의 표현을 그대로 요약하므로 유사 주제가 중복될 수 있습니다. 전체 시장 비율로 해석할 수 없습니다.")
