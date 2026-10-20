@@ -61,9 +61,9 @@ def render_product_input(project_dir):
         for key in example_values:
             st.session_state.pop(key, None)
         st.session_state["_product_form_project"] = project_key
-
-if project_dir.name == "dbc345844047":
-    if st.button("[예시 정보 불러오기]"):
+        
+    if project_dir.name == "dbc345844047":
+        if st.button("[예시 정보 불러오기]"):
         st.session_state.update(example_values)
         st.rerun()
 
